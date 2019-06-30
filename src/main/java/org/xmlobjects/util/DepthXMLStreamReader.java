@@ -31,13 +31,13 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     @Override
     public int next() throws XMLStreamException {
-        int next = reader.next();
-        if (next == START_ELEMENT)
+        int event = reader.next();
+        if (event == START_ELEMENT)
             depth++;
-        else if (next == END_ELEMENT)
+        else if (event == END_ELEMENT)
             depth--;
 
-        return next;
+        return event;
     }
 
     @Override
@@ -57,18 +57,18 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     @Override
     public int nextTag() throws XMLStreamException {
-        int eventType = next();
-        while (eventType == XMLStreamConstants.CHARACTERS && isWhiteSpace()
-                || eventType == XMLStreamConstants.CDATA && isWhiteSpace()
-                || eventType == XMLStreamConstants.SPACE
-                || eventType == XMLStreamConstants.PROCESSING_INSTRUCTION
-                || eventType == XMLStreamConstants.COMMENT)
-            eventType = next();
+        int event = next();
+        while (event == XMLStreamConstants.CHARACTERS && isWhiteSpace()
+                || event == XMLStreamConstants.CDATA && isWhiteSpace()
+                || event == XMLStreamConstants.SPACE
+                || event == XMLStreamConstants.PROCESSING_INSTRUCTION
+                || event == XMLStreamConstants.COMMENT)
+            event = next();
 
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT)
+        if (event != XMLStreamConstants.START_ELEMENT && event != XMLStreamConstants.END_ELEMENT)
             throw new XMLStreamException("expected start or end tag", getLocation());
 
-        return eventType;
+        return event;
     }
 
     @Override
