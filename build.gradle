@@ -1,0 +1,16 @@
+plugins {
+    id 'java-library'
+}
+
+group 'org.xml-objects'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    annotationProcessor 'org.atteo.classindex:classindex:3.6'
+}
