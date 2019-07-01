@@ -13,4 +13,5 @@ repositories {
 
 dependencies {
     annotationProcessor 'org.atteo.classindex:classindex:3.6'
+    implementation 'org.atteo.classindex:classindex:3.6'
 }
