@@ -7,10 +7,12 @@ import org.xmlobjects.annotation.XMLElements;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.serializer.ObjectSerializer;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,13 +31,43 @@ public class XMLObjectContext {
 
     public static XMLObjectContext newInstance(ClassLoader classLoader) throws XMLObjectException {
         XMLObjectContext context = new XMLObjectContext();
-        context.loadObjectBuilders(classLoader);
+        context.loadBuilders(classLoader);
         context.loadObjectSerializers(classLoader);
 
         return context;
     }
 
-    private void loadObjectBuilders(ClassLoader classLoader) throws XMLObjectException {
+    public XMLObjectContext registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName) throws XMLObjectException {
+        registerBuilder(builder,namespaceURI,localName, false);
+        return this;
+    }
+
+    public ObjectBuilder<?> getBuilder(String namespaceURI, String localName) {
+        return builders.getOrDefault(namespaceURI, Collections.emptyMap()).get(localName);
+    }
+
+    public ObjectBuilder<?> getBuilder(String localName) {
+        return getBuilder(XMLConstants.NULL_NS_URI, localName);
+    }
+
+    public ObjectBuilder<?> getBuilder(QName name) {
+        return getBuilder(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    public XMLObjectContext registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectException {
+        registerSerializer(serializer,objectType,namespaceURI,false);
+        return this;
+    }
+
+    public ObjectSerializer<?> getSerializer(Class<?> objectType, String namespaceURI) {
+        return serializers.getOrDefault(objectType.getName(), Collections.emptyMap()).get(namespaceURI);
+    }
+
+    public ObjectSerializer<?> getSerializer(Class<?> objectType) {
+        return serializers.getOrDefault(objectType.getName(), Collections.emptyMap()).get(XMLConstants.NULL_NS_URI);
+    }
+
+    private void loadBuilders(ClassLoader classLoader) throws XMLObjectException {
         for (Class<? extends ObjectBuilder> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
                 .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
@@ -45,22 +77,22 @@ public class XMLObjectContext {
             boolean isSetElements = type.isAnnotationPresent(XMLElements.class);
 
             if (isSetElement && isSetElements)
-                throw new XMLObjectException("The builder " + type.getTypeName() + " uses both @XMLElement and @XMLElements");
+                throw new XMLObjectException("The builder " + type.getName() + " uses both @XMLElement and @XMLElements");
 
             ObjectBuilder<?> builder;
             try {
                 builder = type.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new XMLObjectException("The builder " + type.getTypeName() + " lacks a default constructor", e);
+                throw new XMLObjectException("The builder " + type.getName() + " lacks a default constructor", e);
             }
 
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
-                registerObjectBuilder(builder, element.namespaceURI(), element.name(), true);
+                registerBuilder(builder, element.namespaceURI(), element.name(), true);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
                 for (XMLElement element : elements.value())
-                    registerObjectBuilder(builder, element.namespaceURI(), element.name(), true);
+                    registerBuilder(builder, element.namespaceURI(), element.name(), true);
             }
         }
     }
@@ -75,47 +107,47 @@ public class XMLObjectContext {
             boolean isSetElements = type.isAnnotationPresent(XMLElements.class);
 
             if (isSetElement && isSetElements)
-                throw new XMLObjectException("The serializer " + type.getTypeName() + " uses both @XMLElement and @XMLElements");
+                throw new XMLObjectException("The serializer " + type.getName() + " uses both @XMLElement and @XMLElements");
 
             ObjectSerializer<?> serializer;
             try {
                 serializer = type.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                throw new XMLObjectException("The serializer " + type.getTypeName() + " lacks a default constructor", e);
+                throw new XMLObjectException("The serializer " + type.getName() + " lacks a default constructor", e);
             }
 
-            Class<?> objectType = getSerializedObjectType(serializer);
+            Class<?> objectType = getObjectType(serializer);
             if (objectType == null)
-                throw new XMLObjectException("Failed to retrieve object type of serializer " + type.getTypeName());
+                throw new XMLObjectException("Failed to retrieve object type of serializer " + type.getName());
 
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
-                registerObjectSerializer(serializer, objectType, element.namespaceURI(), true);
+                registerSerializer(serializer, objectType, element.namespaceURI(), true);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
                 for (XMLElement element : elements.value())
-                    registerObjectSerializer(serializer, objectType, element.namespaceURI(), true);
+                    registerSerializer(serializer, objectType, element.namespaceURI(), true);
             }
         }
     }
 
-    private void registerObjectBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectException {
+    private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectException {
         ObjectBuilder<?> current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, builder);
         if (current != null && failOnDuplicates)
             throw new XMLObjectException("Two builders are registered for the same XML element '" +
                     new QName(namespaceURI, localName) + "': " +
-                    builder.getClass().getTypeName() + " and " + current.getClass().getTypeName());
+                    builder.getClass().getName() + " and " + current.getClass().getName());
     }
 
-    private void registerObjectSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectException {
+    private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectException {
         ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new HashMap<>()).put(namespaceURI, serializer);
         if (current != null && failOnDuplicates)
             throw new XMLObjectException("Two serializers are registered for the same object type '" +
-                    objectType.getTypeName() + "': " +
-                    serializer.getClass().getTypeName() + " and " + current.getClass().getTypeName());
+                    objectType.getName() + "': " +
+                    serializer.getClass().getName() + " and " + current.getClass().getName());
     }
 
-    private static Class<?> getSerializedObjectType(ObjectSerializer<?> parent) throws XMLObjectException {
+    private static Class<?> getObjectType(ObjectSerializer<?> parent) throws XMLObjectException {
         try {
             Class<?> clazz = parent.getClass();
             Class<?>  objectType = null;
@@ -136,7 +168,7 @@ public class XMLObjectContext {
 
             return objectType;
         } catch (Exception e) {
-            throw new XMLObjectException("Failed to retrieve object type of serializer " + parent.getClass().getTypeName(), e);
+            throw new XMLObjectException("Failed to retrieve object type of serializer " + parent.getClass().getName(), e);
         }
     }
 
