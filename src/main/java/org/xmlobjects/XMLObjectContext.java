@@ -64,7 +64,7 @@ public class XMLObjectContext {
     }
 
     public ObjectSerializer<?> getSerializer(Class<?> objectType) {
-        return serializers.getOrDefault(objectType.getName(), Collections.emptyMap()).get(XMLConstants.NULL_NS_URI);
+        return getSerializer(objectType, XMLConstants.NULL_NS_URI);
     }
 
     private void loadBuilders(ClassLoader classLoader) throws XMLObjectException {
