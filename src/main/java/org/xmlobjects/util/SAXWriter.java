@@ -306,7 +306,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             }
 
             if (target == null || data == null)
-                throw new SAXException("PI target cannot be null");
+                throw new SAXException("PI target cannot be null.");
 
             writer.write("<?");
             writer.write(target);
@@ -391,7 +391,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             if (prefix == null) {
                 prefix = getReportedPrefix(namespaceURI);
                 if (prefix == null)
-                    throw new IllegalStateException("namespace URI " + namespaceURI + " is not bound to a prefix");
+                    throw new IllegalStateException("Namespace URI " + namespaceURI + " is not bound to a prefix.");
 
                 writeLocalNS = true;
             }
@@ -575,7 +575,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             }
 
             if (data == null)
-                throw new SAXException("comment target cannot be null");
+                throw new SAXException("Comment target cannot be null.");
 
             for (String line : data) {
                 if (line == null)

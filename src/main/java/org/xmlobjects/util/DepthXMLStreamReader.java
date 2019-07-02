@@ -13,7 +13,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     private int depth;
 
     public DepthXMLStreamReader(XMLStreamReader reader) {
-        this.reader = Objects.requireNonNull(reader, "XML stream reader must not be null");
+        this.reader = Objects.requireNonNull(reader, "XML stream reader must not be null.");
     }
 
     public XMLStreamReader getReader() {
@@ -66,7 +66,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
             event = next();
 
         if (event != XMLStreamConstants.START_ELEMENT && event != XMLStreamConstants.END_ELEMENT)
-            throw new XMLStreamException("expected start or end tag", getLocation());
+            throw new XMLStreamException("Expected start or end tag.", getLocation());
 
         return event;
     }
