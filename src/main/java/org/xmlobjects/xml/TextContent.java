@@ -1,79 +1,299 @@
 package org.xmlobjects.xml;
 
+import org.xmlobjects.XMLObjectContext;
+
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TextContent {
-    private String content;
+    private static final TextContent EMPTY = new TextContent("");
 
+    private String content;
+    private String formattedContent;
     private Object value;
-    private String trimmed;
 
     public TextContent(String content) {
         this.content = Objects.requireNonNull(content, "Content must not be null.");
     }
 
-    public TextContent trim() {
-        content = content.trim();
+    public static TextContent empty() {
+        return EMPTY;
+    }
+
+    public TextContent format() {
+        content = format(content);
         return this;
     }
 
-    public TextContent removeNewLines() {
-        content = removeNewLines(content);
-        return this;
+    public String get() {
+        return isPresent() ? content : null;
     }
 
-    public boolean isBoolean() {
-        if ("true".equals(trimmedContent())
-                || "1".equals(trimmedContent()))
-            value = Boolean.TRUE;
-        else if ("false".equals(trimmedContent())
-                || "0".equals(trimmedContent()))
-            value = Boolean.FALSE;
+    public boolean isPresent() {
+        return !content.isEmpty();
+    }
 
-        return value instanceof Boolean;
+    public boolean isEmpty() {
+        return content.isEmpty();
+    }
+
+    public void ifPresent(Consumer<String> action) {
+        if (isPresent())
+            action.accept(content);
+    }
+
+    public TextContent filter(Predicate<TextContent> predicate) {
+        return predicate.test(this) ? this : empty();
     }
 
     public Boolean getAsBoolean() {
-        return isBoolean() ? (Boolean) value : null;
+        if (value instanceof Boolean)
+            return (Boolean) value;
+        else if ("true".equals(formattedContent())
+                || "1".equals(formattedContent()))
+            return setValue(Boolean.TRUE);
+        else if ("false".equals(formattedContent())
+                || "0".equals(formattedContent()))
+            return setValue(Boolean.FALSE);
+        else
+            return setValue(null);
     }
 
-    public boolean isDouble() {
-        try {
-            value = Double.parseDouble(trimmedContent());
-        } catch (NumberFormatException e) {
-            //
-        }
+    public boolean isBoolean() {
+        return getAsBoolean() != null;
+    }
 
-        return value instanceof Double;
+    public void ifBoolean(Consumer<Boolean> action) {
+        if (isBoolean())
+            action.accept(getAsBoolean());
     }
 
     public Double getAsDouble() {
-        return isDouble() ? (Double) value : null;
+        if (value instanceof Double)
+            return (Double) value;
+        else {
+            try {
+                return setValue(Double.parseDouble(formattedContent()));
+            } catch (NumberFormatException e) {
+                return setValue(null);
+            }
+        }
     }
 
-    public boolean isInteger() {
-        try {
-            value = Integer.parseInt(trimmedContent());
-        } catch (NumberFormatException e) {
-            //
-        }
+    public boolean isDouble() {
+        return getAsDouble() != null;
+    }
 
-        return value instanceof Integer;
+    public void ifDouble(Consumer<Double> action) {
+        if (isDouble())
+            action.accept(getAsDouble());
     }
 
     public Integer getAsInteger() {
-        return isInteger() ? (Integer) value : null;
+        if (value instanceof Integer)
+            return (Integer) value;
+        else {
+            try {
+                return setValue(Integer.parseInt(formattedContent()));
+            } catch (NumberFormatException e) {
+                return setValue(null);
+            }
+        }
     }
 
-    private String removeNewLines(String value) {
-        return value.replaceAll("\\R", "").replaceAll("\\s+", " ");
+    public boolean isInteger() {
+        return getAsInteger() != null;
     }
 
-    private String trimmedContent() {
-        if (trimmed == null)
-            trimmed = removeNewLines(content.trim());
+    public void ifInteger(Consumer<Integer> action) {
+        if (isInteger())
+            action.accept(getAsInteger());
+    }
 
-        return trimmed;
+    public Duration getAsDuration() {
+        if (value instanceof Duration)
+            return (Duration) value;
+        else {
+            try {
+                return setValue(XMLObjectContext.XML_TYPE_FACTORY.newDuration(formattedContent()));
+            } catch (Throwable e) {
+                return setValue(null);
+            }
+        }
+    }
+
+    public boolean isDuration() {
+        return getAsDuration() != null;
+    }
+
+    public void ifDuration(Consumer<Duration> action) {
+        if (isDuration())
+            action.accept(getAsDuration());
+    }
+
+    public OffsetDateTime getAsDateTime() {
+        return getAsOffsetDateTime("dateTime");
+    }
+
+    public boolean isDateTime() {
+        return getAsDateTime() != null;
+    }
+
+    public void ifDateTime(Consumer<OffsetDateTime> action) {
+        if (isDateTime())
+            action.accept(getAsDateTime());
+    }
+
+    public OffsetDateTime getAsTime() {
+        return getAsOffsetDateTime("time");
+    }
+
+    public boolean isTime() {
+        return getAsTime() != null;
+    }
+
+    public void ifTime(Consumer<OffsetDateTime> action) {
+        if (isTime())
+            action.accept(getAsTime());
+    }
+
+    public OffsetDateTime getAsDate() {
+        return getAsOffsetDateTime("date");
+    }
+
+    public boolean isDate() {
+        return getAsDate() != null;
+    }
+
+    public void ifDate(Consumer<OffsetDateTime> action) {
+        if (isDate())
+            action.accept(getAsDate());
+    }
+
+    public OffsetDateTime getAsGYearMonth() {
+        return getAsOffsetDateTime("gYearMonth");
+    }
+
+    public boolean isGYearMonth() {
+        return getAsGYearMonth() != null;
+    }
+
+    public void ifGYearMonth(Consumer<OffsetDateTime> action) {
+        if (isGYearMonth())
+            action.accept(getAsGYearMonth());
+    }
+
+    public OffsetDateTime getAsGMonthDay() {
+        return getAsOffsetDateTime("gMonthDay");
+    }
+
+    public boolean isGMonthDay() {
+        return getAsGMonthDay() != null;
+    }
+
+    public void ifGMonthDay(Consumer<OffsetDateTime> action) {
+        if (isGMonthDay())
+            action.accept(getAsGMonthDay());
+    }
+
+    public OffsetDateTime getAsGDay() {
+        return getAsOffsetDateTime("gDay");
+    }
+
+    public boolean isGDay() {
+        return getAsGDay() != null;
+    }
+
+    public void isGDay(Consumer<OffsetDateTime> action) {
+        if (isGDay())
+            action.accept(getAsGDay());
+    }
+
+    public OffsetDateTime getAsGMonth() {
+        return getAsOffsetDateTime("gMonth");
+    }
+
+    public boolean isGMonth() {
+        return getAsGMonth() != null;
+    }
+
+    public void isGMonth(Consumer<OffsetDateTime> action) {
+        if (isGMonth())
+            action.accept(getAsGMonth());
+    }
+
+    public OffsetDateTime getAsGYear() {
+        return getAsOffsetDateTime("gYear");
+    }
+
+    public boolean isGYear() {
+        return getAsGYear() != null;
+    }
+
+    public void isGYear(Consumer<OffsetDateTime> action) {
+        if (isGYear())
+            action.accept(getAsGYear());
+    }
+
+    private OffsetDateTime getAsOffsetDateTime(String localName) {
+        if (value instanceof XMLGregorianCalendar && ((XMLGregorianCalendar) value).getXMLSchemaType().getLocalPart().equals(localName))
+            return toOffsetDateTime((XMLGregorianCalendar) value);
+        else {
+            OffsetDateTime dateTime = null;
+            try {
+                XMLGregorianCalendar calendar = XMLObjectContext.XML_TYPE_FACTORY.newXMLGregorianCalendar(formattedContent());
+                setValue(calendar);
+                if (calendar.getXMLSchemaType().getLocalPart().equals(localName))
+                    dateTime = toOffsetDateTime(calendar);
+            } catch (Throwable e) {
+                setValue(null);
+            }
+
+            return dateTime;
+        }
+    }
+
+    private OffsetDateTime toOffsetDateTime(XMLGregorianCalendar calendar) {
+        int day = calendar.getDay();
+        int month = calendar.getMonth();
+        int year = calendar.getYear();
+        int hour = calendar.getHour();
+        int minute = calendar.getMinute();
+        int second = calendar.getSecond();
+        int millisecond = calendar.getMillisecond();
+        int offset = calendar.getTimezone();
+
+        return OffsetDateTime.of(
+                year != DatatypeConstants.FIELD_UNDEFINED ? year : 0,
+                month != DatatypeConstants.FIELD_UNDEFINED ? month : 1,
+                day != DatatypeConstants.FIELD_UNDEFINED ? day : 1,
+                hour != DatatypeConstants.FIELD_UNDEFINED ? hour : 0,
+                minute != DatatypeConstants.FIELD_UNDEFINED ? minute : 0,
+                second != DatatypeConstants.FIELD_UNDEFINED ? second : 0,
+                millisecond != DatatypeConstants.FIELD_UNDEFINED ? millisecond : 0,
+                ZoneOffset.ofHours(offset != DatatypeConstants.FIELD_UNDEFINED ? offset / 60 : 0));
+    }
+
+    private <T> T setValue(T value) {
+        this.value = value;
+        return value;
+    }
+
+    private String format(String value) {
+        return value.trim().replaceAll("\\R", " ");
+    }
+
+    private String formattedContent() {
+        if (formattedContent == null)
+            formattedContent = format(content);
+
+        return formattedContent;
     }
 
     @Override
