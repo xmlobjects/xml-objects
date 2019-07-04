@@ -8,6 +8,8 @@ import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.serializer.ObjectSerializer;
 
 import javax.xml.XMLConstants;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,8 +20,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class XMLObjectContext {
+    public static final DatatypeFactory XML_TYPE_FACTORY;
+
     private final ConcurrentHashMap<String, Map<String, ObjectBuilder<?>>> builders = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
+
+    static {
+        try {
+            XML_TYPE_FACTORY = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException("Failed to initialize datatype factory.", e);
+        }
+    }
 
     private XMLObjectContext() {
         // just to thwart instantiation
