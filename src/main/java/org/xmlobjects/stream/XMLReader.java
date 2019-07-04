@@ -189,7 +189,7 @@ public class XMLReader implements AutoCloseable {
                 }
             }
 
-            return new TextContent(result.toString());
+            return TextContent.of(result.toString());
         } catch (XMLStreamException e) {
             throw new ObjectBuildException("Failed to read text content.", e);
         }

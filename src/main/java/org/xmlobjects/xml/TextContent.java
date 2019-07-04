@@ -18,12 +18,20 @@ public class TextContent {
     private String formattedContent;
     private Object value;
 
-    public TextContent(String content) {
+    private TextContent(String content) {
         this.content = Objects.requireNonNull(content, "Content must not be null.");
     }
 
     public static TextContent empty() {
         return EMPTY;
+    }
+
+    public static TextContent of(String content) {
+        return new TextContent(content);
+    }
+
+    public static TextContent ofNullable(String content) {
+        return content != null ? new TextContent(content) : EMPTY;
     }
 
     public TextContent format() {
