@@ -7,9 +7,9 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class TextContent {
     private static final TextContent EMPTY = new TextContent("");
@@ -46,6 +46,10 @@ public class TextContent {
     public void ifPresent(Consumer<String> action) {
         if (isPresent())
             action.accept(content);
+    }
+
+    public TextContent filter(Predicate<TextContent> predicate) {
+        return predicate.test(this) ? this : empty();
     }
 
     public Boolean getAsBoolean() {
