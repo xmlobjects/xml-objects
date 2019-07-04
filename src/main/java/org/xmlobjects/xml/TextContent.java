@@ -118,7 +118,7 @@ public class TextContent {
         else {
             try {
                 return setValue(XMLObjectContext.XML_TYPE_FACTORY.newDuration(formattedContent()));
-            } catch (DateTimeParseException e) {
+            } catch (Throwable e) {
                 return setValue(null);
             }
         }
