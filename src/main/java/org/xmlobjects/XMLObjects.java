@@ -36,7 +36,7 @@ public class XMLObjects {
     public static XMLObjects newInstance(ClassLoader classLoader) throws XMLObjectsException {
         XMLObjects context = new XMLObjects();
         context.loadBuilders(classLoader);
-        context.loadObjectSerializers(classLoader);
+        context.loadSerializers(classLoader);
 
         return context;
     }
@@ -133,7 +133,7 @@ public class XMLObjects {
         }
     }
 
-    private void loadObjectSerializers(ClassLoader classLoader) throws XMLObjectsException {
+    private void loadSerializers(ClassLoader classLoader) throws XMLObjectsException {
         for (Class<? extends ObjectSerializer> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
                 .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
