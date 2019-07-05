@@ -58,8 +58,8 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     @Override
     public int nextTag() throws XMLStreamException {
         int event = next();
-        while (event == XMLStreamConstants.CHARACTERS && isWhiteSpace()
-                || event == XMLStreamConstants.CDATA && isWhiteSpace()
+        while ((event == XMLStreamConstants.CHARACTERS && isWhiteSpace())
+                || (event == XMLStreamConstants.CDATA && isWhiteSpace())
                 || event == XMLStreamConstants.SPACE
                 || event == XMLStreamConstants.PROCESSING_INSTRUCTION
                 || event == XMLStreamConstants.COMMENT)

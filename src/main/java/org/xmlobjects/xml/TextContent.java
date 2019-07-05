@@ -1,8 +1,8 @@
 package org.xmlobjects.xml;
 
-import org.xmlobjects.XMLObjectContext;
-
+import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.OffsetDateTime;
@@ -12,7 +12,16 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class TextContent {
+    public static final DatatypeFactory XML_TYPE_FACTORY;
     private static final TextContent EMPTY = new TextContent("");
+
+    static {
+        try {
+            XML_TYPE_FACTORY = DatatypeFactory.newInstance();
+        } catch (DatatypeConfigurationException e) {
+            throw new RuntimeException("Failed to initialize datatype factory.", e);
+        }
+    }
 
     private String content;
     private String formattedContent;
@@ -129,7 +138,7 @@ public class TextContent {
             return (Duration) value;
         else {
             try {
-                return setValue(XMLObjectContext.XML_TYPE_FACTORY.newDuration(formattedContent()));
+                return setValue(XML_TYPE_FACTORY.newDuration(formattedContent()));
             } catch (Throwable e) {
                 return setValue(null);
             }
@@ -255,7 +264,7 @@ public class TextContent {
         else {
             OffsetDateTime dateTime = null;
             try {
-                XMLGregorianCalendar calendar = XMLObjectContext.XML_TYPE_FACTORY.newXMLGregorianCalendar(formattedContent());
+                XMLGregorianCalendar calendar = XML_TYPE_FACTORY.newXMLGregorianCalendar(formattedContent());
                 setValue(calendar);
                 if (calendar.getXMLSchemaType().getLocalPart().equals(localName))
                     dateTime = toOffsetDateTime(calendar);

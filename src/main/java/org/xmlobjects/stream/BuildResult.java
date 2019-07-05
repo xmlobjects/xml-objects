@@ -2,25 +2,25 @@ package org.xmlobjects.stream;
 
 import org.w3c.dom.Node;
 
-public class ParseResult<T> {
+public class BuildResult<T> {
     private final T object;
     private final Node node;
 
-    private ParseResult(T object, Node node) {
+    private BuildResult(T object, Node node) {
         this.object = object;
         this.node = node;
     }
 
-    public static <T> ParseResult<T> of(T object) {
-        return new ParseResult<>(object, null);
+    public static <T> BuildResult<T> of(T object) {
+        return new BuildResult<>(object, null);
     }
 
-    public static <T> ParseResult<T> of(Node node) {
-        return new ParseResult<>(null, node);
+    public static <T> BuildResult<T> of(Node node) {
+        return new BuildResult<>(null, node);
     }
 
-    public static <T> ParseResult<T> empty() {
-        return new ParseResult<>(null, null);
+    public static <T> BuildResult<T> empty() {
+        return new BuildResult<>(null, null);
     }
 
     public boolean isSetObject() {

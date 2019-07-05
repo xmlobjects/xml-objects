@@ -1,7 +1,7 @@
 package org.xmlobjects.stream;
 
 import org.w3c.dom.Node;
-import org.xmlobjects.XMLObjectContext;
+import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.util.DepthXMLStreamReader;
@@ -23,36 +23,28 @@ import java.util.Map;
 import java.util.Objects;
 
 public class XMLReader implements AutoCloseable {
-    private final XMLObjectContext context;
+    private final XMLObjects xmlObjects;
     private final DepthXMLStreamReader reader;
 
     private Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private Transformer transformer;
     private boolean createDOMasFallback;
 
-    public XMLReader(XMLObjectContext context, XMLStreamReader reader) {
-        this.context = Objects.requireNonNull(context, "XML object context must not be null.");
+    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) throws XMLReadException {
+        this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
         this.reader = new DepthXMLStreamReader(reader);
-    }
-
-    public XMLReader createDOMasFallback(boolean createDOMasFallback) throws XMLReadException {
         this.createDOMasFallback = createDOMasFallback;
-        if (createDOMasFallback && transformer == null) {
+
+        if (createDOMasFallback) {
             try {
                 transformer = TransformerFactory.newInstance().newTransformer();
             } catch (TransformerConfigurationException e) {
-                throw new XMLReadException("Failed to create DOM transformer.", e);
+                throw new XMLReadException("Failed to initialize XML reader.", e);
             }
         }
-
-        return this;
     }
 
-    public boolean isCreateDOMasFallback() {
-        return createDOMasFallback;
-    }
-
-    public XMLStreamReader getReader() {
+    public XMLStreamReader getStreamReader() {
         return reader;
     }
 
@@ -65,20 +57,57 @@ public class XMLReader implements AutoCloseable {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> ParseResult<T> read(Class<T> type) throws ObjectBuildException {
+    public int getDepth() {
+        return reader.getDepth();
+    }
+
+    public boolean hasNext() throws XMLReadException {
+        try {
+            return reader.hasNext();
+        } catch (XMLStreamException e) {
+            throw new XMLReadException("Caused by: ", e);
+        }
+    }
+
+    public EventType nextTag() throws XMLReadException {
+        try {
+            do {
+                int event = reader.next();
+                switch (event) {
+                    case XMLStreamConstants.START_ELEMENT:
+                        return EventType.START_ELEMENT;
+                    case XMLStreamConstants.END_ELEMENT:
+                        return EventType.END_ELEMENT;
+                }
+            } while (reader.hasNext());
+
+            return EventType.END_DOCUMENT;
+        } catch (XMLStreamException e) {
+            throw new XMLReadException("Caused by: ", e);
+        }
+    }
+
+    public QName getName() throws XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
-            throw new ObjectBuildException("XML reader is in an illegal state: expected start tag.");
+            throw new XMLReadException("Illegal to call getName when event is not START_ELEMENT.");
+
+        return reader.getName();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> BuildResult<T> getObject(Class<T> type) throws ObjectBuildException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new ObjectBuildException("Illegal to call getObject when event is not START_ELEMENT.");
 
         QName name = reader.getName();
-        ObjectBuilder<?> builder = context.getBuilder(name);
+        ObjectBuilder<?> builder = xmlObjects.getBuilder(name);
         if (builder != null) {
             Object object = builder.createObject(name);
             if (object == null)
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
             if (type.isAssignableFrom(object.getClass()))
-                return ParseResult.of(read(type.cast(object), (ObjectBuilder<T>) builder));
+                return BuildResult.of(getObject(type.cast(object), (ObjectBuilder<T>) builder));
         }
 
         if (createDOMasFallback) {
@@ -88,16 +117,16 @@ public class XMLReader implements AutoCloseable {
                 Node node = result.getNode();
                 transformer.reset();
 
-                return ParseResult.of(node.getFirstChild());
+                return BuildResult.of(node.getFirstChild());
             } catch (TransformerException e) {
                 throw new ObjectBuildException("Failed to read XML content as DOM object.", e);
             }
         }
 
-        return ParseResult.empty();
+        return BuildResult.empty();
     }
 
-    public <T> T readWithBuilder(Class<ObjectBuilder<T>> type) throws ObjectBuildException {
+    public <T> T getObjectUsingBuilder(Class<ObjectBuilder<T>> type) throws ObjectBuildException {
         ObjectBuilder<T> builder;
 
         // read builder from cache or create a new instance
@@ -113,21 +142,21 @@ public class XMLReader implements AutoCloseable {
             }
         }
 
-        return readWithBuilder(builder);
+        return getObjectUsingBuilder(builder);
     }
 
-    public <T> T readWithBuilder(ObjectBuilder<T> builder) throws ObjectBuildException {
+    public <T> T getObjectUsingBuilder(ObjectBuilder<T> builder) throws ObjectBuildException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
-            throw new ObjectBuildException("XML reader is in an illegal state: expected start tag.");
+            throw new ObjectBuildException("Illegal to call getObject when event is not START_ELEMENT.");
 
         T object = builder.createObject(reader.getName());
         if (object == null)
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
-        return read(object, builder);
+        return getObject(object, builder);
     }
 
-    private <T> T read(T object, ObjectBuilder<T> builder) throws ObjectBuildException {
+    private <T> T getObject(T object, ObjectBuilder<T> builder) throws ObjectBuildException {
         try {
             int stopAt = reader.getDepth() - 1;
             int childLevel = reader.getDepth() + 1;
@@ -146,8 +175,8 @@ public class XMLReader implements AutoCloseable {
                     if (reader.getDepth() == stopAt)
                         return object;
                     else if (reader.getDepth() < stopAt)
-                        throw new ObjectBuildException("XML reader is in an illegal state: depth = " + reader.getDepth() +
-                                " but expected depth = " + stopAt + ".");
+                        throw new ObjectBuildException("Reader is in illegal state (depth = " + stopAt +
+                                " but expected depth = " + reader.getDepth() + ").");
                 }
 
                 if (reader.hasNext())
@@ -160,17 +189,21 @@ public class XMLReader implements AutoCloseable {
         }
     }
 
-    private Attributes getAttributes() {
+    public Attributes getAttributes() throws ObjectBuildException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new ObjectBuildException("Illegal to call getAttributes when event is not START_ELEMENT.");
+
         Attributes attributes = new Attributes();
-        if (reader.getEventType() == XMLStreamConstants.START_ELEMENT) {
-            for (int i = 0; i < reader.getAttributeCount(); i++)
-                attributes.add(reader.getAttributeName(i), reader.getAttributeValue(i));
-        }
+        for (int i = 0; i < reader.getAttributeCount(); i++)
+            attributes.add(reader.getAttributeName(i), reader.getAttributeValue(i));
 
         return attributes;
     }
 
     public TextContent getTextContent() throws ObjectBuildException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new ObjectBuildException("Illegal to call getTextContent when event is not START_ELEMENT.");
+
         try {
             StringBuilder result = new StringBuilder();
             boolean shouldParse = true;
