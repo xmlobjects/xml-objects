@@ -126,7 +126,7 @@ public class XMLReader implements AutoCloseable {
         return BuildResult.empty();
     }
 
-    public <T> T getObjectUsingBuilder(Class<ObjectBuilder<T>> type) throws ObjectBuildException {
+    public <T> T getObjectUsingBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
         ObjectBuilder<T> builder;
 
         // read builder from cache or create a new instance
