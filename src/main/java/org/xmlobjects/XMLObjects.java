@@ -72,35 +72,31 @@ public class XMLObjects {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T fromXML(XMLReader reader, Class<T> type) throws ObjectBuildException {
-        try {
-            T object = null;
-            int stopAt = 0;
+    public <T> T fromXML(XMLReader reader, Class<T> type) throws ObjectBuildException, XMLReadException {
+        T object = null;
+        int stopAt = 0;
 
-            while (reader.hasNext()) {
-                EventType event = reader.nextTag();
+        while (reader.hasNext()) {
+            EventType event = reader.nextTag();
 
-                if (event == EventType.START_ELEMENT) {
-                    ObjectBuilder<?> builder = getBuilder(reader.getName());
-                    if (builder != null && type.isAssignableFrom(getObjectType(builder))) {
-                        stopAt = reader.getDepth() - 2;
-                        object = reader.getObjectUsingBuilder((ObjectBuilder<T>) builder);
-                    }
-                }
-
-                if (event == EventType.END_ELEMENT) {
-                    if (reader.getDepth() == stopAt)
-                        return object;
-                    else if (reader.getDepth() < stopAt)
-                        throw new ObjectBuildException("XML reader is in an illegal state: depth = " + reader.getDepth() +
-                                " but expected depth = " + stopAt + ".");
+            if (event == EventType.START_ELEMENT) {
+                ObjectBuilder<?> builder = getBuilder(reader.getName());
+                if (builder != null && type.isAssignableFrom(getObjectType(builder))) {
+                    stopAt = reader.getDepth() - 2;
+                    object = reader.getObjectUsingBuilder((ObjectBuilder<T>) builder);
                 }
             }
 
-            return object;
-        } catch (XMLReadException e) {
-            throw new ObjectBuildException("Failed to get XML content.", e);
+            if (event == EventType.END_ELEMENT) {
+                if (reader.getDepth() == stopAt)
+                    return object;
+                else if (reader.getDepth() < stopAt)
+                    throw new XMLReadException("XML reader is in an illegal state: depth = " + reader.getDepth() +
+                            " but expected depth = " + stopAt + ".");
+            }
         }
+
+        return object;
     }
 
     private void loadBuilders(ClassLoader classLoader) throws XMLObjectsException {
