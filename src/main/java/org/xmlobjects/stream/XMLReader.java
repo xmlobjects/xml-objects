@@ -26,7 +26,7 @@ public class XMLReader implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final DepthXMLStreamReader reader;
 
-    private Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
+    private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private Transformer transformer;
     private boolean createDOMasFallback;
 

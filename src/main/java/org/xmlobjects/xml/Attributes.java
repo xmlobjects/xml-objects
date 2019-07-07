@@ -35,7 +35,7 @@ public class Attributes {
         return attributes.isEmpty();
     }
 
-    public Map<QName, TextContent> getAttributes() {
+    public Map<QName, TextContent> toMap() {
         return attributes.entrySet().stream().flatMap(namespace -> namespace.getValue().entrySet().stream()
                 .map(attribute -> new AbstractMap.SimpleEntry<>(new QName(namespace.getKey(), attribute.getKey()), attribute.getValue())))
                 .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
