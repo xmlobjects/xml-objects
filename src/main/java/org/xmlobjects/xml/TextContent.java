@@ -39,6 +39,18 @@ public class TextContent {
         return new TextContent(content);
     }
 
+    public static TextContent of(Boolean content) {
+        return new TextContent(content != null && content ? "true" : "false");
+    }
+
+    public static TextContent of(Double content) {
+        return new TextContent(content.toString());
+    }
+
+    public static TextContent of(Integer content) {
+        return new TextContent(content.toString());
+    }
+
     public static TextContent ofNullable(String content) {
         return content != null ? new TextContent(content) : EMPTY;
     }

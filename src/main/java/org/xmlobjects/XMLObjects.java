@@ -19,7 +19,9 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class XMLObjects {
     private final ConcurrentHashMap<String, Map<String, ObjectBuilder<?>>> builders = new ConcurrentHashMap<>();
@@ -69,6 +71,10 @@ public class XMLObjects {
 
     public ObjectSerializer<?> getSerializer(Class<?> objectType) {
         return getSerializer(objectType, XMLConstants.NULL_NS_URI);
+    }
+
+    public Set<String> getSerializableNamespaces() {
+        return serializers.values().stream().flatMap(map -> map.keySet().stream()).collect(Collectors.toSet());
     }
 
     @SuppressWarnings("unchecked")

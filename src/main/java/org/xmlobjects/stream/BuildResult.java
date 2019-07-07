@@ -3,6 +3,8 @@ package org.xmlobjects.stream;
 import org.w3c.dom.Node;
 
 public class BuildResult<T> {
+    private final static BuildResult<?> EMPTY = new BuildResult<>(null, null);
+
     private final T object;
     private final Node node;
 
@@ -19,8 +21,9 @@ public class BuildResult<T> {
         return new BuildResult<>(null, node);
     }
 
+    @SuppressWarnings("unchecked")
     public static <T> BuildResult<T> empty() {
-        return new BuildResult<>(null, null);
+        return (BuildResult<T>) EMPTY;
     }
 
     public boolean isSetObject() {

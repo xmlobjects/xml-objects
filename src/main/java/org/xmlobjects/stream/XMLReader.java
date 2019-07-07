@@ -185,7 +185,7 @@ public class XMLReader implements AutoCloseable {
                     return null;
             }
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Failed to read XML content.", e);
+            throw new XMLReadException("Caused by: ", e);
         }
     }
 
@@ -224,7 +224,7 @@ public class XMLReader implements AutoCloseable {
 
             return TextContent.of(result.toString());
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Failed to read text content.", e);
+            throw new XMLReadException("Caused by: ", e);
         }
     }
 }
