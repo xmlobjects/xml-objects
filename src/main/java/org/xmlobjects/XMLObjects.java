@@ -135,6 +135,10 @@ public class XMLObjects {
         toXML(writer, object, Namespaces.of(namespaceURIs));
     }
 
+    public void toXML(XMLWriter writer, Object object) throws ObjectSerializeException, XMLWriteException {
+        toXML(writer, object, Namespaces.of(getSerializableNamespaces()));
+    }
+
     private void loadBuilders(ClassLoader classLoader) throws XMLObjectsException {
         for (Class<? extends ObjectBuilder> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
