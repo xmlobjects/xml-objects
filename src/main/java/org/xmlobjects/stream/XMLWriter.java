@@ -172,7 +172,7 @@ public class XMLWriter implements AutoCloseable {
         if (element.hasContent()) {
             for (ElementContent content : element.getContent()) {
                 if (content.isSetElement())
-                    writeStartElement(content.getElement());
+                    writeElement(content.getElement());
                 else
                     writeCharacters(content.getText());
             }
