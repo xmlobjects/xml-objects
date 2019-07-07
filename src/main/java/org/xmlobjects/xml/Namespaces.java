@@ -37,6 +37,11 @@ public class Namespaces {
         return this;
     }
 
+    public Namespaces addNullNamespace() {
+        namespaces.add(XMLConstants.NULL_NS_URI);
+        return this;
+    }
+
     public boolean contains(String namespaceURI) {
         return namespaces.contains(namespaceURI);
     }
