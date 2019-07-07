@@ -6,16 +6,21 @@ import org.xmlobjects.annotation.XMLElement;
 import org.xmlobjects.annotation.XMLElements;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
+import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.stream.EventType;
 import org.xmlobjects.stream.XMLReadException;
 import org.xmlobjects.stream.XMLReader;
+import org.xmlobjects.stream.XMLWriteException;
+import org.xmlobjects.stream.XMLWriter;
+import org.xmlobjects.xml.Namespaces;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +78,16 @@ public class XMLObjects {
         return getSerializer(objectType, XMLConstants.NULL_NS_URI);
     }
 
+    public ObjectSerializer<?> getSerializer(Class<?> objectType, Namespaces namespaces) {
+        Map<String, ObjectSerializer<?>> map = serializers.getOrDefault(objectType.getName(), Collections.emptyMap());
+        for (Map.Entry<String, ObjectSerializer<?>> entry : map.entrySet()) {
+            if (namespaces.contains(entry.getKey()))
+                return entry.getValue();
+        }
+
+        return null;
+    }
+
     public Set<String> getSerializableNamespaces() {
         return serializers.values().stream().flatMap(map -> map.keySet().stream()).collect(Collectors.toSet());
     }
@@ -96,13 +111,28 @@ public class XMLObjects {
             if (event == EventType.END_ELEMENT) {
                 if (reader.getDepth() == stopAt)
                     return object;
-                else if (reader.getDepth() < stopAt)
+                else if (reader.getDepth() < stopAt) {
                     throw new XMLReadException("XML reader is in an illegal state: depth = " + reader.getDepth() +
                             " but expected depth = " + stopAt + ".");
+                }
             }
         }
 
         return object;
+    }
+
+    public void toXML(XMLWriter writer, Object object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        writer.writeStartDocument();
+        writer.writeElement(object, namespaces);
+        writer.writeEndDocument();
+    }
+
+    public void toXML(XMLWriter writer, Object object, Collection<String> namespaceURIs) throws ObjectSerializeException, XMLWriteException {
+        toXML(writer, object, Namespaces.of(namespaceURIs));
+    }
+
+    public void toXML(XMLWriter writer, Object object, String... namespaceURIs) throws ObjectSerializeException, XMLWriteException {
+        toXML(writer, object, Namespaces.of(namespaceURIs));
     }
 
     private void loadBuilders(ClassLoader classLoader) throws XMLObjectsException {

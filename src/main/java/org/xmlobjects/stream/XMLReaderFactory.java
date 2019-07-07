@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class XMLReaderFactory {
     private final XMLObjects xmlObjects;
@@ -26,7 +27,7 @@ public class XMLReaderFactory {
     private boolean createDOMasFallback;
 
     private XMLReaderFactory(XMLObjects xmlObjects) {
-        this.xmlObjects = xmlObjects;
+        this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
         xmlInputFactory = XMLInputFactory.newFactory();
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
     }

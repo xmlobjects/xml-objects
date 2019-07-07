@@ -59,6 +59,10 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
     }
 
+    public SAXWriter(StreamResult streamResult) throws IOException {
+        setOutput(streamResult);
+    }
+
     public SAXWriter(StreamResult streamResult, String encoding) throws IOException {
         setOutput(streamResult, encoding);
     }
@@ -244,7 +248,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 lastEvent = XMLEvents.CHARACTERS;
             }
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -273,7 +277,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             namespaceContext.popContext();
             prefixMapping.popContext();
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -293,7 +297,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 lastEvent = XMLEvents.CHARACTERS;
             }
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -317,7 +321,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
             lastEvent = XMLEvents.PROCESSING_INSTRUCTION;
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -367,7 +371,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             }
 
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -390,8 +394,18 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             String prefix = namespaceContext.getPrefix(namespaceURI);
             if (prefix == null) {
                 prefix = getReportedPrefix(namespaceURI);
-                if (prefix == null)
-                    throw new IllegalStateException("Namespace URI " + namespaceURI + " is not bound to a prefix.");
+                if (prefix == null) {
+                    if (qName != null) {
+                        String[] items = qName.split(":");
+                        if (items.length == 2)
+                            prefix = items[0];
+                    }
+
+                    if (prefix == null)
+                        prefix = "ns" + prefixCounter++;
+
+                    prefixMapping.declarePrefix(prefix, namespaceURI);
+                }
 
                 writeLocalNS = true;
             }
@@ -417,7 +431,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             needNamespaceContext = true;
             depth++;
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -460,7 +474,10 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     prefix = namespaceContext.getPrefix(namespaceURI);
                     if (prefix == null) {
                         prefix = getReportedPrefix(namespaceURI);
-                        namespaceContext.declarePrefix(prefix, namespaceURI);
+                        if (prefix == null)
+                            prefix = "ns" + prefixCounter++;
+
+                        prefixMapping.declarePrefix(prefix, namespaceURI);
                         writeNamespace(prefix, namespaceURI);
                     }
                 }
@@ -472,7 +489,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 writer.write('"');
             }
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -485,7 +502,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
             writer.write(localName);
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -529,7 +546,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             writeAttributeContent(namespaceURI);
             writer.write('"');
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -562,7 +579,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
                 writer.write('"');
             } catch (IOException e) {
-                throw new SAXException("Caused by: ", e);
+                throw new SAXException("Caused by:", e);
             }
         }
     }
@@ -591,7 +608,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
             lastEvent = XMLEvents.COMMENT;
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -607,7 +624,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             for (int i = 0; i < depth; i++)
                 writer.write(indentString);
         } catch (IOException e) {
-            throw new SAXException("Caused by: ", e);
+            throw new SAXException("Caused by:", e);
         }
     }
 

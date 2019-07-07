@@ -53,7 +53,7 @@ public class XMLReader implements AutoCloseable {
         try {
             reader.close();
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Caused by: ", e);
+            throw new XMLReadException("Caused by:", e);
         }
     }
 
@@ -65,7 +65,7 @@ public class XMLReader implements AutoCloseable {
         try {
             return reader.hasNext();
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Caused by: ", e);
+            throw new XMLReadException("Caused by:", e);
         }
     }
 
@@ -83,7 +83,7 @@ public class XMLReader implements AutoCloseable {
 
             return EventType.END_DOCUMENT;
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Caused by: ", e);
+            throw new XMLReadException("Caused by:", e);
         }
     }
 
@@ -174,9 +174,10 @@ public class XMLReader implements AutoCloseable {
                 if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
                     if (reader.getDepth() == stopAt)
                         return object;
-                    else if (reader.getDepth() < stopAt)
+                    else if (reader.getDepth() < stopAt) {
                         throw new XMLReadException("Reader is in illegal state (depth = " + stopAt +
                                 " but expected depth = " + reader.getDepth() + ").");
+                    }
                 }
 
                 if (reader.hasNext())
@@ -185,7 +186,7 @@ public class XMLReader implements AutoCloseable {
                     return null;
             }
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Caused by: ", e);
+            throw new XMLReadException("Caused by:", e);
         }
     }
 
@@ -224,7 +225,7 @@ public class XMLReader implements AutoCloseable {
 
             return TextContent.of(result.toString());
         } catch (XMLStreamException e) {
-            throw new XMLReadException("Caused by: ", e);
+            throw new XMLReadException("Caused by:", e);
         }
     }
 }
