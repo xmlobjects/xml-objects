@@ -1,5 +1,6 @@
 package org.xmlobjects.stream;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
@@ -117,7 +118,11 @@ public class XMLReader implements AutoCloseable {
                 Node node = result.getNode();
                 transformer.reset();
 
-                return BuildResult.of(node.getFirstChild());
+                if (node.hasChildNodes()) {
+                    Node child = node.getFirstChild();
+                    if (child.getNodeType() == Node.ELEMENT_NODE)
+                        return BuildResult.of((Element) child);
+                }
             } catch (TransformerException e) {
                 throw new XMLReadException("Failed to read XML content as DOM object.", e);
             }

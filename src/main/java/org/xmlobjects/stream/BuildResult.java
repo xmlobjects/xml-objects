@@ -1,24 +1,24 @@
 package org.xmlobjects.stream;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 public class BuildResult<T> {
     private final static BuildResult<?> EMPTY = new BuildResult<>(null, null);
 
     private final T object;
-    private final Node node;
+    private final Element element;
 
-    private BuildResult(T object, Node node) {
+    private BuildResult(T object, Element element) {
         this.object = object;
-        this.node = node;
+        this.element = element;
     }
 
     public static <T> BuildResult<T> of(T object) {
         return new BuildResult<>(object, null);
     }
 
-    public static <T> BuildResult<T> of(Node node) {
-        return new BuildResult<>(null, node);
+    public static <T> BuildResult<T> of(Element element) {
+        return new BuildResult<>(null, element);
     }
 
     @SuppressWarnings("unchecked")
@@ -34,11 +34,11 @@ public class BuildResult<T> {
         return object;
     }
 
-    public boolean isSetDOMResult() {
-        return node != null;
+    public boolean isSetDOMElement() {
+        return element != null;
     }
 
-    public Node getDOMResult(){
-        return node;
+    public Element getDOMElement(){
+        return element;
     }
 }
