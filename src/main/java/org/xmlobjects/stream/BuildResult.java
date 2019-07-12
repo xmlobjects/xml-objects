@@ -2,6 +2,8 @@ package org.xmlobjects.stream;
 
 import org.w3c.dom.Element;
 
+import java.util.function.Consumer;
+
 public class BuildResult<T> {
     private final static BuildResult<?> EMPTY = new BuildResult<>(null, null);
 
@@ -30,12 +32,22 @@ public class BuildResult<T> {
         return object != null;
     }
 
+    public void ifObject(Consumer<T> action) {
+        if (isSetObject())
+            action.accept(object);
+    }
+
     public T getObject() {
         return object;
     }
 
     public boolean isSetDOMElement() {
         return element != null;
+    }
+
+    public void ifDOMElement(Consumer<Element> action) {
+        if (isSetDOMElement())
+            action.accept(element);
     }
 
     public Element getDOMElement(){
