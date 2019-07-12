@@ -108,7 +108,7 @@ public class XMLReader implements AutoCloseable {
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
             if (type.isAssignableFrom(object.getClass()))
-                return BuildResult.of(getObject(type.cast(object), (ObjectBuilder<T>) builder));
+                return BuildResult.of(getObject(type.cast(object), name, (ObjectBuilder<T>) builder));
         }
 
         if (createDOMasFallback) {
@@ -154,20 +154,21 @@ public class XMLReader implements AutoCloseable {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
             throw new XMLReadException("Illegal to call getObject when event is not START_ELEMENT.");
 
-        T object = builder.createObject(reader.getName());
+        QName name = reader.getName();
+        T object = builder.createObject(name);
         if (object == null)
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
-        return getObject(object, builder);
+        return getObject(object, name, builder);
     }
 
-    private <T> T getObject(T object, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
+    private <T> T getObject(T object, QName name, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
         try {
             int stopAt = reader.getDepth() - 1;
             int childLevel = reader.getDepth() + 1;
 
             // initialize object
-            builder.initializeObject(object, getAttributes(), this);
+            builder.initializeObject(object, name, getAttributes(), this);
             reader.next();
 
             while (true) {

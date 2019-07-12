@@ -10,6 +10,6 @@ import javax.xml.namespace.QName;
 @IndexSubclasses
 public interface ObjectBuilder<T> {
     T createObject(QName name) throws ObjectBuildException;
-    void initializeObject(T object, Attributes attributes, XMLReader reader) throws ObjectBuildException, XMLReadException;
+    void initializeObject(T object, QName name, Attributes attributes, XMLReader reader) throws ObjectBuildException, XMLReadException;
     void buildNestedObject(T object, QName name, Attributes attributes, XMLReader reader) throws ObjectBuildException, XMLReadException;
 }
