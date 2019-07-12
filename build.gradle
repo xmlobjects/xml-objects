@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.xml-objects'
-version '0.1'
+version '0.1.1'
 description 'A simple and lightweight XML-to-object mapping library'
 
 sourceCompatibility = 1.8
@@ -23,7 +23,7 @@ repositories {
 
 dependencies {
     annotationProcessor 'org.atteo.classindex:classindex:3.6'
-    implementation 'org.atteo.classindex:classindex:3.6'
+    api 'org.atteo.classindex:classindex:3.6'
 }
 
 javadoc {
