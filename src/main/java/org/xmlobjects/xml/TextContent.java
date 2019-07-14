@@ -315,7 +315,7 @@ public class TextContent {
     }
 
     private String format(String value) {
-        return value.trim().replaceAll("\\R", " ");
+        return value.replaceAll("\\R", " ").trim();
     }
 
     private String formattedContent() {
