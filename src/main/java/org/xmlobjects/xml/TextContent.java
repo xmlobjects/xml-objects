@@ -96,8 +96,9 @@ public class TextContent {
     }
 
     public void ifList(Consumer<List<String>> action) {
-        if (isList())
-            action.accept(getAsList());
+        List<String> value = getAsList();
+        if (value != null)
+            action.accept(value);
     }
 
     public Boolean getAsBoolean() {
@@ -109,8 +110,9 @@ public class TextContent {
     }
 
     public void ifBoolean(Consumer<Boolean> action) {
-        if (isBoolean())
-            action.accept(getAsBoolean());
+        Boolean value = getAsBoolean();
+        if (value != null)
+            action.accept(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -135,8 +137,9 @@ public class TextContent {
     }
 
     public void ifBooleanList(Consumer<List<Boolean>> action) {
-        if (isBooleanList())
-            action.accept(getAsBooleanList());
+        List<Boolean> value = getAsBooleanList();
+        if (value != null)
+            action.accept(value);
     }
 
     public Double getAsDouble() {
@@ -156,8 +159,9 @@ public class TextContent {
     }
 
     public void ifDouble(Consumer<Double> action) {
-        if (isDouble())
-            action.accept(getAsDouble());
+        Double value = getAsDouble();
+        if (value != null)
+            action.accept(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -184,8 +188,9 @@ public class TextContent {
     }
 
     public void ifDoubleList(Consumer<List<Double>> action) {
-        if (isDoubleList())
-            action.accept(getAsDoubleList());
+        List<Double> value = getAsDoubleList();
+        if (value != null)
+            action.accept(value);
     }
 
     public Integer getAsInteger() {
@@ -205,8 +210,9 @@ public class TextContent {
     }
 
     public void ifInteger(Consumer<Integer> action) {
-        if (isInteger())
-            action.accept(getAsInteger());
+        Integer value = getAsInteger();
+        if (value != null)
+            action.accept(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -233,8 +239,9 @@ public class TextContent {
     }
 
     public void ifIntegerList(Consumer<List<Integer>> action) {
-        if (isIntegerList())
-            action.accept(getAsIntegerList());
+        List<Integer> value = getAsIntegerList();
+        if (value != null)
+            action.accept(value);
     }
 
     public Duration getAsDuration() {
@@ -254,8 +261,9 @@ public class TextContent {
     }
 
     public void ifDuration(Consumer<Duration> action) {
-        if (isDuration())
-            action.accept(getAsDuration());
+        Duration value = getAsDuration();
+        if (value != null)
+            action.accept(value);
     }
 
     @SuppressWarnings("unchecked")
@@ -282,8 +290,9 @@ public class TextContent {
     }
 
     public void ifDurationList(Consumer<List<Duration>> action) {
-        if (isDurationList())
-            action.accept(getAsDurationList());
+        List<Duration> value = getAsDurationList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsDateTime() {
@@ -295,8 +304,9 @@ public class TextContent {
     }
 
     public void ifDateTime(Consumer<OffsetDateTime> action) {
-        if (isDateTime())
-            action.accept(getAsDateTime());
+        OffsetDateTime value = getAsDateTime();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsDateTimeList() {
@@ -308,8 +318,9 @@ public class TextContent {
     }
 
     public void ifDateTimeList(Consumer<List<OffsetDateTime>> action) {
-        if (isDateTimeList())
-            action.accept(getAsDateTimeList());
+        List<OffsetDateTime> value = getAsDateTimeList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsTime() {
@@ -321,8 +332,9 @@ public class TextContent {
     }
 
     public void ifTime(Consumer<OffsetDateTime> action) {
-        if (isTime())
-            action.accept(getAsTime());
+        OffsetDateTime value = getAsTime();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsTimeList() {
@@ -334,8 +346,9 @@ public class TextContent {
     }
 
     public void ifTimeList(Consumer<List<OffsetDateTime>> action) {
-        if (isTimeList())
-            action.accept(getAsTimeList());
+        List<OffsetDateTime> value = getAsTimeList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsDate() {
@@ -347,8 +360,9 @@ public class TextContent {
     }
 
     public void ifDate(Consumer<OffsetDateTime> action) {
-        if (isDate())
-            action.accept(getAsDate());
+        OffsetDateTime value = getAsDate();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsDateList() {
@@ -360,8 +374,9 @@ public class TextContent {
     }
 
     public void ifDateList(Consumer<List<OffsetDateTime>> action) {
-        if (isDateList())
-            action.accept(getAsDateList());
+        List<OffsetDateTime> value = getAsDateList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsGYearMonth() {
@@ -373,8 +388,9 @@ public class TextContent {
     }
 
     public void ifGYearMonth(Consumer<OffsetDateTime> action) {
-        if (isGYearMonth())
-            action.accept(getAsGYearMonth());
+        OffsetDateTime value = getAsGYearMonth();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsGYearMonthList() {
@@ -386,8 +402,9 @@ public class TextContent {
     }
 
     public void ifGYearMonthList(Consumer<List<OffsetDateTime>> action) {
-        if (isGYearMonthList())
-            action.accept(getAsGYearMonthList());
+        List<OffsetDateTime> value = getAsGYearMonthList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsGMonthDay() {
@@ -399,8 +416,9 @@ public class TextContent {
     }
 
     public void ifGMonthDay(Consumer<OffsetDateTime> action) {
-        if (isGMonthDay())
-            action.accept(getAsGMonthDay());
+        OffsetDateTime value = getAsGMonthDay();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsGMonthDayList() {
@@ -412,8 +430,9 @@ public class TextContent {
     }
 
     public void ifGMonthDayList(Consumer<List<OffsetDateTime>> action) {
-        if (isGMonthDayList())
-            action.accept(getAsGMonthDayList());
+        List<OffsetDateTime> value = getAsGMonthDayList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsGDay() {
@@ -425,8 +444,9 @@ public class TextContent {
     }
 
     public void ifGDay(Consumer<OffsetDateTime> action) {
-        if (isGDay())
-            action.accept(getAsGDay());
+        OffsetDateTime value = getAsGDay();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsGDayList() {
@@ -438,8 +458,9 @@ public class TextContent {
     }
 
     public void ifGDayList(Consumer<List<OffsetDateTime>> action) {
-        if (isGDayList())
-            action.accept(getAsGDayList());
+        List<OffsetDateTime> value = getAsGDayList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsGMonth() {
@@ -451,8 +472,9 @@ public class TextContent {
     }
 
     public void ifGMonth(Consumer<OffsetDateTime> action) {
-        if (isGMonth())
-            action.accept(getAsGMonth());
+        OffsetDateTime value = getAsGMonth();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsGMonthList() {
@@ -464,8 +486,9 @@ public class TextContent {
     }
 
     public void ifGMonthList(Consumer<List<OffsetDateTime>> action) {
-        if (isGMonthList())
-            action.accept(getAsGMonthList());
+        List<OffsetDateTime> value = getAsGMonthList();
+        if (value != null)
+            action.accept(value);
     }
 
     public OffsetDateTime getAsGYear() {
@@ -477,8 +500,9 @@ public class TextContent {
     }
 
     public void ifGYear(Consumer<OffsetDateTime> action) {
-        if (isGYear())
-            action.accept(getAsGYear());
+        OffsetDateTime value = getAsGYear();
+        if (value != null)
+            action.accept(value);
     }
 
     public List<OffsetDateTime> getAsGYearList() {
@@ -490,8 +514,9 @@ public class TextContent {
     }
 
     public void ifGYearList(Consumer<List<OffsetDateTime>> action) {
-        if (isGYearList())
-            action.accept(getAsGYearList());
+        List<OffsetDateTime> value = getAsGYearList();
+        if (value != null)
+            action.accept(value);
     }
 
     private OffsetDateTime getAsOffsetDateTime(String localName) {
