@@ -169,7 +169,6 @@ public class XMLReader implements AutoCloseable {
 
             // initialize object
             builder.initializeObject(object, name, getAttributes(), this);
-            reader.next();
 
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {
