@@ -2,10 +2,13 @@ package org.xmlobjects.stream;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.util.DepthXMLStreamReader;
+import org.xmlobjects.util.SAXWriter;
+import org.xmlobjects.util.StAXMapper;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.TextContent;
 
@@ -19,6 +22,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -230,6 +235,28 @@ public class XMLReader implements AutoCloseable {
 
             return TextContent.of(result.toString());
         } catch (XMLStreamException e) {
+            throw new XMLReadException("Caused by:", e);
+        }
+    }
+
+    public String getMixedContent() throws XMLReadException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new XMLReadException("Illegal to call getMixedContent when event is not START_ELEMENT.");
+
+        try (StringWriter writer = new StringWriter()) {
+            try (SAXWriter saxWriter = new SAXWriter(writer)
+                    .writeXMLDeclaration(false)
+                    .writeEncoding(false)) {
+                int stopAt = reader.getDepth() - 1;
+                StAXMapper mapper = new StAXMapper(saxWriter);
+
+                // map content of start element to a string representation
+                while (reader.next() != XMLStreamConstants.END_ELEMENT || reader.getDepth() > stopAt)
+                    mapper.mapEvent(reader);
+            }
+
+            return writer.toString();
+        } catch (IOException | SAXException | XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
     }
