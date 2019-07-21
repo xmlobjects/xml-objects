@@ -117,20 +117,9 @@ public class XMLReader implements AutoCloseable {
         }
 
         if (createDOMasFallback) {
-            try {
-                DOMResult result = new DOMResult();
-                transformer.transform(new StAXSource(reader), result);
-                Node node = result.getNode();
-                transformer.reset();
-
-                if (node.hasChildNodes()) {
-                    Node child = node.getFirstChild();
-                    if (child.getNodeType() == Node.ELEMENT_NODE)
-                        return BuildResult.of((Element) child);
-                }
-            } catch (TransformerException e) {
-                throw new XMLReadException("Failed to read XML content as DOM object.", e);
-            }
+            Element element = getObjectAsDOMElement();
+            if (element != null)
+                return BuildResult.of(element);
         }
 
         return BuildResult.empty();
@@ -197,6 +186,28 @@ public class XMLReader implements AutoCloseable {
             }
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
+        }
+    }
+
+    public Element getObjectAsDOMElement() throws XMLReadException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new XMLReadException("Illegal to call getObjectAsDOMElement when event is not START_ELEMENT.");
+
+        try {
+            DOMResult result = new DOMResult();
+            transformer.transform(new StAXSource(reader), result);
+            Node node = result.getNode();
+            transformer.reset();
+
+            if (node.hasChildNodes()) {
+                Node child = node.getFirstChild();
+                if (child.getNodeType() == Node.ELEMENT_NODE)
+                    return (Element) child;
+            }
+
+            return null;
+        } catch (TransformerException e) {
+            throw new XMLReadException("Failed to read XML content as DOM object.", e);
         }
     }
 
