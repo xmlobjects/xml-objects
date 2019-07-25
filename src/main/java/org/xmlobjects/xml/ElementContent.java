@@ -5,16 +5,16 @@ import java.util.Objects;
 public class ElementContent {
     private final static ElementContent EMPTY = new ElementContent(null, null);
 
-    private final String text;
+    private final TextContent textContent;
     private final Element element;
 
-    private ElementContent(String text, Element element) {
-        this.text = text;
+    private ElementContent(TextContent textContent, Element element) {
+        this.textContent = textContent;
         this.element = element;
     }
 
-    public static ElementContent of(String text) {
-        return new ElementContent(Objects.requireNonNull(text, "Text must not be null."), null);
+    public static ElementContent of(TextContent textContent) {
+        return new ElementContent(Objects.requireNonNull(textContent, "Text content must not be null."), null);
     }
 
     public static ElementContent of(Element element) {
@@ -25,12 +25,12 @@ public class ElementContent {
         return EMPTY;
     }
 
-    public boolean isSetText() {
-        return text != null;
+    public boolean isSetTextContent() {
+        return textContent != null;
     }
 
-    public String getText() {
-        return text;
+    public TextContent getTextContent() {
+        return textContent;
     }
 
     public boolean isSetElement() {

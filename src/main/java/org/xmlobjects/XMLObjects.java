@@ -123,7 +123,7 @@ public class XMLObjects {
 
     public void toXML(XMLWriter writer, Object object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         writer.writeStartDocument();
-        writer.writeElement(object, namespaces);
+        writer.writeObject(object, namespaces);
         writer.writeEndDocument();
     }
 

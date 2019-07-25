@@ -11,20 +11,36 @@ import java.util.stream.Collectors;
 public class Attributes {
     private final Map<String, Map<String, TextContent>> attributes = new HashMap<>();
 
-    public void add(String namespaceURI, String localName, String value) {
-        attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, TextContent.ofNullable(value));
+    public void add(String namespaceURI, String localName, TextContent value) {
+        attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
     }
 
-    public void add(QName name, String value) {
+    public void add(String namespaceURI, String localName, String value) {
+        add(namespaceURI, localName, TextContent.of(value));
+    }
+
+    public void add(String localName, TextContent value) {
+        add(XMLConstants.NULL_NS_URI, localName, value);
+    }
+
+    public void add(String localName, String value) {
+        add(localName, TextContent.of(value));
+    }
+
+    public void add(QName name, TextContent value) {
         add(name.getNamespaceURI(), name.getLocalPart(), value);
     }
 
-    public TextContent getValue(String namespaceURI, String localName) {
-        return attributes.getOrDefault(namespaceURI, Collections.emptyMap()).getOrDefault(localName, TextContent.empty());
+    public void add(QName name, String value) {
+        add(name, TextContent.of(value));
     }
 
     public TextContent getValue(String localName) {
         return getValue(XMLConstants.NULL_NS_URI, localName);
+    }
+
+    public TextContent getValue(String namespaceURI, String localName) {
+        return attributes.getOrDefault(namespaceURI, Collections.emptyMap()).getOrDefault(localName, TextContent.empty());
     }
 
     public TextContent getValue(QName name) {

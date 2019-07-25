@@ -39,27 +39,23 @@ public class TextContent {
     }
 
     public static TextContent of(String content) {
-        return new TextContent(content);
-    }
-
-    public static TextContent of(Boolean content) {
-        return new TextContent(content != null && content ? "true" : "false");
-    }
-
-    public static TextContent of(Double content) {
-        return new TextContent(content.toString());
-    }
-
-    public static TextContent of(Integer content) {
-        return new TextContent(content.toString());
-    }
-
-    public static TextContent ofNullable(String content) {
         return content != null ? new TextContent(content) : EMPTY;
     }
 
+    public static TextContent of(Boolean content) {
+        return content != null ? new TextContent(content ? "true" : "false") : EMPTY;
+    }
+
+    public static TextContent of(Double content) {
+        return content != null ? new TextContent(content.toString()) : EMPTY;
+    }
+
+    public static TextContent of(Integer content) {
+        return content != null ? new TextContent(content.toString()) : EMPTY;
+    }
+
     public boolean isEmpty() {
-        return content.isEmpty();
+        return this == EMPTY;
     }
 
     public TextContent format() {
@@ -68,7 +64,7 @@ public class TextContent {
     }
 
     public TextContent filter(Predicate<TextContent> predicate) {
-        return predicate.test(this) ? this : empty();
+        return predicate.test(this) ? this : EMPTY;
     }
 
     public String get() {
@@ -76,7 +72,7 @@ public class TextContent {
     }
 
     public boolean isPresent() {
-        return !content.isEmpty();
+        return this != EMPTY;
     }
 
     public void ifPresent(Consumer<String> action) {

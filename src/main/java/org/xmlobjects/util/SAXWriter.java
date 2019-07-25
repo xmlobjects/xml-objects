@@ -628,12 +628,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         }
     }
 
-    private void writeTextContent(char[] content, int start, int length, boolean escapeChars) throws IOException {
-        if (!escapeChars) {
-            writer.write(content, start, length);
-            return;
-        }
-
+    private void writeTextContent(char[] content, int start, int length, boolean escapeCharacters) throws IOException {
         int pos = start;
         final int end = start + length;
 
@@ -647,30 +642,24 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 writer.write(Integer.toHexString(ch));
                 writer.write(';');
                 pos = i + 1;
-                continue;
             }
 
-            switch (ch) {
-                case '<':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&lt;");
-                    pos = i + 1;
+            else if (escapeCharacters) {
+                switch (ch) {
+                    case '<':
+                        writer.write(content, pos, i - pos);
+                        writer.write("&lt;");
+                        pos = i + 1;
 
-                    break;
+                        break;
 
-                case '&':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&amp;");
-                    pos = i + 1;
+                    case '&':
+                        writer.write(content, pos, i - pos);
+                        writer.write("&amp;");
+                        pos = i + 1;
 
-                    break;
-
-                case '>':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&gt;");
-                    pos = i + 1;
-
-                    break;
+                        break;
+                }
             }
         }
 
@@ -691,37 +680,31 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 writer.write(Integer.toHexString(ch));
                 writer.write(';');
                 pos = i + 1;
-                continue;
             }
 
-            switch (ch) {
-                case '<':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&lt;");
-                    pos = i + 1;
+            else {
+                switch (ch) {
+                    case '<':
+                        writer.write(content, pos, i - pos);
+                        writer.write("&lt;");
+                        pos = i + 1;
 
-                    break;
+                        break;
 
-                case '&':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&amp;");
-                    pos = i + 1;
+                    case '&':
+                        writer.write(content, pos, i - pos);
+                        writer.write("&amp;");
+                        pos = i + 1;
 
-                    break;
+                        break;
 
-                case '>':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&gt;");
-                    pos = i + 1;
+                    case '"':
+                        writer.write(content, pos, i - pos);
+                        writer.write("&quot;");
+                        pos = i + 1;
 
-                    break;
-
-                case '"':
-                    writer.write(content, pos, i - pos);
-                    writer.write("&quot;");
-                    pos = i + 1;
-
-                    break;
+                        break;
+                }
             }
         }
 

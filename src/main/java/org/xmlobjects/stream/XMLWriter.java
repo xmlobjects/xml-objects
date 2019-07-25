@@ -10,16 +10,20 @@ import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.ElementContent;
 import org.xmlobjects.xml.Namespaces;
+import org.xmlobjects.xml.TextContent;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
 
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final SAXWriter saxWriter;
 
+    private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
     private final Deque<QName> elements = new ArrayDeque<>();
     private EventType lastEvent;
 
@@ -150,16 +154,46 @@ public class XMLWriter implements AutoCloseable {
         lastEvent = EventType.END_DOCUMENT;
     }
 
+    public <T> void writeObject(T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        writeElement(null, object, namespaces);
+    }
+
+    public <T> void writeObjectUsingSerializer(T object, Class<? extends ObjectSerializer<T>> type, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        writeElementUsingSerializer(null, object, type, namespaces);
+    }
+
+    public <T> void writeObjectUsingSerializer(T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        writeElementUsingSerializer(null, object, serializer, namespaces);
+    }
+
     @SuppressWarnings("unchecked")
-    public <T> void writeElement(T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+    public <T> void writeElement(Element element, T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        if (object == null)
+            throw new XMLWriteException("Illegal to call writeElement with a null object.");
+
         ObjectSerializer<T> serializer = (ObjectSerializer<T>) xmlObjects.getSerializer(object.getClass(), namespaces);
-        if (serializer != null) {
-            Element element = serializer.createElement(object, namespaces);
+        if (serializer != null)
+            writeElementUsingSerializer(element, object, serializer, namespaces);
+    }
+
+    public <T> void writeElementUsingSerializer(Element element, T object, Class<? extends ObjectSerializer<T>> type, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        writeElementUsingSerializer(element, object, getSerializer(type), namespaces);
+    }
+
+    public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+        if (object == null)
+            throw new XMLWriteException("Illegal to call writeElementUsingSerializer with a null object.");
+
+        if (element == null) {
+            element = serializer.createElement(object, namespaces);
             if (element == null)
                 throw new ObjectSerializeException("The serializer " + serializer.getClass().getName() + " created a null value.");
-
-            serializer.serializeElement(element, object, namespaces, this);
         }
+
+        serializer.initializeElement(element, object, namespaces, this);
+        writeStartElement(element);
+        serializer.writeChildElements(object, namespaces, this);
+        writeEndElement();
     }
 
     public void writeElement(Element element) throws XMLWriteException {
@@ -173,8 +207,8 @@ public class XMLWriter implements AutoCloseable {
             for (ElementContent content : element.getContent()) {
                 if (content.isSetElement())
                     writeElement(content.getElement());
-                else
-                    writeCharacters(content.getText());
+                else if (content.isSetTextContent() && content.getTextContent().isPresent())
+                    writeCharacters(content.getTextContent().get());
             }
         }
     }
@@ -183,8 +217,10 @@ public class XMLWriter implements AutoCloseable {
         try {
             AttributesImpl attrs = new AttributesImpl();
             if (attributes != null && !attributes.isEmpty()) {
-                attributes.toMap()
-                        .forEach((k, v) -> attrs.addAttribute(k.getNamespaceURI(), k.getLocalPart(), null, "CDATA", v.get()));
+                for (Map.Entry<QName, TextContent> entry : attributes.toMap().entrySet()) {
+                    if (entry.getValue().isPresent())
+                        attrs.addAttribute(entry.getKey().getNamespaceURI(), entry.getKey().getLocalPart(), null, "CDATA", entry.getValue().get());
+                }
             }
 
             saxWriter.startElement(name.getNamespaceURI(), name.getLocalPart(), null, attrs);
@@ -214,12 +250,47 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
-    public void writeCharacters(String text, int start, int len) throws XMLWriteException {
+    public void writeCharacters(String text, boolean escapeCharacters) throws XMLWriteException {
+        saxWriter.escapeCharacters(escapeCharacters);
+        writeCharacters(text);
+        saxWriter.escapeCharacters(true);
+    }
+
+    public void writeCharacters(String text, int start, int length) throws XMLWriteException {
         try {
             char[] characters = text.toCharArray();
-            saxWriter.characters(characters, start, len);
+            saxWriter.characters(characters, start, length);
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
         }
+    }
+
+    public void writeCharacters(String text, int start, int length, boolean escapeCharacters) throws XMLWriteException {
+        saxWriter.escapeCharacters(escapeCharacters);
+        writeCharacters(text, start, length);
+        saxWriter.escapeCharacters(true);
+    }
+
+    public void writeMixedContent(String mixedContent) throws XMLWriteException {
+        writeCharacters(mixedContent, false);
+    }
+
+    private <T> ObjectSerializer<T> getSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
+        ObjectSerializer<T> serializer;
+
+        // get serializer from cache or create a new instance
+        ObjectSerializer<?> cachedSerializer = serializerCache.get(type.getName());
+        if (cachedSerializer != null && type.isAssignableFrom(cachedSerializer.getClass()))
+            serializer = type.cast(cachedSerializer);
+        else {
+            try {
+                serializer = type.getDeclaredConstructor().newInstance();
+                serializerCache.put(type.getName(), serializer);
+            } catch (Exception e) {
+                throw new ObjectSerializeException("The serializer " + type.getName() + " lacks a default constructor.");
+            }
+        }
+
+        return serializer;
     }
 }
