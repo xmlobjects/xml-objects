@@ -228,10 +228,11 @@ public class XMLObjects {
     }
 
     private static Class<?> getObjectType(ObjectSerializer<?> parent) throws XMLObjectsException {
-        try {
-            Class<?> clazz = parent.getClass();
-            Class<?>  objectType = null;
+        Class<?> clazz = parent.getClass();
+        Class<?>  objectType = null;
+        boolean hasCreateElementMethod = false;
 
+        try {
             do {
                 for (Method method : clazz.getDeclaredMethods()) {
                     if (method.getName().equals("createElement") && !method.isSynthetic()) {
@@ -240,16 +241,20 @@ public class XMLObjects {
                                 && parameters[0] instanceof Class<?>
                                 && !Modifier.isAbstract(((Class<?>) parameters[0]).getModifiers())) {
                             objectType = (Class<?>) parameters[0];
+                            hasCreateElementMethod = true;
                             break;
                         }
                     }
                 }
-            } while (objectType == null && (clazz = clazz.getSuperclass()) != null);
-
-            return objectType;
+            } while (objectType == null && (clazz = clazz.getSuperclass()) != Object.class);
         } catch (Exception e) {
             throw new XMLObjectsException("Failed to retrieve object type of serializer " + parent.getClass().getName() + ".", e);
         }
+
+        if (!hasCreateElementMethod)
+            throw new XMLObjectsException("The serializer " + parent.getClass().getName() + " does not implement the createElement method.");
+
+        return objectType;
     }
 
 }
