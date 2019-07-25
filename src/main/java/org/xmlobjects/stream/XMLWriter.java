@@ -13,6 +13,12 @@ import org.xmlobjects.xml.Namespaces;
 import org.xmlobjects.xml.TextContent;
 
 import javax.xml.namespace.QName;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -22,6 +28,7 @@ import java.util.Map;
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final SAXWriter saxWriter;
+    private Transformer transformer;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
     private final Deque<QName> elements = new ArrayDeque<>();
@@ -201,6 +208,22 @@ public class XMLWriter implements AutoCloseable {
         writeEndElement();
     }
 
+    public void writeDOMElement(org.w3c.dom.Element element) throws XMLWriteException {
+        try {
+            if (transformer == null)
+                transformer = TransformerFactory.newInstance().newTransformer();
+
+            DOMSource source = new DOMSource(element);
+            SAXResult result = new SAXResult(saxWriter);
+            transformer.transform(source, result);
+            transformer.reset();
+        } catch (TransformerConfigurationException e) {
+            throw new XMLWriteException("Failed to initialize DOM transformer.", e);
+        } catch (TransformerException e) {
+            throw new XMLWriteException("Failed to write DOM element as XML content.", e);
+        }
+    }
+
     public void writeStartElement(Element element) throws XMLWriteException {
         writeStartElement(element.getName(), element.getAttributes());
         if (element.hasContent()) {
@@ -292,5 +315,17 @@ public class XMLWriter implements AutoCloseable {
         }
 
         return serializer;
+    }
+
+    private Transformer getTransformer() throws XMLWriteException {
+        if (transformer == null) {
+            try {
+                transformer = TransformerFactory.newInstance().newTransformer();
+            } catch (TransformerConfigurationException e) {
+                throw new XMLWriteException("Failed to initialize DOM transformer.", e);
+            }
+        }
+
+        return transformer;
     }
 }
