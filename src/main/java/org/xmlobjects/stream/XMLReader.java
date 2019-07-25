@@ -36,18 +36,10 @@ public class XMLReader implements AutoCloseable {
     private Transformer transformer;
     private boolean createDOMasFallback;
 
-    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) throws XMLReadException {
+    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
         this.reader = new DepthXMLStreamReader(reader);
         this.createDOMasFallback = createDOMasFallback;
-
-        if (createDOMasFallback) {
-            try {
-                transformer = TransformerFactory.newInstance().newTransformer();
-            } catch (TransformerConfigurationException e) {
-                throw new XMLReadException("Failed to initialize XML reader.", e);
-            }
-        }
     }
 
     public XMLStreamReader getStreamReader() {
@@ -194,6 +186,9 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getObjectAsDOMElement when event is not START_ELEMENT.");
 
         try {
+            if (transformer == null)
+                transformer = TransformerFactory.newInstance().newTransformer();
+
             DOMResult result = new DOMResult();
             transformer.transform(new StAXSource(reader), result);
             Node node = result.getNode();
@@ -206,8 +201,10 @@ public class XMLReader implements AutoCloseable {
             }
 
             return null;
+        } catch (TransformerConfigurationException e) {
+            throw new XMLReadException("Failed to initialize DOM transformer.", e);
         } catch (TransformerException e) {
-            throw new XMLReadException("Failed to read XML content as DOM object.", e);
+            throw new XMLReadException("Failed to read XML content as DOM element.", e);
         }
     }
 

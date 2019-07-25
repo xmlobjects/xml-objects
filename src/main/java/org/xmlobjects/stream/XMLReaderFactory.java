@@ -132,7 +132,7 @@ public class XMLReaderFactory {
         }
     }
 
-    public XMLReader createReader(XMLStreamReader reader) throws XMLReadException {
+    public XMLReader createReader(XMLStreamReader reader) {
         return new XMLReader(xmlObjects, reader, createDOMasFallback);
     }
 
