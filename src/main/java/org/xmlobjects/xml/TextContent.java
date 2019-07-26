@@ -5,9 +5,11 @@ import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -39,19 +41,107 @@ public class TextContent {
     }
 
     public static TextContent of(String content) {
-        return content != null ? new TextContent(content) : EMPTY;
+        return ofObject(content);
     }
 
-    public static TextContent of(Boolean content) {
-        return content != null ? new TextContent(content ? "true" : "false") : EMPTY;
+    public static TextContent ofList(List<String> content) {
+        return ofObjectList(content);
     }
 
-    public static TextContent of(Double content) {
-        return content != null ? new TextContent(content.toString()) : EMPTY;
+    public static TextContent ofBoolean(Boolean content) {
+        return ofObject(content);
     }
 
-    public static TextContent of(Integer content) {
-        return content != null ? new TextContent(content.toString()) : EMPTY;
+    public static TextContent ofBooleanList(List<Boolean> content) {
+        return ofObjectList(content);
+    }
+
+    public static TextContent ofDouble(Double content) {
+        return ofObject(content);
+    }
+
+    public static TextContent ofDoubleList(List<Double> content) {
+        return ofObjectList(content);
+    }
+
+    public static TextContent ofInteger(Integer content) {
+        return ofObject(content);
+    }
+
+    public static TextContent ofIntegerList(List<Integer> content) {
+        return ofObjectList(content);
+    }
+
+    public static TextContent ofDuration(Duration content) {
+        return ofObject(content);
+    }
+
+    public static TextContent ofDurationList(List<Duration> content) {
+        return ofObjectList(content);
+    }
+
+    public static TextContent ofDateTime(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.allOf(Fields.class));
+    }
+
+    public static TextContent ofDateTimeList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.allOf(Fields.class));
+    }
+
+    public static TextContent ofTime(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofTimeList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofDate(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofDateList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGYearMonth(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGYearMonthList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGMonthDay(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGMonthDayList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGDay(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGDayList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.DAY, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGMonth(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.MONTH, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGMonthList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.MONTH, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGYear(OffsetDateTime content) {
+        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.TIMEZONE));
+    }
+
+    public static TextContent ofGYearList(List<OffsetDateTime> content) {
+        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.TIMEZONE));
     }
 
     public boolean isEmpty() {
@@ -596,8 +686,10 @@ public class TextContent {
         int hour = calendar.getHour();
         int minute = calendar.getMinute();
         int second = calendar.getSecond();
-        int millisecond = calendar.getMillisecond();
         int offset = calendar.getTimezone();
+
+        BigDecimal fractional = calendar.getFractionalSecond();
+        int nano = fractional != null ? (int) (fractional.doubleValue() * 1e+9) : DatatypeConstants.FIELD_UNDEFINED;
 
         return OffsetDateTime.of(
                 year != DatatypeConstants.FIELD_UNDEFINED ? year : 0,
@@ -606,8 +698,55 @@ public class TextContent {
                 hour != DatatypeConstants.FIELD_UNDEFINED ? hour : 0,
                 minute != DatatypeConstants.FIELD_UNDEFINED ? minute : 0,
                 second != DatatypeConstants.FIELD_UNDEFINED ? second : 0,
-                millisecond != DatatypeConstants.FIELD_UNDEFINED ? millisecond : 0,
-                ZoneOffset.ofHours(offset != DatatypeConstants.FIELD_UNDEFINED ? offset / 60 : 0));
+                nano != DatatypeConstants.FIELD_UNDEFINED ? nano : 0,
+                ZoneOffset.ofTotalSeconds(offset != DatatypeConstants.FIELD_UNDEFINED ? offset * 60 : 0));
+    }
+
+    private static TextContent ofObject(Object content) {
+        return content != null ? new TextContent(content.toString()) : EMPTY;
+    }
+
+    private static TextContent ofObjectList(List<?> content) {
+        return content != null && !content.isEmpty() ? new TextContent(content.stream()
+                .filter(Objects::nonNull)
+                .map(Object::toString)
+                .collect(Collectors.joining(" "))) : EMPTY;
+    }
+
+    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<Fields> fields) {
+        XMLGregorianCalendar calendar = toCalendar(content, fields);
+        return calendar != null ? new TextContent(calendar.toXMLFormat()) : EMPTY;
+    }
+
+    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<Fields> fields) {
+        return content != null && !content.isEmpty() ? new TextContent(content.stream()
+                .map(v -> toCalendar(v, fields))
+                .filter(Objects::nonNull)
+                .map(XMLGregorianCalendar::toXMLFormat)
+                .collect(Collectors.joining(" "))) : EMPTY;
+    }
+
+    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE };
+
+    private static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<Fields> fields) {
+        XMLGregorianCalendar calendar = null;
+        if (dateTime != null) {
+            calendar = XML_TYPE_FACTORY.newXMLGregorianCalendar(
+                    fields.contains(Fields.YEAR) ? dateTime.getYear() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.MONTH) ? dateTime.getMonthValue() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.DAY) ? dateTime.getDayOfMonth() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.HOUR) ? dateTime.getHour() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.MINUTE) ? dateTime.getMinute() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.SECOND) ? dateTime.getSecond() : DatatypeConstants.FIELD_UNDEFINED,
+                    DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(Fields.TIMEZONE) && dateTime.getOffset() != ZoneOffset.UTC ?
+                            dateTime.getOffset().getTotalSeconds() / 60 : DatatypeConstants.FIELD_UNDEFINED);
+
+            if (fields.contains(Fields.NANO) && dateTime.getNano() != 0)
+                calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano() / 1e+9));
+        }
+
+        return calendar;
     }
 
     @Override
