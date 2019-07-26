@@ -20,6 +20,16 @@ public class TextContent {
     public static final DatatypeFactory XML_TYPE_FACTORY;
     private static final TextContent EMPTY = new TextContent("");
 
+    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE };
+    private static final EnumSet<Fields> DATE_TIME_FIELDS = EnumSet.allOf(Fields.class);
+    private static final EnumSet<Fields> TIME_FIELDS = EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE);
+    private static final EnumSet<Fields> DATE_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE);
+    private static final EnumSet<Fields> GYEAR_MONTH_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE);
+    private static final EnumSet<Fields> GMONTH_DAY_FIELDS = EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE);
+    private static final EnumSet<Fields> GDAY_FIELDS = EnumSet.of(Fields.DAY, Fields.TIMEZONE);
+    private static final EnumSet<Fields> GMONTH_FIELDS = EnumSet.of(Fields.MONTH, Fields.TIMEZONE);
+    private static final EnumSet<Fields> GYEAR_FIELDS = EnumSet.of(Fields.YEAR, Fields.TIMEZONE);
+
     static {
         try {
             XML_TYPE_FACTORY = DatatypeFactory.newInstance();
@@ -81,67 +91,67 @@ public class TextContent {
     }
 
     public static TextContent ofDateTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.allOf(Fields.class));
+        return ofOffsetDateTime(content, DATE_TIME_FIELDS);
     }
 
     public static TextContent ofDateTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.allOf(Fields.class));
+        return ofOffsetDateTimeList(content, DATE_TIME_FIELDS);
     }
 
     public static TextContent ofTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, TIME_FIELDS);
     }
 
     public static TextContent ofTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, TIME_FIELDS);
     }
 
     public static TextContent ofDate(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, DATE_FIELDS);
     }
 
     public static TextContent ofDateList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, DATE_FIELDS);
     }
 
     public static TextContent ofGYearMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, GYEAR_MONTH_FIELDS);
     }
 
     public static TextContent ofGYearMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, GYEAR_MONTH_FIELDS);
     }
 
     public static TextContent ofGMonthDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, GMONTH_DAY_FIELDS);
     }
 
     public static TextContent ofGMonthDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, GMONTH_DAY_FIELDS);
     }
 
     public static TextContent ofGDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, GDAY_FIELDS);
     }
 
     public static TextContent ofGDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.DAY, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, GDAY_FIELDS);
     }
 
     public static TextContent ofGMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.MONTH, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, GMONTH_FIELDS);
     }
 
     public static TextContent ofGMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.MONTH, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, GMONTH_FIELDS);
     }
 
     public static TextContent ofGYear(OffsetDateTime content) {
-        return ofOffsetDateTime(content, EnumSet.of(Fields.YEAR, Fields.TIMEZONE));
+        return ofOffsetDateTime(content, GYEAR_FIELDS);
     }
 
     public static TextContent ofGYearList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, EnumSet.of(Fields.YEAR, Fields.TIMEZONE));
+        return ofOffsetDateTimeList(content, GYEAR_FIELDS);
     }
 
     public boolean isEmpty() {
@@ -725,8 +735,6 @@ public class TextContent {
                 .map(XMLGregorianCalendar::toXMLFormat)
                 .collect(Collectors.joining(" "))) : EMPTY;
     }
-
-    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE };
 
     private static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<Fields> fields) {
         XMLGregorianCalendar calendar = null;
