@@ -740,7 +740,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                             if (recent == context)
                                 break;
 
-                            if (recent.namespaces.values().contains(prefix))
+                            if (recent.namespaces.containsValue(prefix))
                                 return null;
                         }
                     }
@@ -777,7 +777,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         }
     }
 
-    private class NamespaceMap {
+    private static class NamespaceMap {
         private final Map<String, String> namespaces;
         private final int level;
 

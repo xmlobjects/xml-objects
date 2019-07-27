@@ -175,12 +175,11 @@ public class XMLWriter implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     public <T> void writeElement(Element element, T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
-        if (object == null)
-            throw new XMLWriteException("Illegal to call writeElement with a null object.");
-
-        ObjectSerializer<T> serializer = (ObjectSerializer<T>) xmlObjects.getSerializer(object.getClass(), namespaces);
-        if (serializer != null)
-            writeElementUsingSerializer(element, object, serializer, namespaces);
+        if (object != null) {
+            ObjectSerializer<T> serializer = (ObjectSerializer<T>) xmlObjects.getSerializer(object.getClass(), namespaces);
+            if (serializer != null)
+                writeElementUsingSerializer(element, object, serializer, namespaces);
+        }
     }
 
     public <T> void writeElementUsingSerializer(Element element, T object, Class<? extends ObjectSerializer<T>> type, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
@@ -189,7 +188,7 @@ public class XMLWriter implements AutoCloseable {
 
     public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         if (object == null)
-            throw new XMLWriteException("Illegal to call writeElementUsingSerializer with a null object.");
+            return;
 
         if (element == null) {
             element = serializer.createElement(object, namespaces);
@@ -209,6 +208,9 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public void writeDOMElement(org.w3c.dom.Element element) throws XMLWriteException {
+        if (element == null)
+            return;
+
         try {
             if (transformer == null)
                 transformer = TransformerFactory.newInstance().newTransformer();

@@ -9,6 +9,6 @@ import org.xmlobjects.xml.Namespaces;
 @IndexSubclasses
 public interface ObjectSerializer<T> {
     default Element createElement(T object, Namespaces namespaces) throws ObjectSerializeException { return null; }
-    default void initializeElement(Element element, T object, Namespaces namespaces, XMLWriter writer) throws ObjectSerializeException, XMLWriteException { };
-    default void writeChildElements(T object, Namespaces namespaces, XMLWriter writer) throws ObjectSerializeException, XMLWriteException { };
+    default void initializeElement(Element element, T object, Namespaces namespaces, XMLWriter writer) throws ObjectSerializeException, XMLWriteException { }
+    default void writeChildElements(T object, Namespaces namespaces, XMLWriter writer) throws ObjectSerializeException, XMLWriteException { }
 }

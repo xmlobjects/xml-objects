@@ -20,7 +20,7 @@ public class TextContent {
     public static final DatatypeFactory XML_TYPE_FACTORY;
     private static final TextContent EMPTY = new TextContent("");
 
-    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE };
+    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE }
     private static final EnumSet<Fields> DATE_TIME_FIELDS = EnumSet.allOf(Fields.class);
     private static final EnumSet<Fields> TIME_FIELDS = EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE);
     private static final EnumSet<Fields> DATE_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE);

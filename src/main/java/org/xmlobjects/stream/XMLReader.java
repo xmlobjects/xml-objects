@@ -33,8 +33,8 @@ public class XMLReader implements AutoCloseable {
     private final DepthXMLStreamReader reader;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
+    private final boolean createDOMasFallback;
     private Transformer transformer;
-    private boolean createDOMasFallback;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");

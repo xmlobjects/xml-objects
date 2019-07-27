@@ -17,7 +17,7 @@ public class StAXMapper {
         this.handler = buffer;
     }
 
-    public void mapEvent(XMLStreamReader reader) throws XMLStreamException, SAXException {
+    public void mapEvent(XMLStreamReader reader) throws SAXException {
         switch (reader.getEventType()) {
             case XMLStreamConstants.START_ELEMENT:
                 handleStartElement(reader);
@@ -32,17 +32,17 @@ public class StAXMapper {
         }
     }
 
-    private void handleCharacters(XMLStreamReader reader) throws XMLStreamException, SAXException {
+    private void handleCharacters(XMLStreamReader reader) throws SAXException {
         handler.characters(reader.getText().toCharArray(), 0, reader.getTextLength());
     }
 
-    private void handleEndElement(XMLStreamReader reader) throws XMLStreamException, SAXException {
+    private void handleEndElement(XMLStreamReader reader) throws SAXException {
         handler.endElement(getNamespaceURI(reader.getNamespaceURI()),
                 reader.getLocalName(),
                 getQName(reader.getPrefix(), reader.getLocalName()));
     }
 
-    private void handleStartElement(XMLStreamReader reader) throws XMLStreamException, SAXException {
+    private void handleStartElement(XMLStreamReader reader) throws SAXException {
         handler.startElement(getNamespaceURI(reader.getNamespaceURI()),
                 reader.getLocalName(),
                 getQName(reader.getPrefix(), reader.getLocalName()),
