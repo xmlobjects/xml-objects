@@ -22,8 +22,8 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor 'org.atteo.classindex:classindex:3.6'
-    api 'org.atteo.classindex:classindex:3.6'
+    annotationProcessor 'org.atteo.classindex:classindex:3.8'
+    api 'org.atteo.classindex:classindex:3.8'
 }
 
 javadoc {
