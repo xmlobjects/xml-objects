@@ -45,4 +45,17 @@ public class Namespaces {
     public boolean contains(String namespaceURI) {
         return namespaces.contains(namespaceURI);
     }
+
+    public boolean containsAll(Collection<String> namespaceURIs) {
+        return namespaces.containsAll(namespaceURIs);
+    }
+
+    public boolean containsAll(String... namespaceURIs) {
+        for (String namespaceURI : namespaceURIs) {
+            if (!namespaces.contains(namespaceURI))
+                return false;
+        }
+
+        return true;
+    }
 }

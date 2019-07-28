@@ -49,7 +49,7 @@ public class XMLObjects {
     }
 
     public XMLObjects registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName) throws XMLObjectsException {
-        registerBuilder(builder,namespaceURI,localName, false);
+        registerBuilder(builder, namespaceURI, localName, false);
         return this;
     }
 
@@ -66,7 +66,7 @@ public class XMLObjects {
     }
 
     public XMLObjects registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectsException {
-        registerSerializer(serializer,objectType,namespaceURI,false);
+        registerSerializer(serializer, objectType, namespaceURI, false);
         return this;
     }
 
