@@ -187,19 +187,18 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
-        if (object == null)
-            return;
+        if (object != null) {
+            if (element == null) {
+                element = serializer.createElement(object, namespaces);
+                if (element == null)
+                    throw new ObjectSerializeException("The serializer " + serializer.getClass().getName() + " created a null value.");
+            }
 
-        if (element == null) {
-            element = serializer.createElement(object, namespaces);
-            if (element == null)
-                throw new ObjectSerializeException("The serializer " + serializer.getClass().getName() + " created a null value.");
+            serializer.initializeElement(element, object, namespaces, this);
+            writeStartElement(element);
+            serializer.writeChildElements(object, namespaces, this);
+            writeEndElement();
         }
-
-        serializer.initializeElement(element, object, namespaces, this);
-        writeStartElement(element);
-        serializer.writeChildElements(object, namespaces, this);
-        writeEndElement();
     }
 
     public void writeElement(Element element) throws XMLWriteException {
