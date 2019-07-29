@@ -237,8 +237,9 @@ public class XMLObjects {
                 for (Method method : clazz.getDeclaredMethods()) {
                     if (method.getName().equals("createElement") && !method.isSynthetic()) {
                         Type[] parameters = method.getGenericParameterTypes();
-                        if (parameters.length > 0
+                        if (parameters.length == 2
                                 && parameters[0] instanceof Class<?>
+                                && parameters[1] == Namespaces.class
                                 && !Modifier.isAbstract(((Class<?>) parameters[0]).getModifiers())) {
                             objectType = (Class<?>) parameters[0];
                             hasCreateElementMethod = true;
