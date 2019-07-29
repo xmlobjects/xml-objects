@@ -24,13 +24,16 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final SAXWriter saxWriter;
-    private Transformer transformer;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
+    private Transformer transformer;
+    private Map<String, Object> properties;
+
     private final Deque<QName> elements = new ArrayDeque<>();
     private EventType lastEvent;
 
@@ -142,6 +145,21 @@ public class XMLWriter implements AutoCloseable {
     public XMLWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
         saxWriter.useHeaderComment(namespaceURI, schemaLocation);
         return this;
+    }
+
+    public Object getProperty(String name) {
+        return properties != null ? properties.get(name) : null;
+    }
+
+    public boolean getAndCompareProperty(String name, Object expectedValue) {
+        return Objects.equals(getProperty(name), expectedValue);
+    }
+
+    public void setProperty(String name, Object value) {
+        if (properties == null)
+            properties = new HashMap<>();
+
+        properties.put(name, value);
     }
 
     public void writeStartDocument() throws XMLWriteException {
