@@ -7,7 +7,6 @@ import org.xml.sax.helpers.AttributesImpl;
 
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 public class StAXMapper {

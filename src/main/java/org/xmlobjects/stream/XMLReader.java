@@ -35,7 +35,6 @@ public class XMLReader implements AutoCloseable {
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private Transformer transformer;
-    private Map<String, Object> properties;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -45,21 +44,6 @@ public class XMLReader implements AutoCloseable {
 
     public XMLStreamReader getStreamReader() {
         return reader;
-    }
-
-    public Object getProperty(String name) {
-        return properties != null ? properties.get(name) : null;
-    }
-
-    public boolean getAndCompareProperty(String name, Object expectedValue) {
-        return Objects.equals(getProperty(name), expectedValue);
-    }
-
-    public void setProperty(String name, Object value) {
-        if (properties == null)
-            properties = new HashMap<>();
-
-        properties.put(name, value);
     }
 
     @Override
