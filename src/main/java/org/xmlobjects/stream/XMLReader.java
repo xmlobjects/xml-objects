@@ -100,7 +100,7 @@ public class XMLReader implements AutoCloseable {
         return reader.getName();
     }
 
-    public <T> BuildResult<T> getObject(Class<T> type) throws ObjectBuildException, XMLReadException {
+    public <T> T getObject(Class<T> type) throws ObjectBuildException, XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
             throw new XMLReadException("Illegal to call getObject when event is not START_ELEMENT.");
 
@@ -111,16 +111,9 @@ public class XMLReader implements AutoCloseable {
             if (object == null)
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
-            return BuildResult.of(getObject(object, name, builder));
-        }
-
-        if (createDOMasFallback) {
-            Element element = getObjectAsDOMElement();
-            if (element != null)
-                return BuildResult.of(element);
-        }
-
-        return BuildResult.empty();
+            return getObject(object, name, builder);
+        } else
+            return null;
     }
 
     public <T> T getObjectUsingBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException, XMLReadException {
@@ -187,7 +180,7 @@ public class XMLReader implements AutoCloseable {
         }
     }
 
-    public Element getObjectAsDOMElement() throws XMLReadException {
+    public Element getDOMElement() throws XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
             throw new XMLReadException("Illegal to call getObjectAsDOMElement when event is not START_ELEMENT.");
 
@@ -212,6 +205,19 @@ public class XMLReader implements AutoCloseable {
         } catch (TransformerException e) {
             throw new XMLReadException("Failed to read XML content as DOM element.", e);
         }
+    }
+
+    public <T> BuildResult<T> getObjectOrDOMElement(Class<T> type) throws ObjectBuildException, XMLReadException {
+        T object = getObject(type);
+        if (object != null)
+            return BuildResult.of(object);
+        else if (createDOMasFallback) {
+            Element element = getDOMElement();
+            if (element != null)
+                return BuildResult.of(element);
+        }
+
+        return BuildResult.empty();
     }
 
     public Attributes getAttributes() throws XMLReadException {
