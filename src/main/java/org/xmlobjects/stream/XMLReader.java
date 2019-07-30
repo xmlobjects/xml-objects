@@ -42,6 +42,10 @@ public class XMLReader implements AutoCloseable {
         this.createDOMasFallback = createDOMasFallback;
     }
 
+    public XMLObjects getXMLObjects() {
+        return xmlObjects;
+    }
+
     public XMLStreamReader getStreamReader() {
         return reader;
     }

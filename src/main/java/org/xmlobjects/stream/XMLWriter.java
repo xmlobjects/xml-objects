@@ -40,6 +40,10 @@ public class XMLWriter implements AutoCloseable {
         this.saxWriter = saxWriter;
     }
 
+    public XMLObjects getXMLObjects() {
+        return xmlObjects;
+    }
+
     public SAXWriter getSAXWriter() {
         return saxWriter;
     }
