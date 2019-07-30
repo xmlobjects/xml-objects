@@ -46,6 +46,10 @@ public class XMLReader implements AutoCloseable {
         return reader;
     }
 
+    public boolean isCreateDOMasFallback() {
+        return createDOMasFallback;
+    }
+
     @Override
     public void close() throws XMLReadException {
         try {
