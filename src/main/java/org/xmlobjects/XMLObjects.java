@@ -24,12 +24,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class XMLObjects {
-    private final ConcurrentHashMap<String, Map<String, ObjectBuilder<?>>> builders = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Map<String, BuilderInfo>> builders = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
 
     private XMLObjects() {
@@ -54,15 +55,31 @@ public class XMLObjects {
     }
 
     public ObjectBuilder<?> getBuilder(String namespaceURI, String localName) {
-        return builders.getOrDefault(namespaceURI, Collections.emptyMap()).get(localName);
+        BuilderInfo info = builders.getOrDefault(namespaceURI, Collections.emptyMap()).get(localName);
+        return info != null ? info.builder : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> ObjectBuilder<T> getBuilder(String namespaceURI, String localName, Class<T> objectType) {
+        Objects.requireNonNull(objectType, "Object type must not be null.");
+        BuilderInfo info = builders.getOrDefault(namespaceURI, Collections.emptyMap()).get(localName);
+        return info != null && objectType.isAssignableFrom(info.objectType) ? (ObjectBuilder<T>) info.builder : null;
     }
 
     public ObjectBuilder<?> getBuilder(String localName) {
         return getBuilder(XMLConstants.NULL_NS_URI, localName);
     }
 
+    public <T> ObjectBuilder<T> getBuilder(String localName, Class<T> objectType) {
+        return getBuilder(XMLConstants.NULL_NS_URI, localName, objectType);
+    }
+
     public ObjectBuilder<?> getBuilder(QName name) {
         return getBuilder(name.getNamespaceURI(), name.getLocalPart());
+    }
+
+    public <T> ObjectBuilder<T> getBuilder(QName name, Class<T> objectType) {
+        return getBuilder(name.getNamespaceURI(), name.getLocalPart(), objectType);
     }
 
     public XMLObjects registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectsException {
@@ -92,8 +109,7 @@ public class XMLObjects {
         return serializers.values().stream().flatMap(map -> map.keySet().stream()).collect(Collectors.toSet());
     }
 
-    @SuppressWarnings("unchecked")
-    public <T> T fromXML(XMLReader reader, Class<T> type) throws ObjectBuildException, XMLReadException {
+    public <T> T fromXML(XMLReader reader, Class<T> objectType) throws ObjectBuildException, XMLReadException {
         T object = null;
         int stopAt = 0;
 
@@ -101,10 +117,10 @@ public class XMLObjects {
             EventType event = reader.nextTag();
 
             if (event == EventType.START_ELEMENT) {
-                ObjectBuilder<?> builder = getBuilder(reader.getName());
-                if (builder != null && type.isAssignableFrom(getObjectType(builder))) {
+                ObjectBuilder<T> builder = getBuilder(reader.getName(), objectType);
+                if (builder != null) {
                     stopAt = reader.getDepth() - 2;
-                    object = reader.getObjectUsingBuilder((ObjectBuilder<T>) builder);
+                    object = reader.getObjectUsingBuilder(builder);
                 }
             }
 
@@ -204,11 +220,12 @@ public class XMLObjects {
     }
 
     private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectsException {
-        ObjectBuilder<?> current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, builder);
+        BuilderInfo info = new BuilderInfo(builder, getObjectType(builder));
+        BuilderInfo current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, info);
         if (current != null && failOnDuplicates)
             throw new XMLObjectsException("Two builders are registered for the same XML element '" +
                     new QName(namespaceURI, localName) + "': " +
-                    builder.getClass().getName() + " and " + current.getClass().getName() + ".");
+                    builder.getClass().getName() + " and " + current.builder.getClass().getName() + ".");
     }
 
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
@@ -256,6 +273,16 @@ public class XMLObjects {
             throw new XMLObjectsException("The serializer " + parent.getClass().getName() + " does not implement the createElement method.");
 
         return objectType;
+    }
+
+    private static class BuilderInfo {
+        final ObjectBuilder<?> builder;
+        final Class<?> objectType;
+
+        BuilderInfo(ObjectBuilder<?> builder, Class<?> objectType) {
+            this.builder = builder;
+            this.objectType = objectType;
+        }
     }
 
 }
