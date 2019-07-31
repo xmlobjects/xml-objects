@@ -222,16 +222,16 @@ public class XMLObjects {
     private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectsException {
         BuilderInfo info = new BuilderInfo(builder, getObjectType(builder));
         BuilderInfo current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, info);
-        if (current != null && failOnDuplicates)
-            throw new XMLObjectsException("Two builders are registered for the same XML element '" +
+        if (current != null && current.builder != builder && failOnDuplicates)
+            throw new XMLObjectsException("Two builders are registered for the XML element '" +
                     new QName(namespaceURI, localName) + "': " +
                     builder.getClass().getName() + " and " + current.builder.getClass().getName() + ".");
     }
 
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
         ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new HashMap<>()).put(namespaceURI, serializer);
-        if (current != null && failOnDuplicates)
-            throw new XMLObjectsException("Two serializers are registered for the same object type '" +
+        if (current != null && current != serializer && failOnDuplicates)
+            throw new XMLObjectsException("Two serializers are registered for the object type '" +
                     objectType.getName() + "': " +
                     serializer.getClass().getName() + " and " + current.getClass().getName() + ".");
     }
