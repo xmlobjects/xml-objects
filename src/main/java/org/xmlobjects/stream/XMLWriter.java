@@ -188,7 +188,7 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public <T> void writeElementUsingSerializer(Element element, T object, Class<? extends ObjectSerializer<T>> type, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
-        writeElementUsingSerializer(element, object, getSerializer(type), namespaces);
+        writeElementUsingSerializer(element, object, getOrCreateSerializer(type), namespaces);
     }
 
     public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
@@ -304,7 +304,7 @@ public class XMLWriter implements AutoCloseable {
         writeCharacters(mixedContent, false);
     }
 
-    private <T> ObjectSerializer<T> getSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
+    public <T> ObjectSerializer<T> getOrCreateSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
         ObjectSerializer<T> serializer;
 
         // get serializer from cache or create a new instance

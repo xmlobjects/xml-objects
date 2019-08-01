@@ -117,22 +117,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public <T> T getObjectUsingBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException, XMLReadException {
-        ObjectBuilder<T> builder;
-
-        // get builder from cache or create a new instance
-        ObjectBuilder<?> cachedBuilder = builderCache.get(type.getName());
-        if (cachedBuilder != null && type.isAssignableFrom(cachedBuilder.getClass()))
-            builder = type.cast(cachedBuilder);
-        else {
-            try {
-                builder = type.getDeclaredConstructor().newInstance();
-                builderCache.put(type.getName(), builder);
-            } catch (Exception e) {
-                throw new ObjectBuildException("The builder " + type.getName() + " lacks a default constructor.");
-            }
-        }
-
-        return getObjectUsingBuilder(builder);
+        return getObjectUsingBuilder(getOrCreateBuilder(type));
     }
 
     public <T> T getObjectUsingBuilder(ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
@@ -279,5 +264,23 @@ public class XMLReader implements AutoCloseable {
         } catch (IOException | SAXException | XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
+    }
+
+    public <T> ObjectBuilder<T> getOrCreateBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
+        ObjectBuilder<T> builder;
+
+        ObjectBuilder<?> cachedBuilder = builderCache.get(type.getName());
+        if (cachedBuilder != null && type.isAssignableFrom(cachedBuilder.getClass()))
+            builder = type.cast(cachedBuilder);
+        else {
+            try {
+                builder = type.getDeclaredConstructor().newInstance();
+                builderCache.put(type.getName(), builder);
+            } catch (Exception e) {
+                throw new ObjectBuildException("The builder " + type.getName() + " lacks a default constructor.");
+            }
+        }
+
+        return builder;
     }
 }
