@@ -122,7 +122,7 @@ public class XMLReader implements AutoCloseable {
 
     public <T> T getObjectUsingBuilder(ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
-            throw new XMLReadException("Illegal to call getObject when event is not START_ELEMENT.");
+            throw new XMLReadException("Illegal to call getObjectUsingBuilder when event is not START_ELEMENT.");
 
         QName name = reader.getName();
         T object = builder.createObject(name);
