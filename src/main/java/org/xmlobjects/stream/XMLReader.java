@@ -31,15 +31,15 @@ import java.util.Objects;
 public class XMLReader implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final DepthXMLStreamReader reader;
-    private final boolean createDOMasFallback;
+    private final boolean createDOMAsFallback;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private Transformer transformer;
 
-    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMasFallback) {
+    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMAsFallback) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
         this.reader = new DepthXMLStreamReader(reader);
-        this.createDOMasFallback = createDOMasFallback;
+        this.createDOMAsFallback = createDOMAsFallback;
     }
 
     public XMLObjects getXMLObjects() {
@@ -50,8 +50,8 @@ public class XMLReader implements AutoCloseable {
         return reader;
     }
 
-    public boolean isCreateDOMasFallback() {
-        return createDOMasFallback;
+    public boolean isCreateDOMAsFallback() {
+        return createDOMAsFallback;
     }
 
     @Override
@@ -196,7 +196,7 @@ public class XMLReader implements AutoCloseable {
         T object = getObject(type);
         if (object != null)
             return BuildResult.of(object);
-        else if (createDOMasFallback) {
+        else if (createDOMAsFallback) {
             Element element = getDOMElement();
             if (element != null)
                 return BuildResult.of(element);

@@ -24,7 +24,7 @@ public class XMLReaderFactory {
     private final XMLObjects xmlObjects;
     private final XMLInputFactory xmlInputFactory;
 
-    private boolean createDOMasFallback;
+    private boolean createDOMAsFallback;
 
     private XMLReaderFactory(XMLObjects xmlObjects) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -40,13 +40,13 @@ public class XMLReaderFactory {
         }
     }
 
-    public XMLReaderFactory createDOMasFallback(boolean createDOMasFallback) {
-        this.createDOMasFallback = createDOMasFallback;
+    public XMLReaderFactory createDOMAsFallback(boolean createDOMAsFallback) {
+        this.createDOMAsFallback = createDOMAsFallback;
         return this;
     }
 
-    public boolean isCreateDOMasFallback() {
-        return createDOMasFallback;
+    public boolean isCreateDOMAsFallback() {
+        return createDOMAsFallback;
     }
 
     public XMLReaderFactory withReporter(XMLReporter reporter) {
@@ -70,7 +70,7 @@ public class XMLReaderFactory {
     public XMLReader createReader(File file) throws XMLReadException {
         try {
             return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(
-                    new BufferedReader(new FileReader(file))), createDOMasFallback);
+                    new BufferedReader(new FileReader(file))), createDOMAsFallback);
         } catch (XMLStreamException | FileNotFoundException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -78,7 +78,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Path path) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(Files.newBufferedReader(path)), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(Files.newBufferedReader(path)), createDOMAsFallback);
         } catch (XMLStreamException | IOException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -86,7 +86,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(InputStream stream) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(stream), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(stream), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -94,7 +94,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(InputStream stream, String encoding) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(stream, encoding), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(stream, encoding), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -102,7 +102,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Reader reader) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(reader), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(reader), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -110,7 +110,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Source source) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(source), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(source), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -118,7 +118,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(String systemId, InputStream stream) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(systemId, stream), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(systemId, stream), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -126,19 +126,19 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(String systemId, Reader reader) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(systemId, reader), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createXMLStreamReader(systemId, reader), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
     }
 
     public XMLReader createReader(XMLStreamReader reader) {
-        return new XMLReader(xmlObjects, reader, createDOMasFallback);
+        return new XMLReader(xmlObjects, reader, createDOMAsFallback);
     }
 
     public XMLReader createFilteredReader(XMLReader reader, StreamFilter filter) throws XMLReadException {
         try {
-            return new XMLReader(xmlObjects, xmlInputFactory.createFilteredReader(reader.getStreamReader(), filter), createDOMasFallback);
+            return new XMLReader(xmlObjects, xmlInputFactory.createFilteredReader(reader.getStreamReader(), filter), createDOMAsFallback);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
