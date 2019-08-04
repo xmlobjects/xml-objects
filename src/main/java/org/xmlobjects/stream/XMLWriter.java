@@ -62,6 +62,7 @@ public class XMLWriter implements AutoCloseable {
             if (lastEvent != EventType.END_DOCUMENT)
                 writeEndDocument();
 
+            serializerCache.clear();
             saxWriter.close();
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
