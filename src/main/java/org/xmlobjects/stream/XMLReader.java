@@ -127,7 +127,7 @@ public class XMLReader implements AutoCloseable {
         QName name = reader.getName();
         ObjectBuilder<T> builder = xmlObjects.getBuilder(name, type);
         if (builder != null) {
-            T object = builder.createObject(name, properties);
+            T object = builder.createObject(name);
             if (object == null)
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
@@ -145,7 +145,7 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getObjectUsingBuilder when event is not START_ELEMENT.");
 
         QName name = reader.getName();
-        T object = builder.createObject(name, properties);
+        T object = builder.createObject(name);
         if (object == null)
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
