@@ -31,7 +31,7 @@ public class XMLWriter implements AutoCloseable {
     private final SAXWriter saxWriter;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
-    private Properties properties;
+    private final Properties properties = new Properties();
     private Transformer transformer;
 
     private final Deque<QName> elements = new ArrayDeque<>();
@@ -51,14 +51,11 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public Properties getProperties() {
-        if (properties == null)
-            properties = new Properties();
-
         return properties;
     }
 
     public void setProperty(String name, Object value) {
-        getProperties().set(name, value);
+        properties.set(name, value);
     }
 
     public void flush() throws XMLWriteException {
@@ -208,7 +205,7 @@ public class XMLWriter implements AutoCloseable {
     public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         if (object != null) {
             if (element == null) {
-                element = serializer.createElement(object, namespaces);
+                element = serializer.createElement(object, namespaces, properties);
                 if (element == null)
                     throw new ObjectSerializeException("The serializer " + serializer.getClass().getName() + " created a null value.");
             }

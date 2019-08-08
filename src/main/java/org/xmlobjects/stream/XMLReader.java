@@ -37,7 +37,7 @@ public class XMLReader implements AutoCloseable {
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private final Namespaces namespaces = Namespaces.newInstance();
-    private Properties properties;
+    private final Properties properties = new Properties();
     private Transformer transformer;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMAsFallback) {
@@ -63,14 +63,11 @@ public class XMLReader implements AutoCloseable {
     }
 
     public Properties getProperties() {
-        if (properties == null)
-            properties = new Properties();
-
         return properties;
     }
 
     public void setProperty(String name, Object value) {
-        getProperties().set(name, value);
+        properties.set(name, value);
     }
 
     @Override
