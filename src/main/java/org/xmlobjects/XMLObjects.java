@@ -13,6 +13,7 @@ import org.xmlobjects.stream.XMLReadException;
 import org.xmlobjects.stream.XMLReader;
 import org.xmlobjects.stream.XMLWriteException;
 import org.xmlobjects.stream.XMLWriter;
+import org.xmlobjects.util.Properties;
 import org.xmlobjects.xml.Namespaces;
 
 import javax.xml.XMLConstants;
@@ -238,7 +239,7 @@ public class XMLObjects {
 
     private Class<?> getObjectType(ObjectBuilder<?> builder) {
         try {
-            return builder.getClass().getMethod("createObject", QName.class).getReturnType();
+            return builder.getClass().getMethod("createObject", QName.class, Properties.class).getReturnType();
         } catch (NoSuchMethodException e) {
             return Object.class;
         }
@@ -254,9 +255,10 @@ public class XMLObjects {
                 for (Method method : clazz.getDeclaredMethods()) {
                     if (method.getName().equals("createElement") && !method.isSynthetic()) {
                         Type[] parameters = method.getGenericParameterTypes();
-                        if (parameters.length == 2
+                        if (parameters.length == 3
                                 && parameters[0] instanceof Class<?>
                                 && parameters[1] == Namespaces.class
+                                && parameters[2] == Properties.class
                                 && !Modifier.isAbstract(((Class<?>) parameters[0]).getModifiers())) {
                             objectType = (Class<?>) parameters[0];
                             hasCreateElementMethod = true;
