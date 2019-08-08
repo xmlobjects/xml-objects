@@ -10,6 +10,7 @@ import org.xmlobjects.util.DepthXMLStreamReader;
 import org.xmlobjects.util.SAXWriter;
 import org.xmlobjects.util.StAXMapper;
 import org.xmlobjects.xml.Attributes;
+import org.xmlobjects.xml.Namespaces;
 import org.xmlobjects.xml.TextContent;
 
 import javax.xml.namespace.QName;
@@ -34,6 +35,7 @@ public class XMLReader implements AutoCloseable {
     private final boolean createDOMAsFallback;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
+    private final Namespaces namespaces = Namespaces.newInstance();
     private Transformer transformer;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMAsFallback) {
@@ -52,6 +54,10 @@ public class XMLReader implements AutoCloseable {
 
     public boolean isCreateDOMAsFallback() {
         return createDOMAsFallback;
+    }
+
+    public Namespaces getNamespaces() {
+        return namespaces;
     }
 
     @Override
@@ -82,6 +88,9 @@ public class XMLReader implements AutoCloseable {
                 int event = reader.next();
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
+                        for (int i = 0; i < reader.getNamespaceCount(); i++)
+                            namespaces.add(reader.getNamespaceURI(i));
+
                         return EventType.START_ELEMENT;
                     case XMLStreamConstants.END_ELEMENT:
                         return EventType.END_ELEMENT;
@@ -143,6 +152,9 @@ public class XMLReader implements AutoCloseable {
 
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {
+                    for (int i = 0; i < reader.getNamespaceCount(); i++)
+                        namespaces.add(reader.getNamespaceURI(i));
+
                     // build child object
                     builder.buildChildObject(object, reader.getName(), getAttributes(), this);
                 }
