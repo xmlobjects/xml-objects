@@ -5,6 +5,7 @@ import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
+import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SAXWriter;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
@@ -30,6 +31,7 @@ public class XMLWriter implements AutoCloseable {
     private final SAXWriter saxWriter;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
+    private Properties properties;
     private Transformer transformer;
 
     private final Deque<QName> elements = new ArrayDeque<>();
@@ -46,6 +48,17 @@ public class XMLWriter implements AutoCloseable {
 
     public SAXWriter getSAXWriter() {
         return saxWriter;
+    }
+
+    public Properties getProperties() {
+        if (properties == null)
+            properties = new Properties();
+
+        return properties;
+    }
+
+    public void setProperty(String name, Object value) {
+        getProperties().set(name, value);
     }
 
     public void flush() throws XMLWriteException {

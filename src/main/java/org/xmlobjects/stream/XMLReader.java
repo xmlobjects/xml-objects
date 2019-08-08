@@ -7,6 +7,7 @@ import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.util.DepthXMLStreamReader;
+import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SAXWriter;
 import org.xmlobjects.util.StAXMapper;
 import org.xmlobjects.xml.Attributes;
@@ -36,6 +37,7 @@ public class XMLReader implements AutoCloseable {
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private final Namespaces namespaces = Namespaces.newInstance();
+    private Properties properties;
     private Transformer transformer;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMAsFallback) {
@@ -58,6 +60,17 @@ public class XMLReader implements AutoCloseable {
 
     public Namespaces getNamespaces() {
         return namespaces;
+    }
+
+    public Properties getProperties() {
+        if (properties == null)
+            properties = new Properties();
+
+        return properties;
+    }
+
+    public void setProperty(String name, Object value) {
+        getProperties().set(name, value);
     }
 
     @Override
