@@ -1,5 +1,7 @@
 package org.xmlobjects.util;
 
+import org.xmlobjects.xml.Namespaces;
+
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -10,14 +12,21 @@ import java.util.Objects;
 
 public class DepthXMLStreamReader implements XMLStreamReader {
     private final XMLStreamReader reader;
+    private final Namespaces namespaces;
+
     private int depth;
 
     public DepthXMLStreamReader(XMLStreamReader reader) {
         this.reader = Objects.requireNonNull(reader, "XML stream reader must not be null.");
+        namespaces = Namespaces.newInstance();
     }
 
     public XMLStreamReader getReader() {
         return reader;
+    }
+
+    public Namespaces getNamespaces() {
+        return namespaces;
     }
 
     public int getDepth() {
@@ -32,9 +41,12 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     @Override
     public int next() throws XMLStreamException {
         int event = reader.next();
-        if (event == START_ELEMENT)
+        if (event == START_ELEMENT) {
+            for (int i = 0; i < reader.getNamespaceCount(); i++)
+                namespaces.add(reader.getNamespaceURI(i));
+
             depth++;
-        else if (event == END_ELEMENT)
+        } else if (event == END_ELEMENT)
             depth--;
 
         return event;

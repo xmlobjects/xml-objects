@@ -36,7 +36,6 @@ public class XMLReader implements AutoCloseable {
     private final boolean createDOMAsFallback;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
-    private final Namespaces namespaces = Namespaces.newInstance();
     private final Properties properties = new Properties();
     private Transformer transformer;
 
@@ -59,7 +58,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public Namespaces getNamespaces() {
-        return namespaces;
+        return reader.getNamespaces();
     }
 
     public Properties getProperties() {
@@ -98,9 +97,6 @@ public class XMLReader implements AutoCloseable {
                 int event = reader.next();
                 switch (event) {
                     case XMLStreamConstants.START_ELEMENT:
-                        for (int i = 0; i < reader.getNamespaceCount(); i++)
-                            namespaces.add(reader.getNamespaceURI(i));
-
                         return EventType.START_ELEMENT;
                     case XMLStreamConstants.END_ELEMENT:
                         return EventType.END_ELEMENT;
@@ -162,9 +158,6 @@ public class XMLReader implements AutoCloseable {
 
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {
-                    for (int i = 0; i < reader.getNamespaceCount(); i++)
-                        namespaces.add(reader.getNamespaceURI(i));
-
                     // build child object
                     builder.buildChildObject(object, reader.getName(), getAttributes(), this);
                 }
