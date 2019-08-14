@@ -1,6 +1,6 @@
 package org.xmlobjects.util;
 
-import org.xmlobjects.schema.AbstractSchemaHandler;
+import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.schema.SchemaHandlerException;
 import org.xmlobjects.xml.Namespaces;
 
@@ -19,7 +19,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     private final URI baseURI;
     private final Namespaces namespaces;
 
-    private AbstractSchemaHandler schemaHandler;
+    private SchemaHandler schemaHandler;
     private int depth;
 
     public DepthXMLStreamReader(XMLStreamReader reader, URI baseURI) {
@@ -44,11 +44,11 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         return namespaces;
     }
 
-    public AbstractSchemaHandler getSchemaHandler() {
+    public SchemaHandler getSchemaHandler() {
         return schemaHandler;
     }
 
-    public void setSchemaHandler(AbstractSchemaHandler schemaHandler) {
+    public void setSchemaHandler(SchemaHandler schemaHandler) {
         this.schemaHandler = schemaHandler;
     }
 

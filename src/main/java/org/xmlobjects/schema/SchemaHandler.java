@@ -18,9 +18,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractSchemaHandler {
+public class SchemaHandler {
     protected final Map<String, XSSchemaSet> schemas = new ConcurrentHashMap<>();
     protected final Map<String, String> visitedSchemaLocations = new ConcurrentHashMap<>();
     private final Map<String, String> userSchemaLocations = new ConcurrentHashMap<>();
@@ -28,12 +29,6 @@ public abstract class AbstractSchemaHandler {
     private SAXParserFactory saxParserFactory;
     private ErrorHandler errorHandler;
     private AnnotationParserFactory annotationParserFactory;
-
-    protected AbstractSchemaHandler() throws SchemaHandlerException {
-        initialize();
-    }
-
-    protected abstract void initialize() throws SchemaHandlerException;
 
     public ErrorHandler getErrorHandler() {
         return errorHandler;
@@ -163,6 +158,10 @@ public abstract class AbstractSchemaHandler {
 
     public XSSchemaSet getSchemaSet(String namespaceURI) {
         return schemas.get(namespaceURI);
+    }
+
+    public Set<String> getTargetNamespaces() {
+        return schemas.keySet();
     }
 
     private SAXParserFactory getSAXParserFactory() {

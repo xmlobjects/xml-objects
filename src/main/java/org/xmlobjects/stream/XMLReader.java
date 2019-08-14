@@ -6,7 +6,7 @@ import org.xml.sax.SAXException;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
-import org.xmlobjects.schema.AbstractSchemaHandler;
+import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.util.DepthXMLStreamReader;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SAXWriter;
@@ -58,11 +58,11 @@ public class XMLReader implements AutoCloseable {
         return reader;
     }
 
-    public AbstractSchemaHandler getSchemaHandler() {
+    public SchemaHandler getSchemaHandler() {
         return reader.getSchemaHandler();
     }
 
-    XMLReader withSchemaHandler(AbstractSchemaHandler schemaHandler) {
+    XMLReader withSchemaHandler(SchemaHandler schemaHandler) {
         reader.setSchemaHandler(schemaHandler);
         return this;
     }

@@ -1,7 +1,7 @@
 package org.xmlobjects.stream;
 
 import org.xmlobjects.XMLObjects;
-import org.xmlobjects.schema.AbstractSchemaHandler;
+import org.xmlobjects.schema.SchemaHandler;
 
 import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
@@ -26,7 +26,7 @@ public class XMLReaderFactory {
     private final XMLObjects xmlObjects;
     private final XMLInputFactory xmlInputFactory;
 
-    private AbstractSchemaHandler schemaHandler;
+    private SchemaHandler schemaHandler;
     private boolean createDOMAsFallback;
 
     private XMLReaderFactory(XMLObjects xmlObjects) {
@@ -43,11 +43,11 @@ public class XMLReaderFactory {
         }
     }
 
-    public AbstractSchemaHandler getSchemaHandler() {
+    public SchemaHandler getSchemaHandler() {
         return schemaHandler;
     }
 
-    public XMLReaderFactory withSchemaHandler(AbstractSchemaHandler schemaHandler) {
+    public XMLReaderFactory withSchemaHandler(SchemaHandler schemaHandler) {
         this.schemaHandler = schemaHandler;
         return this;
     }
