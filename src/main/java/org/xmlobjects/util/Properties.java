@@ -8,6 +8,16 @@ import java.util.Objects;
 public class Properties implements Serializable {
     private Map<String, Object> properties;
 
+    public Properties() {
+    }
+
+    public Properties(Properties other) {
+        if (other.properties != null) {
+            properties = new HashMap<>();
+            properties.putAll(other.properties);
+        }
+    }
+
     public Object get(String name) {
         return properties != null ? properties.get(name) : null;
     }

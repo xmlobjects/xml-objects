@@ -22,8 +22,9 @@ repositories {
 }
 
 dependencies {
-    annotationProcessor 'org.atteo.classindex:classindex:3.8'
+    api 'org.glassfish.jaxb:xsom:2.3.2'
     api 'org.atteo.classindex:classindex:3.8'
+    annotationProcessor 'org.atteo.classindex:classindex:3.8'
 }
 
 javadoc {

@@ -1,6 +1,7 @@
 package org.xmlobjects.stream;
 
 import org.xmlobjects.XMLObjects;
+import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SAXWriter;
 
 import javax.xml.transform.stream.StreamResult;
@@ -18,6 +19,7 @@ import java.util.Objects;
 
 public class XMLWriterFactory {
     private final XMLObjects xmlObjects;
+    private final Properties properties = new Properties();
 
     private XMLWriterFactory(XMLObjects xmlObjects) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -27,9 +29,18 @@ public class XMLWriterFactory {
         return new XMLWriterFactory(xmlObjects);
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public XMLWriterFactory withProperty(String name, Object value) {
+        properties.set(name, value);
+        return this;
+    }
+
     public XMLWriter createWriter(File file) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(new OutputStreamWriter(new FileOutputStream(file))));
+            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file))));
         } catch (FileNotFoundException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -37,7 +48,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(File file, String encoding) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(new OutputStreamWriter(new FileOutputStream(file), encoding)));
+            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file), encoding)));
         } catch (UnsupportedEncodingException | FileNotFoundException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -45,7 +56,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(Path path) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path))));
+            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path))));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -53,7 +64,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(Path path, String encoding) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path), encoding)));
+            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path), encoding)));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -61,7 +72,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(StreamResult result) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(result));
+            return createWriter(new SAXWriter(result));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -69,7 +80,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(StreamResult result, String encoding) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(result, encoding));
+            return createWriter(new SAXWriter(result, encoding));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -77,7 +88,7 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(OutputStream stream) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(stream));
+            return createWriter(new SAXWriter(stream));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -85,17 +96,20 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(OutputStream stream, String encoding) throws XMLWriteException {
         try {
-            return new XMLWriter(xmlObjects, new SAXWriter(stream, encoding));
+            return createWriter(new SAXWriter(stream, encoding));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
 
     public XMLWriter createWriter(Writer writer) {
-        return new XMLWriter(xmlObjects, new SAXWriter(writer));
+        return createWriter(new SAXWriter(writer));
     }
 
     public XMLWriter createWriter(SAXWriter saxWriter) {
-        return new XMLWriter(xmlObjects, saxWriter);
+        XMLWriter xmlWriter = new XMLWriter(xmlObjects, saxWriter);
+        xmlWriter.setProperties(properties);
+
+        return xmlWriter;
     }
 }

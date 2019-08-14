@@ -2,6 +2,7 @@ package org.xmlobjects.stream;
 
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.schema.SchemaHandler;
+import org.xmlobjects.util.Properties;
 
 import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
@@ -25,6 +26,7 @@ import java.util.Objects;
 public class XMLReaderFactory {
     private final XMLObjects xmlObjects;
     private final XMLInputFactory xmlInputFactory;
+    private final Properties properties = new Properties();
 
     private SchemaHandler schemaHandler;
     private boolean createDOMAsFallback;
@@ -77,6 +79,15 @@ public class XMLReaderFactory {
 
     public XMLReaderFactory withResolver(XMLResolver resolver) {
         xmlInputFactory.setProperty(XMLInputFactory.RESOLVER, resolver);
+        return this;
+    }
+
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public XMLReaderFactory withProperty(String name, Object value) {
+        properties.set(name, value);
         return this;
     }
 
@@ -157,9 +168,12 @@ public class XMLReaderFactory {
     }
 
     public XMLReader createReader(XMLStreamReader reader, URI baseURI) {
-        return new XMLReader(xmlObjects, reader, baseURI)
-                .withSchemaHandler(schemaHandler)
-                .createDOMAsFallback(createDOMAsFallback);
+        XMLReader xmlReader = new XMLReader(xmlObjects, reader, baseURI);
+        xmlReader.setSchemaHandler(schemaHandler);
+        xmlReader.createDOMAsFallback(createDOMAsFallback);
+        xmlReader.setProperties(properties);
+
+        return xmlReader;
     }
 
     public XMLReader createFilteredReader(XMLReader reader, StreamFilter filter) throws XMLReadException {

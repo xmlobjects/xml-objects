@@ -31,7 +31,7 @@ public class XMLWriter implements AutoCloseable {
     private final SAXWriter saxWriter;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
-    private final Properties properties = new Properties();
+    private Properties properties;
     private Transformer transformer;
 
     private final Deque<QName> elements = new ArrayDeque<>();
@@ -51,11 +51,14 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public Properties getProperties() {
+        if (properties == null)
+            properties = new Properties();
+
         return properties;
     }
 
-    public void setProperty(String name, Object value) {
-        properties.set(name, value);
+    void setProperties(Properties properties) {
+        this.properties = new Properties(properties);
     }
 
     public void flush() throws XMLWriteException {

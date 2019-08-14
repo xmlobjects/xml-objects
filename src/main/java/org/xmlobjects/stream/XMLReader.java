@@ -37,8 +37,8 @@ public class XMLReader implements AutoCloseable {
     private final DepthXMLStreamReader reader;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
-    private final Properties properties = new Properties();
     private boolean createDOMAsFallback;
+    private Properties properties;
     private Transformer transformer;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, URI baseURI) {
@@ -58,39 +58,39 @@ public class XMLReader implements AutoCloseable {
         return reader;
     }
 
+    public Namespaces getNamespaces() {
+        return reader.getNamespaces();
+    }
+
     public SchemaHandler getSchemaHandler() {
         return reader.getSchemaHandler();
     }
 
-    XMLReader withSchemaHandler(SchemaHandler schemaHandler) {
+    void setSchemaHandler(SchemaHandler schemaHandler) {
         reader.setSchemaHandler(schemaHandler);
-        return this;
     }
 
     public boolean isCreateDOMAsFallback() {
         return createDOMAsFallback;
     }
 
-    XMLReader createDOMAsFallback(boolean createDOMAsFallback) {
+    void createDOMAsFallback(boolean createDOMAsFallback) {
         this.createDOMAsFallback = createDOMAsFallback;
-        return this;
     }
 
     public URI getBaseURI() {
         return reader.getBaseURI();
     }
 
-    public Namespaces getNamespaces() {
-        return reader.getNamespaces();
-    }
-
     public Properties getProperties() {
+        if (properties == null)
+            properties = new Properties();
+
         return properties;
     }
 
-    public XMLReader withProperty(String name, Object value) {
-        properties.set(name, value);
-        return this;
+    void setProperties(Properties properties) {
+        this.properties = new Properties(properties);
     }
 
     @Override
