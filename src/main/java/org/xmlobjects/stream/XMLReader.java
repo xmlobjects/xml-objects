@@ -6,6 +6,7 @@ import org.xml.sax.SAXException;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
+import org.xmlobjects.schema.AbstractSchemaHandler;
 import org.xmlobjects.util.DepthXMLStreamReader;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SAXWriter;
@@ -26,6 +27,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,16 +35,19 @@ import java.util.Objects;
 public class XMLReader implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final DepthXMLStreamReader reader;
-    private final boolean createDOMAsFallback;
 
     private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
     private final Properties properties = new Properties();
+    private boolean createDOMAsFallback;
     private Transformer transformer;
 
-    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, boolean createDOMAsFallback) {
+    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, URI baseURI) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
-        this.reader = new DepthXMLStreamReader(reader);
-        this.createDOMAsFallback = createDOMAsFallback;
+        this.reader = new DepthXMLStreamReader(reader, baseURI);
+    }
+
+    XMLReader(XMLObjects xmlObjects, XMLStreamReader reader) {
+        this(xmlObjects, reader, URI.create(""));
     }
 
     public XMLObjects getXMLObjects() {
@@ -53,8 +58,26 @@ public class XMLReader implements AutoCloseable {
         return reader;
     }
 
+    public AbstractSchemaHandler getSchemaHandler() {
+        return reader.getSchemaHandler();
+    }
+
+    XMLReader withSchemaHandler(AbstractSchemaHandler schemaHandler) {
+        reader.setSchemaHandler(schemaHandler);
+        return this;
+    }
+
     public boolean isCreateDOMAsFallback() {
         return createDOMAsFallback;
+    }
+
+    XMLReader createDOMAsFallback(boolean createDOMAsFallback) {
+        this.createDOMAsFallback = createDOMAsFallback;
+        return this;
+    }
+
+    public URI getBaseURI() {
+        return reader.getBaseURI();
     }
 
     public Namespaces getNamespaces() {
@@ -65,8 +88,9 @@ public class XMLReader implements AutoCloseable {
         return properties;
     }
 
-    public void setProperty(String name, Object value) {
+    public XMLReader withProperty(String name, Object value) {
         properties.set(name, value);
+        return this;
     }
 
     @Override

@@ -1,32 +1,55 @@
 package org.xmlobjects.util;
 
+import org.xmlobjects.schema.AbstractSchemaHandler;
+import org.xmlobjects.schema.SchemaHandlerException;
 import org.xmlobjects.xml.Namespaces;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.net.URI;
 import java.util.Objects;
 
 public class DepthXMLStreamReader implements XMLStreamReader {
     private final XMLStreamReader reader;
+    private final URI baseURI;
     private final Namespaces namespaces;
 
+    private AbstractSchemaHandler schemaHandler;
     private int depth;
 
-    public DepthXMLStreamReader(XMLStreamReader reader) {
+    public DepthXMLStreamReader(XMLStreamReader reader, URI baseURI) {
         this.reader = Objects.requireNonNull(reader, "XML stream reader must not be null.");
+        this.baseURI = Objects.requireNonNull(baseURI, "The base URI must not be null.");
         namespaces = Namespaces.newInstance();
+    }
+
+    public DepthXMLStreamReader(XMLStreamReader reader) {
+        this(reader, URI.create(""));
     }
 
     public XMLStreamReader getReader() {
         return reader;
     }
 
+    public URI getBaseURI() {
+        return baseURI;
+    }
+
     public Namespaces getNamespaces() {
         return namespaces;
+    }
+
+    public AbstractSchemaHandler getSchemaHandler() {
+        return schemaHandler;
+    }
+
+    public void setSchemaHandler(AbstractSchemaHandler schemaHandler) {
+        this.schemaHandler = schemaHandler;
     }
 
     public int getDepth() {
@@ -44,6 +67,29 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         if (event == START_ELEMENT) {
             for (int i = 0; i < reader.getNamespaceCount(); i++)
                 namespaces.add(reader.getNamespaceURI(i));
+
+            if (schemaHandler != null) {
+                for (int i = 0; i < reader.getAttributeCount(); i++) {
+                    if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(reader.getAttributeNamespace(i))) {
+                        try {
+                            switch (reader.getAttributeLocalName(i)) {
+                                case "schemaLocation":
+                                    String[] schemaLocations = reader.getAttributeValue(i).split("\\s+");
+                                    if (schemaLocations.length % 2 == 0) {
+                                        for (int j = 0; j < schemaLocations.length; j += 2)
+                                            schemaHandler.parseSchema(schemaLocations[j], baseURI.resolve(schemaLocations[j + 1]).toString());
+                                    }
+                                    break;
+                                case "noNamespaceSchemaLocation":
+                                    schemaHandler.parseSchema(XMLConstants.NULL_NS_URI, reader.getAttributeValue(i));
+                                    break;
+                            }
+                        } catch (SchemaHandlerException e) {
+                            throw new XMLStreamException("Caused by: ", e);
+                        }
+                    }
+                }
+            }
 
             depth++;
         } else if (event == END_ELEMENT)
