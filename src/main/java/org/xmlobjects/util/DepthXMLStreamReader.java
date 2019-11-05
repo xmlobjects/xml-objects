@@ -21,6 +21,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     private SchemaHandler schemaHandler;
     private int depth;
+    private int state;
 
     public DepthXMLStreamReader(XMLStreamReader reader, URI baseURI) {
         this.reader = Objects.requireNonNull(reader, "XML stream reader must not be null.");
@@ -56,6 +57,10 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         return depth;
     }
 
+    public int getState() {
+        return state;
+    }
+
     @Override
     public Object getProperty(String name) throws IllegalArgumentException {
         return reader.getProperty(name);
@@ -64,6 +69,8 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     @Override
     public int next() throws XMLStreamException {
         int event = reader.next();
+        state++;
+
         if (event == START_ELEMENT) {
             for (int i = 0; i < reader.getNamespaceCount(); i++)
                 namespaces.add(reader.getNamespaceURI(i));

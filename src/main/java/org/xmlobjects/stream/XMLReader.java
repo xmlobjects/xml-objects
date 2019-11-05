@@ -183,7 +183,12 @@ public class XMLReader implements AutoCloseable {
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {
                     // build child object
+                    int state = reader.getState();
                     builder.buildChildObject(object, reader.getName(), getAttributes(), this);
+
+                    // continue if the reader is at the next start element
+                    if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && state != reader.getState())
+                        continue;
                 }
 
                 if (reader.getEventType() == XMLStreamConstants.END_ELEMENT) {
@@ -257,9 +262,6 @@ public class XMLReader implements AutoCloseable {
     }
 
     public TextContent getTextContent() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
-            throw new XMLReadException("Illegal to call getTextContent when event is not START_ELEMENT.");
-
         try {
             StringBuilder result = new StringBuilder();
             boolean shouldParse = true;
