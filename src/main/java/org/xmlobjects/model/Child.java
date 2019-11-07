@@ -1,8 +1,6 @@
 package org.xmlobjects.model;
 
-import org.xmlobjects.util.copy.Copyable;
-
-public interface Child extends Copyable {
+public interface Child {
     Child getParent();
     void setParent(Child parent);
 }
