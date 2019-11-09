@@ -84,7 +84,7 @@ public class CopyBuilder {
                 clone = cloner.copy(src, dest, clones, shallowCopy, this);
             } catch (Throwable e) {
                 if (failOnError)
-                    throw e instanceof CopyException ? (CopyException) e : new CopyException(e);
+                    throw e instanceof CopyException ? (CopyException) e : new CopyException("Failed to copy " + src + ".", e);
             }
         }
 
