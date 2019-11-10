@@ -8,7 +8,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -182,9 +183,15 @@ public class TextContent {
 
     @SuppressWarnings("unchecked")
     public List<String> getAsList() {
-        return (isListOfType(value, String.class)) ?
-                (List<String>) value :
-                setValue(!formatContent().isEmpty() ? Arrays.asList(tokenizeContent()) : null);
+        if (isListOfType(value, String.class))
+            return (List<String>) value;
+        else if (!formatContent().isEmpty()) {
+            String[] tokens = tokenizeContent();
+            List<String> strings = new ArrayList<>(tokens.length);
+            Collections.addAll(strings, tokens);
+            return setValue(strings);
+        } else
+            return setValue(null);
     }
 
     public boolean isList() {
@@ -217,14 +224,16 @@ public class TextContent {
             return (List<Boolean>) value;
         else {
             String[] tokens = tokenizeContent();
-            Boolean[] booleans = new Boolean[tokens.length];
-            for (int i = 0; i < tokens.length; i++) {
-                booleans[i] = toBoolean(tokens[i]);
-                if (booleans[i] == null)
+            List<Boolean> booleans = new ArrayList<>(tokens.length);
+            for (String token : tokens) {
+                Boolean value = toBoolean(token);
+                if (value != null)
+                    booleans.add(value);
+                else
                     return setValue(null);
             }
 
-            return setValue(Arrays.asList(booleans));
+            return setValue(booleans);
         }
     }
 
@@ -266,16 +275,16 @@ public class TextContent {
             return (List<Double>) value;
         else {
             String[] tokens = tokenizeContent();
-            Double[] doubles = new Double[tokens.length];
-            for (int i = 0; i < tokens.length; i++) {
+            List<Double> doubles = new ArrayList<>(tokens.length);
+            for (String token : tokens) {
                 try {
-                    doubles[i] = Double.parseDouble(tokens[i]);
+                    doubles.add(Double.parseDouble(token));
                 } catch (NumberFormatException e) {
                     return setValue(null);
                 }
             }
 
-            return setValue(Arrays.asList(doubles));
+            return setValue(doubles);
         }
     }
 
@@ -317,16 +326,16 @@ public class TextContent {
             return (List<Integer>) value;
         else {
             String[] tokens = tokenizeContent();
-            Integer[] integers = new Integer[tokens.length];
-            for (int i = 0; i < tokens.length; i++) {
+            List<Integer> integers = new ArrayList<>(tokens.length);
+            for (String token : tokens) {
                 try {
-                    integers[i] = Integer.parseInt(tokens[i]);
+                    integers.add(Integer.parseInt(token));
                 } catch (NumberFormatException e) {
                     return setValue(null);
                 }
             }
 
-            return setValue(Arrays.asList(integers));
+            return setValue(integers);
         }
     }
 
@@ -368,16 +377,16 @@ public class TextContent {
             return (List<Duration>) value;
         else {
             String[] tokens = tokenizeContent();
-            Duration[] durations = new Duration[tokens.length];
-            for (int i = 0; i < tokens.length; i++) {
+            List<Duration> durations = new ArrayList<>(tokens.length);
+            for (String token : tokens) {
                 try {
-                    durations[i] = XML_TYPE_FACTORY.newDuration(tokens[i]);
+                    durations.add(XML_TYPE_FACTORY.newDuration(token));
                 } catch (Throwable e) {
                     return setValue(null);
                 }
             }
 
-            return setValue(Arrays.asList(durations));
+            return setValue(durations);
         }
     }
 
@@ -633,14 +642,16 @@ public class TextContent {
             result = (List<XMLGregorianCalendar>) value;
         else {
             String[] tokens = tokenizeContent();
-            XMLGregorianCalendar[] calendars = new XMLGregorianCalendar[tokens.length];
-            for (int i = 0; i < tokens.length; i++) {
-                calendars[i] = toCalendar(tokens[i], localName);
-                if (calendars[i] == null)
+            List<XMLGregorianCalendar> calendars = new ArrayList<>(tokens.length);
+            for (String token : tokens) {
+                XMLGregorianCalendar value = toCalendar(token, localName);
+                if (value != null)
+                    calendars.add(value);
+                else
                     return setValue(null);
             }
 
-            result = setValue(Arrays.asList(calendars));
+            result = setValue(calendars);
         }
 
         return result.stream().map(this::toOffsetDateTime).collect(Collectors.toList());
