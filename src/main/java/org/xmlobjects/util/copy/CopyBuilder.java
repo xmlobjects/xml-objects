@@ -7,19 +7,33 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
+import java.time.Period;
+import java.time.Year;
+import java.time.YearMonth;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class CopyBuilder {
     private final Map<Class<?>, Cloner> cloners = new IdentityHashMap<>();
+    private final Map<Object, Object> clones = new IdentityHashMap<>();
     private final Set<Class<?>> immutables = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Class<?>> nulls = Collections.newSetFromMap(new IdentityHashMap<>());
-    private Map<Object, Object> clones;
 
     private final Cloner<Object> IDENTITY_CLONER = (src, dest, clones, shallowCopy, builder) -> src;
     private final Cloner<Object> NULL_CLONER = (src, dest, clones, shallowCopy, builder) -> null;
@@ -27,6 +41,7 @@ public class CopyBuilder {
     private final Cloner<Map> MAP_CLONER = new MapCloner<>();
     private final Cloner<Object[]> ARRAY_CLONER = new ArrayCloner();
 
+    private boolean isCloning;
     private boolean failOnError;
 
     public CopyBuilder() {
@@ -64,6 +79,25 @@ public class CopyBuilder {
         return this;
     }
 
+    public <T> CopyBuilder withClone(T src, Supplier<T> supplier) {
+        if (src != null) {
+            T clone = supplier.get();
+            if (clone != null && !src.getClass().isAssignableFrom(clone.getClass()) && failOnError)
+                throw new CopyException("Type mismatch between object '" + src + "' and clone '" + clone + "'.");
+
+            clones.put(src, clone);
+        }
+
+        return this;
+    }
+
+    public <T> CopyBuilder withConstant(T src) {
+        if (src != null)
+            clones.put(src, src);
+
+        return this;
+    }
+
     public CopyBuilder failOnError(boolean failOnError) {
         this.failOnError = failOnError;
         return this;
@@ -74,9 +108,9 @@ public class CopyBuilder {
         if (src == null || src == dest)
             return src;
 
-        boolean isInitial = clones == null;
+        boolean isInitial = !isCloning;
         if (isInitial) {
-            clones = new IdentityHashMap<>();
+            isCloning = true;
             if (src instanceof Child) {
                 // avoid copying the parent of the initial object
                 Child parent = ((Child) src).getParent();
@@ -97,7 +131,8 @@ public class CopyBuilder {
         }
 
         if (isInitial) {
-            clones = null;
+            isCloning = false;
+            clones.clear();
             if (clone instanceof Child)
                 ((Child) clone).setParent(null);
         }
@@ -147,6 +182,19 @@ public class CopyBuilder {
         cloners.put(URL.class, IDENTITY_CLONER);
         cloners.put(UUID.class, IDENTITY_CLONER);
         cloners.put(Pattern.class, IDENTITY_CLONER);
+        cloners.put(Clock.class, IDENTITY_CLONER);
+        cloners.put(Duration.class, IDENTITY_CLONER);
+        cloners.put(Instant.class, IDENTITY_CLONER);
+        cloners.put(LocalDate.class, IDENTITY_CLONER);
+        cloners.put(LocalDateTime.class, IDENTITY_CLONER);
+        cloners.put(LocalTime.class, IDENTITY_CLONER);
+        cloners.put(MonthDay.class, IDENTITY_CLONER);
+        cloners.put(OffsetDateTime.class, IDENTITY_CLONER);
+        cloners.put(OffsetTime.class, IDENTITY_CLONER);
+        cloners.put(Period.class, IDENTITY_CLONER);
+        cloners.put(Year.class, IDENTITY_CLONER);
+        cloners.put(YearMonth.class, IDENTITY_CLONER);
+        cloners.put(ZonedDateTime.class, IDENTITY_CLONER);
 
         // predefined cloners
         cloners.put(ChildList.class, new ChildListCloner());
