@@ -1,5 +1,6 @@
 package org.xmlobjects.util.copy;
 
+import org.xmlobjects.model.Child;
 import org.xmlobjects.model.ChildList;
 
 import java.math.BigDecimal;
@@ -74,8 +75,15 @@ public class CopyBuilder {
             return src;
 
         boolean isInitial = clones == null;
-        if (isInitial)
+        if (isInitial) {
             clones = new IdentityHashMap<>();
+            if (src instanceof Child) {
+                // avoid copying the parent of the initial object
+                Child parent = ((Child) src).getParent();
+                if (parent != null)
+                    clones.put(parent, parent);
+            }
+        }
 
         T clone = (T) clones.get(src);
         if (clone == null) {
@@ -88,8 +96,11 @@ public class CopyBuilder {
             }
         }
 
-        if (isInitial)
+        if (isInitial) {
             clones = null;
+            if (dest instanceof Child)
+                ((Child) dest).setParent(null);
+        }
 
         return clone;
     }
