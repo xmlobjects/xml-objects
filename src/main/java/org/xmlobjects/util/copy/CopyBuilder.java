@@ -91,7 +91,7 @@ public class CopyBuilder {
         return this;
     }
 
-    public <T> CopyBuilder withConstant(T src) {
+    public <T> CopyBuilder withSelfCopy(T src) {
         if (src != null)
             clones.put(src, src);
 
