@@ -98,8 +98,8 @@ public class CopyBuilder {
 
         if (isInitial) {
             clones = null;
-            if (dest instanceof Child)
-                ((Child) dest).setParent(null);
+            if (clone instanceof Child)
+                ((Child) clone).setParent(null);
         }
 
         return clone;
