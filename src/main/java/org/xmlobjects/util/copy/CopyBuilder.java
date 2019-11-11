@@ -30,16 +30,17 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class CopyBuilder {
-    private final Map<Class<?>, Cloner> cloners = new IdentityHashMap<>();
+    private final Map<Class<?>, AbstractCloner> cloners = new IdentityHashMap<>();
     private final Map<Object, Object> clones = new IdentityHashMap<>();
     private final Set<Class<?>> immutables = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Class<?>> nulls = Collections.newSetFromMap(new IdentityHashMap<>());
 
-    private final Cloner<Object> IDENTITY_CLONER = (src, dest, clones, shallowCopy, builder) -> src;
-    private final Cloner<Object> NULL_CLONER = (src, dest, clones, shallowCopy, builder) -> null;
-    private final Cloner<Collection> COLLECTION_CLONER = new CollectionCloner<>();
-    private final Cloner<Map> MAP_CLONER = new MapCloner<>();
-    private final Cloner<Object[]> ARRAY_CLONER = new ArrayCloner();
+    private final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
+    private final AbstractCloner<Object> NULL_CLONER = new NullCloner();
+    private final AbstractCloner<Collection> COLLECTION_CLONER = new CollectionCloner<>(this);
+    private final AbstractCloner<Map> MAP_CLONER = new MapCloner<>(this);
+    private final AbstractCloner<Object[]> ARRAY_CLONER = new ArrayCloner(this);
+    private final Object NULL = new Object();
 
     private boolean isCloning;
     private boolean failOnError;
@@ -64,7 +65,8 @@ public class CopyBuilder {
         return copy(src, dest, false);
     }
 
-    public <T> CopyBuilder registerCloner(Class<T> type, Cloner<T> cloner) {
+    public <T> CopyBuilder registerCloner(Class<T> type, AbstractCloner<T> cloner) {
+        cloner.setCopyBuilder(this);
         cloners.put(type, cloner);
         return this;
     }
@@ -85,7 +87,7 @@ public class CopyBuilder {
             if (clone != null && !src.getClass().isAssignableFrom(clone.getClass()) && failOnError)
                 throw new CopyException("Type mismatch between object '" + src + "' and clone '" + clone + "'.");
 
-            clones.put(src, clone);
+            clones.put(src, clone != null ? clone : NULL);
         }
 
         return this;
@@ -111,8 +113,9 @@ public class CopyBuilder {
         boolean isInitial = !isCloning;
         if (isInitial) {
             isCloning = true;
+
             if (src instanceof Child) {
-                // avoid copying the parent of the initial object
+                // avoid copying the parent of the initial source object
                 Child parent = ((Child) src).getParent();
                 if (parent != null)
                     clones.put(parent, parent);
@@ -122,17 +125,28 @@ public class CopyBuilder {
         T clone = (T) clones.get(src);
         if (clone == null) {
             try {
-                Cloner<T> cloner = (Cloner<T>) findCloner(src.getClass());
-                clone = cloner.copy(src, dest, clones, shallowCopy, this);
+                AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(src.getClass());
+
+                if (cloner != IDENTITY_CLONER && cloner != NULL_CLONER) {
+                    if (dest == null)
+                        dest = cloner.newInstance(src, shallowCopy);
+
+                    clones.put(src, dest != null ? dest : NULL);
+                }
+
+                clone = cloner.copy(src, dest, shallowCopy);
             } catch (Throwable e) {
                 if (failOnError)
                     throw e instanceof CopyException ? (CopyException) e : new CopyException("Failed to copy " + src + ".", e);
             }
-        }
+        } else if (clone == NULL)
+            clone = null;
 
         if (isInitial) {
             isCloning = false;
             clones.clear();
+
+            // unset parent on initial source object
             if (clone instanceof Child)
                 ((Child) clone).setParent(null);
         }
@@ -140,8 +154,8 @@ public class CopyBuilder {
         return clone;
     }
 
-    private Cloner findCloner(Class<?> type) {
-        Cloner cloner = cloners.get(type);
+    private AbstractCloner findCloner(Class<?> type) {
+        AbstractCloner cloner = cloners.get(type);
         if (cloner == null) {
             if (immutables.contains(type))
                 return IDENTITY_CLONER;
@@ -156,7 +170,7 @@ public class CopyBuilder {
             else if (type.isArray())
                 return ARRAY_CLONER;
 
-            cloner = new ObjectCloner<>(type);
+            cloner = new ObjectCloner<>(type, this);
             cloners.put(type, cloner);
         }
 
@@ -195,8 +209,25 @@ public class CopyBuilder {
         cloners.put(Year.class, IDENTITY_CLONER);
         cloners.put(YearMonth.class, IDENTITY_CLONER);
         cloners.put(ZonedDateTime.class, IDENTITY_CLONER);
+        cloners.put(Collections.EMPTY_LIST.getClass(), IDENTITY_CLONER);
+        cloners.put(Collections.EMPTY_MAP.getClass(), IDENTITY_CLONER);
+        cloners.put(Collections.EMPTY_SET.getClass(), IDENTITY_CLONER);
 
         // predefined cloners
-        cloners.put(ChildList.class, new ChildListCloner());
+        cloners.put(ChildList.class, new ChildListCloner(this));
+    }
+
+    private static final class IdentityCloner extends AbstractCloner<Object> {
+        @Override
+        public Object copy(Object src, Object dest, boolean shallowCopy) {
+            return src;
+        }
+    }
+
+    private static final class NullCloner extends AbstractCloner<Object> {
+        @Override
+        public Object copy(Object src, Object dest, boolean shallowCopy) {
+            return null;
+        }
     }
 }

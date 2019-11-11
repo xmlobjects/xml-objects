@@ -1,20 +1,17 @@
 package org.xmlobjects.util.copy;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class MapCloner<T extends Map> implements Cloner<T> {
+public class MapCloner<T extends Map> extends AbstractCloner<T> {
 
-    MapCloner() {
+    MapCloner(CopyBuilder builder) {
+        super(builder);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public T copy(T src, T dest, Map<Object, Object> clones, boolean shallowCopy, CopyBuilder builder) throws Exception {
-        if (dest == null)
-            dest = newInstance(src);
-
-        clones.put(src, dest);
-
+    public T copy(T src, T dest, boolean shallowCopy) {
         if (shallowCopy)
             dest.putAll(src);
         else {
@@ -22,10 +19,20 @@ public class MapCloner<T extends Map> implements Cloner<T> {
                 Map.Entry entry = (Map.Entry) object;
                 Object key = entry.getKey();
                 Object value = entry.getValue();
-                dest.put(deepCopy(key, builder), deepCopy(value, builder));
+                dest.put(deepCopy(key), deepCopy(value));
             }
         }
 
         return dest;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public T newInstance(T object, boolean shallowCopy) {
+        try {
+            return super.newInstance(object, shallowCopy);
+        } catch (Throwable e) {
+            return (T) new HashMap<>();
+        }
     }
 }

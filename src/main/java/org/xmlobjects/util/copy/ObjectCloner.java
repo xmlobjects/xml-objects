@@ -4,12 +4,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class ObjectCloner<T> implements Cloner<T> {
+public class ObjectCloner<T> extends AbstractCloner<T> {
     private List<Field> fields = new ArrayList<>();
 
-    ObjectCloner(Class<?> type) {
+    ObjectCloner(Class<?> type, CopyBuilder builder) {
+        super(builder);
+
         do {
             try {
                 Field[] fields = type.getDeclaredFields();
@@ -30,19 +31,14 @@ public class ObjectCloner<T> implements Cloner<T> {
     }
 
     @Override
-    public T copy(T src, T dest, Map<Object, Object> clones, boolean shallowCopy, CopyBuilder builder) throws Exception {
-        if (dest == null)
-            dest = newInstance(src);
-
-        clones.put(src, dest);
-
+    public T copy(T src, T dest, boolean shallowCopy) throws Exception {
         if (shallowCopy) {
             for (Field field : fields)
                 field.set(dest, field.get(src));
         } else {
             for (Field field : fields) {
                 Object value = field.get(src);
-                field.set(dest, deepCopy(value, builder));
+                field.set(dest, deepCopy(value));
             }
         }
 
