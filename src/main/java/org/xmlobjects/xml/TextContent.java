@@ -762,7 +762,7 @@ public class TextContent {
                             dateTime.getOffset().getTotalSeconds() / 60 : DatatypeConstants.FIELD_UNDEFINED);
 
             if (fields.contains(Fields.NANO) && dateTime.getNano() != 0)
-                calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano() / 1e+9));
+                calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano(), 9).stripTrailingZeros());
         }
 
         return calendar;
