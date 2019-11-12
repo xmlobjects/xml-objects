@@ -232,7 +232,9 @@ public class XMLWriter implements AutoCloseable {
             return;
 
         try {
-            Transformer transformer = getTransformer();
+            if (transformer == null)
+                transformer = TransformerFactory.newInstance().newTransformer();
+
             DOMSource source = new DOMSource(element);
             SAXResult result = new SAXResult(saxWriter);
             transformer.transform(source, result);
@@ -338,17 +340,5 @@ public class XMLWriter implements AutoCloseable {
         }
 
         return serializer;
-    }
-
-    private Transformer getTransformer() throws XMLWriteException {
-        if (transformer == null) {
-            try {
-                transformer = TransformerFactory.newInstance().newTransformer();
-            } catch (TransformerConfigurationException e) {
-                throw new XMLWriteException("Failed to initialize DOM transformer.", e);
-            }
-        }
-
-        return transformer;
     }
 }
