@@ -232,9 +232,7 @@ public class XMLWriter implements AutoCloseable {
             return;
 
         try {
-            if (transformer == null)
-                transformer = TransformerFactory.newInstance().newTransformer();
-
+            Transformer transformer = getTransformer();
             DOMSource source = new DOMSource(element);
             SAXResult result = new SAXResult(saxWriter);
             transformer.transform(source, result);
