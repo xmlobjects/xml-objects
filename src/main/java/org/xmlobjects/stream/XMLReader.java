@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -36,7 +37,7 @@ public class XMLReader implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final DepthXMLStreamReader reader;
 
-    private final Map<String, ObjectBuilder<?>> builderCache = new HashMap<>();
+    private final Map<Class<?>, ObjectBuilder<?>> builderCache = new IdentityHashMap<>();
     private boolean createDOMAsFallback;
     private Properties properties;
     private Transformer transformer;
@@ -311,13 +312,13 @@ public class XMLReader implements AutoCloseable {
     public <T> ObjectBuilder<T> getOrCreateBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
         ObjectBuilder<T> builder;
 
-        ObjectBuilder<?> cachedBuilder = builderCache.get(type.getName());
-        if (cachedBuilder != null && type.isAssignableFrom(cachedBuilder.getClass()))
+        ObjectBuilder<?> cachedBuilder = builderCache.get(type);
+        if (cachedBuilder != null)
             builder = type.cast(cachedBuilder);
         else {
             try {
                 builder = type.getDeclaredConstructor().newInstance();
-                builderCache.put(type.getName(), builder);
+                builderCache.put(type, builder);
             } catch (Exception e) {
                 throw new ObjectBuildException("The builder " + type.getName() + " lacks a default constructor.");
             }
