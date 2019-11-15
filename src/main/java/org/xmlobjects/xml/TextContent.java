@@ -41,6 +41,7 @@ public class TextContent {
 
     private String content;
     private String formattedContent;
+    private String[] tokenizedContent;
     private Object value;
 
     private TextContent(String content) {
@@ -185,10 +186,9 @@ public class TextContent {
     public List<String> getAsList() {
         if (isListOfType(value, String.class))
             return (List<String>) value;
-        else if (!formatContent().isEmpty()) {
-            String[] tokens = tokenizeContent();
-            List<String> strings = new ArrayList<>(tokens.length);
-            Collections.addAll(strings, tokens);
+        else if (tokenizeContent() != 0) {
+            List<String> strings = new ArrayList<>(tokenizedContent.length);
+            Collections.addAll(strings, tokenizedContent);
             return setValue(strings);
         } else
             return setValue(null);
@@ -222,10 +222,9 @@ public class TextContent {
     public List<Boolean> getAsBooleanList() {
         if (isListOfType(value, Boolean.class))
             return (List<Boolean>) value;
-        else {
-            String[] tokens = tokenizeContent();
-            List<Boolean> booleans = new ArrayList<>(tokens.length);
-            for (String token : tokens) {
+        else if (tokenizeContent() != 0) {
+            List<Boolean> booleans = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
                 Boolean value = toBoolean(token);
                 if (value != null)
                     booleans.add(value);
@@ -234,7 +233,8 @@ public class TextContent {
             }
 
             return setValue(booleans);
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isBooleanList() {
@@ -273,10 +273,9 @@ public class TextContent {
     public List<Double> getAsDoubleList() {
         if (isListOfType(value, Double.class))
             return (List<Double>) value;
-        else {
-            String[] tokens = tokenizeContent();
-            List<Double> doubles = new ArrayList<>(tokens.length);
-            for (String token : tokens) {
+        else if (tokenizeContent() != 0) {
+            List<Double> doubles = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
                 try {
                     doubles.add(Double.parseDouble(token));
                 } catch (NumberFormatException e) {
@@ -285,7 +284,8 @@ public class TextContent {
             }
 
             return setValue(doubles);
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isDoubleList() {
@@ -324,10 +324,9 @@ public class TextContent {
     public List<Integer> getAsIntegerList() {
         if (isListOfType(value, Integer.class))
             return (List<Integer>) value;
-        else {
-            String[] tokens = tokenizeContent();
-            List<Integer> integers = new ArrayList<>(tokens.length);
-            for (String token : tokens) {
+        else if (tokenizeContent() != 0) {
+            List<Integer> integers = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
                 try {
                     integers.add(Integer.parseInt(token));
                 } catch (NumberFormatException e) {
@@ -336,7 +335,8 @@ public class TextContent {
             }
 
             return setValue(integers);
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isIntegerList() {
@@ -375,10 +375,9 @@ public class TextContent {
     public List<Duration> getAsDurationList() {
         if (isListOfType(value, Duration.class))
             return (List<Duration>) value;
-        else {
-            String[] tokens = tokenizeContent();
-            List<Duration> durations = new ArrayList<>(tokens.length);
-            for (String token : tokens) {
+        else if (tokenizeContent() != 0) {
+            List<Duration> durations = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
                 try {
                     durations.add(XML_TYPE_FACTORY.newDuration(token));
                 } catch (Throwable e) {
@@ -387,7 +386,8 @@ public class TextContent {
             }
 
             return setValue(durations);
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isDurationList() {
@@ -640,10 +640,9 @@ public class TextContent {
                 && ((List<?>) value).stream().allMatch(v -> v instanceof XMLGregorianCalendar
                 && ((XMLGregorianCalendar) v).getXMLSchemaType().getLocalPart().equals(localName)))
             result = (List<XMLGregorianCalendar>) value;
-        else {
-            String[] tokens = tokenizeContent();
-            List<XMLGregorianCalendar> calendars = new ArrayList<>(tokens.length);
-            for (String token : tokens) {
+        else if (tokenizeContent() != 0) {
+            List<XMLGregorianCalendar> calendars = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
                 XMLGregorianCalendar value = toCalendar(token, localName);
                 if (value != null)
                     calendars.add(value);
@@ -652,7 +651,8 @@ public class TextContent {
             }
 
             result = setValue(calendars);
-        }
+        } else
+            return setValue(null);
 
         return result.stream().map(this::toOffsetDateTime).collect(Collectors.toList());
     }
@@ -662,23 +662,14 @@ public class TextContent {
         return value;
     }
 
-    private String formatContent() {
-        if (formattedContent == null)
-            formattedContent = content.replaceAll("\\R", " ").trim();
-
-        return formattedContent;
-    }
-
-    private String[] tokenizeContent() {
-        return formatContent().split("\\s+");
-    }
-
     private boolean isListOfType(Object value, Class<?> type) {
         return value instanceof List && ((List<?>) value).stream().allMatch(type::isInstance);
     }
 
     private Boolean toBoolean(String value) {
-        if ("true".equals(value)
+        if (value.isEmpty())
+            return null;
+        else if ("true".equals(value)
                 || "1".equals(value))
             return Boolean.TRUE;
         else if ("false".equals(value)
@@ -766,6 +757,43 @@ public class TextContent {
         }
 
         return calendar;
+    }
+
+    private String formatContent() {
+        if (formattedContent == null)
+            formattedContent = content.trim();
+
+        return formattedContent;
+    }
+
+    private int tokenizeContent() {
+        int length = content.length();
+        String[] tokens = new String[(length / 2) + 1];
+        int noOfTokens = 0;
+        int current = -1;
+        int next;
+
+        do {
+            next = nextWhiteSpace(content, current + 1, length);
+            if (next != current + 1)
+                tokens[noOfTokens++] = content.substring(current + 1, next);
+
+            current = next;
+        } while (next != length);
+
+        tokenizedContent = new String[noOfTokens];
+        System.arraycopy(tokens, 0, tokenizedContent, 0, noOfTokens);
+        return tokenizedContent.length;
+    }
+
+    private int nextWhiteSpace(String value, int pos, int length) {
+        for (int i = pos; i < length; i++) {
+            char ch = value.charAt(i);
+            if (ch == ' ' || ch == '\n' || Character.isWhitespace(ch))
+                return i;
+        }
+
+        return length;
     }
 
     @Override
