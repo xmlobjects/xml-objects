@@ -861,22 +861,25 @@ public class TextContent {
     }
 
     private int tokenizeContent() {
-        int length = content.length();
-        String[] tokens = new String[(length / 2) + 1];
-        int noOfTokens = 0;
-        int current = -1;
-        int next;
+        if (tokenizedContent == null) {
+            int length = content.length();
+            String[] tokens = new String[(length / 2) + 1];
+            int noOfTokens = 0;
+            int current = -1;
+            int next;
 
-        do {
-            next = nextWhiteSpace(content, current + 1, length);
-            if (next != current + 1)
-                tokens[noOfTokens++] = content.substring(current + 1, next);
+            do {
+                next = nextWhiteSpace(content, current + 1, length);
+                if (next != current + 1)
+                    tokens[noOfTokens++] = content.substring(current + 1, next);
 
-            current = next;
-        } while (next != length);
+                current = next;
+            } while (next != length);
 
-        tokenizedContent = new String[noOfTokens];
-        System.arraycopy(tokens, 0, tokenizedContent, 0, noOfTokens);
+            tokenizedContent = new String[noOfTokens];
+            System.arraycopy(tokens, 0, tokenizedContent, 0, noOfTokens);
+        }
+
         return tokenizedContent.length;
     }
 
