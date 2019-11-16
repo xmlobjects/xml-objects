@@ -845,6 +845,10 @@ public class TextContent {
             ZONE_OFFSET_PROVIDER = zoneOffsetProvider;
     }
 
+    public static void serializeTimeWithOffset(boolean useTimeOffset) {
+        WITH_TIME_OFFSET = useTimeOffset;
+    }
+
     public static void serializeDateWithOffset(boolean useDateOffset) {
         WITH_DATE_OFFSET = useDateOffset;
     }
