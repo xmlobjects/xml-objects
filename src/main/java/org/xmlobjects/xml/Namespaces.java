@@ -51,11 +51,24 @@ public class Namespaces {
     }
 
     public boolean containsAll(String... namespaceURIs) {
-        for (String namespaceURI : namespaceURIs) {
-            if (!namespaces.contains(namespaceURI))
-                return false;
-        }
+        return containsAll(Arrays.asList(namespaceURIs));
+    }
 
-        return true;
+    public Namespaces remove(String namespaceURI) {
+        namespaces.remove(namespaceURI);
+        return this;
+    }
+
+    public Namespaces removeAll(Collection<String> namespaceURIs) {
+        namespaces.removeAll(namespaceURIs);
+        return this;
+    }
+
+    public Namespaces removeAll(String... namespaceURIs) {
+        return removeAll(Arrays.asList(namespaceURIs));
+    }
+
+    public Namespaces copy() {
+        return new Namespaces(new HashSet<>(namespaces));
     }
 }
