@@ -40,6 +40,10 @@ javadoc {
             Claus Nagel &lt;claus.nagel@gmail.com&gt;
             """.replaceAll("[\r|\n]+", "")
         addStringOption('doctitle', project.name + ' - ' + project.description)
+
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
     }
 
     doFirst {
@@ -77,22 +81,15 @@ distributions.main.contents {
     }
 }
 
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    archiveClassifier = 'javadoc'
-    from javadoc.destinationDir
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact sourcesJar
-            artifact javadocJar
             pom {
                 name = project.name
                 description = project.description
