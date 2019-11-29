@@ -68,16 +68,16 @@ public class SystemIDResolver {
      * @return true if the systemId is an an absolute URI
      */
     public static boolean isAbsoluteURI(String systemId) {
-        /** http://www.ietf.org/rfc/rfc2396.txt
+        /* http://www.ietf.org/rfc/rfc2396.txt
          *   Authors should be aware that a path segment which contains a colon
          * character cannot be used as the first segment of a relative URI path
          * (e.g., "this:that"), because it would be mistaken for a scheme name.
-         **/
-        /**
+         */
+        /*
          * %REVIEW% Can we assume here that systemId is a valid URI?
          * It looks like we cannot ( See discussion of this common problem in
          * Bugzilla Bug 22777 ).
-         **/
+         */
         //"fix" for Bugzilla Bug 22777
         if (isWindowsAbsolutePath(systemId)) {
             return false;
