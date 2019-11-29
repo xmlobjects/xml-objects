@@ -3,6 +3,7 @@ package org.xmlobjects.util.copy;
 import org.xmlobjects.model.Child;
 import org.xmlobjects.model.ChildList;
 
+@SuppressWarnings("rawtypes")
 public class ChildListCloner extends CollectionCloner<ChildList> {
 
     ChildListCloner(CopyBuilder builder) {

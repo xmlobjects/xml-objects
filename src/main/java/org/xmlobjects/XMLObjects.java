@@ -155,6 +155,7 @@ public class XMLObjects {
         toXML(writer, object, Namespaces.of(getSerializableNamespaces()));
     }
 
+    @SuppressWarnings("rawtypes")
     private void loadBuilders(ClassLoader classLoader) throws XMLObjectsException {
         for (Class<? extends ObjectBuilder> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
@@ -185,6 +186,7 @@ public class XMLObjects {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     private void loadSerializers(ClassLoader classLoader) throws XMLObjectsException {
         for (Class<? extends ObjectSerializer> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)

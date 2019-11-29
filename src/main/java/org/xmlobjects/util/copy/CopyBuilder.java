@@ -30,15 +30,15 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class CopyBuilder {
-    private final Map<Class<?>, AbstractCloner> cloners = new IdentityHashMap<>();
+    private final Map<Class<?>, AbstractCloner<?>> cloners = new IdentityHashMap<>();
     private final Map<Object, Object> clones = new IdentityHashMap<>();
     private final Set<Class<?>> immutables = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Set<Class<?>> nulls = Collections.newSetFromMap(new IdentityHashMap<>());
 
     private final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
     private final AbstractCloner<Object> NULL_CLONER = new NullCloner();
-    private final AbstractCloner<Collection> COLLECTION_CLONER = new CollectionCloner<>(this);
-    private final AbstractCloner<Map> MAP_CLONER = new MapCloner<>(this);
+    private final AbstractCloner<Collection<?>> COLLECTION_CLONER = new CollectionCloner<>(this);
+    private final AbstractCloner<Map<?, ?>> MAP_CLONER = new MapCloner<>(this);
     private final AbstractCloner<Object[]> ARRAY_CLONER = new ArrayCloner(this);
     private final Object NULL = new Object();
 
@@ -154,8 +154,8 @@ public class CopyBuilder {
         return clone;
     }
 
-    private AbstractCloner findCloner(Class<?> type) {
-        AbstractCloner cloner = cloners.get(type);
+    private AbstractCloner<?> findCloner(Class<?> type) {
+        AbstractCloner<?> cloner = cloners.get(type);
         if (cloner == null) {
             if (immutables.contains(type))
                 return IDENTITY_CLONER;

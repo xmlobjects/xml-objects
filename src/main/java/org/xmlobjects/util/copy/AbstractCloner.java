@@ -27,7 +27,7 @@ public abstract class AbstractCloner<T> {
 
     @SuppressWarnings("unchecked")
     public T newInstance(T object, boolean shallowCopy) throws Exception {
-        Constructor constructor = object.getClass().getDeclaredConstructor();
+        Constructor<?> constructor = object.getClass().getDeclaredConstructor();
         if (!constructor.isAccessible())
             constructor.setAccessible(true);
 

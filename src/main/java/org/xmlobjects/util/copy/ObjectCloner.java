@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectCloner<T> extends AbstractCloner<T> {
-    private List<Field> fields = new ArrayList<>();
+    private final List<Field> fields = new ArrayList<>();
 
     ObjectCloner(Class<?> type, CopyBuilder builder) {
         super(builder);

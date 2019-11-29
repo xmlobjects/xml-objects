@@ -43,13 +43,10 @@ public class SystemIDResolver {
         }
 
         String urlString;
-        if (null != absolutePath) {
-            if (absolutePath.startsWith(File.separator))
-                urlString = "file://" + absolutePath;
-            else
-                urlString = "file:///" + absolutePath;
-        } else
-            urlString = "file:" + localPath;
+        if (absolutePath.startsWith(File.separator))
+            urlString = "file://" + absolutePath;
+        else
+            urlString = "file:///" + absolutePath;
 
         return replaceChars(urlString);
     }
@@ -128,13 +125,10 @@ public class SystemIDResolver {
         if (!isAbsolutePath(systemId))
             return false;
         // On Windows, an absolute path starts with "[drive_letter]:\".
-        if (systemId.length() > 2
+        return systemId.length() > 2
                 && systemId.charAt(1) == ':'
                 && Character.isLetter(systemId.charAt(0))
-                && (systemId.charAt(2) == '\\' || systemId.charAt(2) == '/'))
-            return true;
-        else
-            return false;
+                && (systemId.charAt(2) == '\\' || systemId.charAt(2) == '/');
     }
 
     /**
@@ -145,7 +139,7 @@ public class SystemIDResolver {
      * @return The string after conversion
      */
     private static String replaceChars(String str) {
-        StringBuffer buf = new StringBuffer(str);
+        StringBuilder buf = new StringBuilder(str);
         int length = buf.length();
         for (int i = 0; i < length; i++) {
             char currentChar = buf.charAt(i);
@@ -180,7 +174,7 @@ public class SystemIDResolver {
 
                 // Resolve the absolute path if the systemId starts with "file:///"
                 // or "file:/". Don't do anything if it only starts with "file://".
-                if (str != null && str.startsWith("/")) {
+                if (str.startsWith("/")) {
                     if (str.startsWith("///") || !str.startsWith("//")) {
                         // A Windows path containing a drive letter can be relative.
                         // A Unix path starting with "file:/" is always absolute.

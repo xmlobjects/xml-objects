@@ -3,6 +3,7 @@ package org.xmlobjects.util.copy;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("rawtypes")
 public class MapCloner<T extends Map> extends AbstractCloner<T> {
 
     MapCloner(CopyBuilder builder) {

@@ -28,7 +28,6 @@ import javax.xml.transform.stax.StAXSource;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Objects;

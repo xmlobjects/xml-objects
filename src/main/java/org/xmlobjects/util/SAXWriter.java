@@ -512,7 +512,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     private void writeReportedNamespaces() throws SAXException {
-        for (Enumeration e = prefixMapping.getDeclaredPrefixes(); e.hasMoreElements(); ) {
+        for (Enumeration<?> e = prefixMapping.getDeclaredPrefixes(); e.hasMoreElements(); ) {
             String prefix = e.nextElement().toString();
             String namespaceURI = prefixMapping.getURI(prefix);
 
