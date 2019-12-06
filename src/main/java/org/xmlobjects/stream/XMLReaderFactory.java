@@ -54,7 +54,6 @@ public class XMLReaderFactory {
         return this;
     }
 
-
     public boolean isCreateDOMAsFallback() {
         return createDOMAsFallback;
     }
