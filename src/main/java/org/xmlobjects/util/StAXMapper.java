@@ -12,8 +12,8 @@ import javax.xml.stream.XMLStreamReader;
 public class StAXMapper {
     private final ContentHandler handler;
 
-    public StAXMapper(ContentHandler buffer) {
-        this.handler = buffer;
+    public StAXMapper(ContentHandler handler) {
+        this.handler = handler;
     }
 
     public void mapEvent(XMLStreamReader reader) throws SAXException {
