@@ -9,14 +9,14 @@ import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-public class StAXMapper {
+public class StAX2SAX {
     private final ContentHandler handler;
 
-    public StAXMapper(ContentHandler handler) {
+    public StAX2SAX(ContentHandler handler) {
         this.handler = handler;
     }
 
-    public void mapEvent(XMLStreamReader reader) throws SAXException {
+    public void bridgeEvent(XMLStreamReader reader) throws SAXException {
         switch (reader.getEventType()) {
             case XMLStreamConstants.START_ELEMENT:
                 handleStartElement(reader);
@@ -39,9 +39,15 @@ public class StAXMapper {
         handler.endElement(getNamespaceURI(reader.getNamespaceURI()),
                 reader.getLocalName(),
                 getQName(reader.getPrefix(), reader.getLocalName()));
+
+        for (int i = 0; i < reader.getNamespaceCount(); i++)
+            handler.endPrefixMapping(reader.getNamespacePrefix(i));
     }
 
     private void handleStartElement(XMLStreamReader reader) throws SAXException {
+        for (int i = 0; i < reader.getNamespaceCount(); i++)
+            handler.startPrefixMapping(reader.getNamespacePrefix(i), reader.getNamespaceURI(i));
+
         handler.startElement(getNamespaceURI(reader.getNamespaceURI()),
                 reader.getLocalName(),
                 getQName(reader.getPrefix(), reader.getLocalName()),
