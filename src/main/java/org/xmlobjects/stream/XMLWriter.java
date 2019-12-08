@@ -6,7 +6,7 @@ import org.xmlobjects.XMLObjects;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
-import org.xmlobjects.util.SAXWriter;
+import org.xmlobjects.util.xml.SAXWriter;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.ElementContent;

@@ -1,4 +1,4 @@
-package org.xmlobjects.util;
+package org.xmlobjects.util.xml;
 
 import java.util.regex.Pattern;
 

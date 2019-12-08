@@ -7,10 +7,10 @@ import org.xmlobjects.XMLObjects;
 import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.schema.SchemaHandler;
-import org.xmlobjects.util.DepthXMLStreamReader;
 import org.xmlobjects.util.Properties;
-import org.xmlobjects.util.SAXWriter;
-import org.xmlobjects.util.StAX2SAX;
+import org.xmlobjects.util.xml.DepthXMLStreamReader;
+import org.xmlobjects.util.xml.SAXWriter;
+import org.xmlobjects.util.xml.StAXStream2SAX;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Namespaces;
 import org.xmlobjects.xml.TextContent;
@@ -295,7 +295,7 @@ public class XMLReader implements AutoCloseable {
                     .writeXMLDeclaration(false)
                     .writeEncoding(false)) {
                 int stopAt = reader.getDepth() - 1;
-                StAX2SAX mapper = new StAX2SAX(saxWriter);
+                StAXStream2SAX mapper = new StAXStream2SAX(saxWriter);
 
                 // map content of start element to a string representation
                 while (reader.next() != XMLStreamConstants.END_ELEMENT || reader.getDepth() > stopAt)

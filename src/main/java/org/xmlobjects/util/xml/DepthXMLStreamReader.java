@@ -1,4 +1,4 @@
-package org.xmlobjects.util;
+package org.xmlobjects.util.xml;
 
 import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.schema.SchemaHandlerException;

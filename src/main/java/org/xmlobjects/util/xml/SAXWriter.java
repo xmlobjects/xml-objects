@@ -1,4 +1,4 @@
-package org.xmlobjects.util;
+package org.xmlobjects.util.xml;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -56,7 +56,6 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     public SAXWriter() {
-
     }
 
     public SAXWriter(StreamResult streamResult) throws IOException {

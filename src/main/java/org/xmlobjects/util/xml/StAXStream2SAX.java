@@ -1,4 +1,4 @@
-package org.xmlobjects.util;
+package org.xmlobjects.util.xml;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -9,10 +9,10 @@ import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
-public class StAX2SAX {
+public class StAXStream2SAX {
     private final ContentHandler handler;
 
-    public StAX2SAX(ContentHandler handler) {
+    public StAXStream2SAX(ContentHandler handler) {
         this.handler = handler;
     }
 
@@ -72,6 +72,6 @@ public class StAX2SAX {
     }
 
     private String getQName(String prefix, String localName) {
-        return prefix != null ? prefix + ":" + localName : localName;
+        return prefix != null && !prefix.isEmpty() ? prefix + ":" + localName : localName;
     }
 }

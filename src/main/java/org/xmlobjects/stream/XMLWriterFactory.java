@@ -2,7 +2,7 @@ package org.xmlobjects.stream;
 
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.util.Properties;
-import org.xmlobjects.util.SAXWriter;
+import org.xmlobjects.util.xml.SAXWriter;
 
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
