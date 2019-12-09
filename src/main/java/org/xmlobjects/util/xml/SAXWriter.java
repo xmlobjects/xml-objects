@@ -394,10 +394,10 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             if (prefix == null) {
                 prefix = getReportedPrefix(namespaceURI);
                 if (prefix == null) {
-                    if (qName != null && !qName.isEmpty()) {
+                    if (!qName.isEmpty()) {
                         int index = qName.indexOf(':');
                         if (index != -1)
-                            prefix = qName.substring(index);
+                            prefix = qName.substring(0, index);
                     }
 
                     if (prefix == null)

@@ -102,7 +102,7 @@ public class SAXStreamReader implements XMLStreamReader {
         if (prefix == null && !qName.isEmpty()) {
             int index = qName.indexOf(':');
             if (index != -1) {
-                prefix = qName.substring(index);
+                prefix = qName.substring(0, index);
                 namespaceSupport.declarePrefix(prefix, namespaceURI);
             }
         }
