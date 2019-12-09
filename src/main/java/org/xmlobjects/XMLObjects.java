@@ -82,6 +82,17 @@ public class XMLObjects {
         return getBuilder(name.getNamespaceURI(), name.getLocalPart(), objectType);
     }
 
+    public Class<?> getObjectType(ObjectBuilder<?> builder) {
+        for (Map<String, BuilderInfo> infos : builders.values()) {
+            for (BuilderInfo info : infos.values()) {
+                if (info.builder == builder)
+                    return info.objectType;
+            }
+        }
+
+        return Object.class;
+    }
+
     public XMLObjects registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectsException {
         registerSerializer(serializer, objectType, namespaceURI, false);
         return this;
@@ -206,7 +217,7 @@ public class XMLObjects {
                 throw new XMLObjectsException("The serializer " + type.getName() + " lacks a default constructor.", e);
             }
 
-            Class<?> objectType = getObjectType(serializer);
+            Class<?> objectType = findObjectType(serializer);
             if (objectType == null)
                 throw new XMLObjectsException("Failed to retrieve object type of serializer " + type.getName() + ".");
 
@@ -222,7 +233,7 @@ public class XMLObjects {
     }
 
     private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectsException {
-        BuilderInfo info = new BuilderInfo(builder, getObjectType(builder));
+        BuilderInfo info = new BuilderInfo(builder, findObjectType(builder));
         BuilderInfo current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, info);
         if (current != null && current.builder != builder && failOnDuplicates)
             throw new XMLObjectsException("Two builders are registered for the XML element '" +
@@ -238,7 +249,7 @@ public class XMLObjects {
                     serializer.getClass().getName() + " and " + current.getClass().getName() + ".");
     }
 
-    private Class<?> getObjectType(ObjectBuilder<?> builder) {
+    private Class<?> findObjectType(ObjectBuilder<?> builder) {
         try {
             return builder.getClass().getMethod("createObject", QName.class).getReturnType();
         } catch (NoSuchMethodException e) {
@@ -246,7 +257,7 @@ public class XMLObjects {
         }
     }
 
-    private Class<?> getObjectType(ObjectSerializer<?> serializer) throws XMLObjectsException {
+    private Class<?> findObjectType(ObjectSerializer<?> serializer) throws XMLObjectsException {
         Class<?> clazz = serializer.getClass();
         Class<?> objectType = null;
         boolean hasCreateElementMethod = false;
