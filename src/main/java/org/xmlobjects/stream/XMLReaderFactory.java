@@ -3,6 +3,7 @@ package org.xmlobjects.stream;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.util.Properties;
+import org.xmlobjects.util.SystemIDResolver;
 
 import javax.xml.stream.StreamFilter;
 import javax.xml.stream.XMLInputFactory;
@@ -43,10 +44,6 @@ public class XMLReaderFactory {
         } catch (Throwable e) {
             throw new XMLReadException("Failed to initialize XML reader factory.", e);
         }
-    }
-
-    public XMLObjects getXMLObjects() {
-        return xmlObjects;
     }
 
     public SchemaHandler getSchemaHandler() {
@@ -189,7 +186,7 @@ public class XMLReaderFactory {
 
     private URI createBaseURI(String systemId) {
         try {
-            return new URI(systemId).normalize();
+            return new URI(SystemIDResolver.getAbsoluteURI(systemId)).normalize();
         } catch (Exception e) {
             return URI.create("");
         }

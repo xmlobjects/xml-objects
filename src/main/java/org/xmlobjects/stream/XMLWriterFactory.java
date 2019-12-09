@@ -29,10 +29,6 @@ public class XMLWriterFactory {
         return new XMLWriterFactory(xmlObjects);
     }
 
-    public XMLObjects getXMLObjects() {
-        return xmlObjects;
-    }
-
     public Properties getProperties() {
         return properties;
     }
