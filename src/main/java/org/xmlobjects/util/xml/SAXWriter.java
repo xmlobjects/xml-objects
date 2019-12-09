@@ -402,15 +402,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 if (prefix == null) {
                     prefix = getReportedPrefix(namespaceURI);
                     if (prefix == null) {
-                        if (!qName.isEmpty()) {
-                            int index = qName.indexOf(':');
-                            if (index != -1)
-                                prefix = qName.substring(0, index);
-                        }
-
-                        if (prefix == null)
-                            prefix = "ns" + prefixCounter++;
-
+                        prefix = getOrCreatePrefix(qName);
                         prefixMapping.declarePrefix(prefix, namespaceURI);
                     }
 
@@ -467,6 +459,16 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return prefixMapping.getURI(prefix);
     }
 
+    private String getOrCreatePrefix(String qName) {
+        if (!qName.isEmpty()) {
+            int index = qName.indexOf(':');
+            if (index != -1)
+                return qName.substring(0, index);
+        }
+
+        return "ns" + prefixCounter++;
+    }
+
     private void writeAttributes(Attributes atts) throws SAXException {
         try {
             for (int i = 0; i < atts.getLength(); i++) {
@@ -481,10 +483,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     prefix = namespaceContext.getPrefix(namespaceURI);
                     if (prefix == null) {
                         prefix = getReportedPrefix(namespaceURI);
-                        if (prefix == null)
-                            prefix = "ns" + prefixCounter++;
+                        if (prefix == null) {
+                            prefix = getOrCreatePrefix(atts.getQName(i));
+                            prefixMapping.declarePrefix(prefix, namespaceURI);
+                        }
 
-                        prefixMapping.declarePrefix(prefix, namespaceURI);
+                        namespaceContext.declarePrefix(prefix, namespaceURI);
                         writeNamespace(prefix, namespaceURI);
                     }
                 }
