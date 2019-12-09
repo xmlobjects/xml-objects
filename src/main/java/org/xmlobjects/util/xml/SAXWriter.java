@@ -268,7 +268,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     writeIndent();
 
                 writer.write("</");
-                writeQName(namespaceContext.getPrefix(namespaceURI), localName);
+
+                if (!localName.isEmpty())
+                    writeQName(namespaceContext.getPrefix(namespaceURI), localName);
+                else
+                    writer.write(qName);
+
                 writer.write('>');
             }
 
@@ -390,26 +395,31 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             writer.write('<');
 
             boolean writeLocalNS = false;
-            String prefix = namespaceContext.getPrefix(namespaceURI);
-            if (prefix == null) {
-                prefix = getReportedPrefix(namespaceURI);
+            String prefix = null;
+
+            if (!localName.isEmpty()) {
+                prefix = namespaceContext.getPrefix(namespaceURI);
                 if (prefix == null) {
-                    if (!qName.isEmpty()) {
-                        int index = qName.indexOf(':');
-                        if (index != -1)
-                            prefix = qName.substring(0, index);
+                    prefix = getReportedPrefix(namespaceURI);
+                    if (prefix == null) {
+                        if (!qName.isEmpty()) {
+                            int index = qName.indexOf(':');
+                            if (index != -1)
+                                prefix = qName.substring(0, index);
+                        }
+
+                        if (prefix == null)
+                            prefix = "ns" + prefixCounter++;
+
+                        prefixMapping.declarePrefix(prefix, namespaceURI);
                     }
 
-                    if (prefix == null)
-                        prefix = "ns" + prefixCounter++;
-
-                    prefixMapping.declarePrefix(prefix, namespaceURI);
+                    writeLocalNS = true;
                 }
 
-                writeLocalNS = true;
-            }
-
-            writeQName(prefix, localName);
+                writeQName(prefix, localName);
+            } else
+                writer.write(qName);
 
             if (depth == 0) {
                 writeDeclaredNamespaces();
@@ -459,12 +469,10 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
     private void writeAttributes(Attributes atts) throws SAXException {
         try {
-            String localName, namespaceURI, prefix;
-
             for (int i = 0; i < atts.getLength(); i++) {
-                localName = atts.getLocalName(i);
-                namespaceURI = atts.getURI(i);
-                prefix = null;
+                String localName = atts.getLocalName(i);
+                String namespaceURI = atts.getURI(i);
+                String prefix = null;
 
                 if (namespaceURI != null && namespaceURI.length() > 0) {
                     if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
