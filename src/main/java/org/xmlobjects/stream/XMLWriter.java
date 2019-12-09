@@ -267,11 +267,11 @@ public class XMLWriter implements AutoCloseable {
             if (attributes != null && !attributes.isEmpty()) {
                 for (Map.Entry<QName, TextContent> entry : attributes.toMap().entrySet()) {
                     if (entry.getValue().isPresent())
-                        attrs.addAttribute(entry.getKey().getNamespaceURI(), entry.getKey().getLocalPart(), null, "CDATA", entry.getValue().get());
+                        attrs.addAttribute(entry.getKey().getNamespaceURI(), entry.getKey().getLocalPart(), "", "CDATA", entry.getValue().get());
                 }
             }
 
-            saxWriter.startElement(name.getNamespaceURI(), name.getLocalPart(), null, attrs);
+            saxWriter.startElement(name.getNamespaceURI(), name.getLocalPart(), "", attrs);
             elements.push(name);
             lastEvent = EventType.START_ELEMENT;
         } catch (SAXException e) {
@@ -282,7 +282,7 @@ public class XMLWriter implements AutoCloseable {
     public void writeEndElement() throws XMLWriteException {
         try {
             QName name = elements.pop();
-            saxWriter.endElement(name.getNamespaceURI(), name.getLocalPart(), null);
+            saxWriter.endElement(name.getNamespaceURI(), name.getLocalPart(), "");
             lastEvent = EventType.END_ELEMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
