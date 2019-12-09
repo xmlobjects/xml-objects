@@ -45,6 +45,10 @@ public class XMLReaderFactory {
         }
     }
 
+    public XMLObjects getXMLObjects() {
+        return xmlObjects;
+    }
+
     public SchemaHandler getSchemaHandler() {
         return schemaHandler;
     }

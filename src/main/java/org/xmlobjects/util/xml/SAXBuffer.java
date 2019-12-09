@@ -26,7 +26,9 @@ public class SAXBuffer extends DefaultHandler {
     private final ArrayBuffer<Byte> events;
     private final ArrayBuffer<String> strings;
     private final ArrayBuffer<char[]> characters;
+
     private byte lastElement = UNDEFINED;
+    private boolean assumeMixedContent = true;
 
     public SAXBuffer(int bufferSize) {
         events = new ArrayBuffer<>(Byte.class, bufferSize);
@@ -40,6 +42,14 @@ public class SAXBuffer extends DefaultHandler {
 
     public boolean isEmpty() {
         return events.isEmpty();
+    }
+
+    public boolean isAssumeMixedContent() {
+        return assumeMixedContent;
+    }
+
+    public void setAssumeMixedContent(boolean assumeMixedContent) {
+        this.assumeMixedContent = assumeMixedContent;
     }
 
     public void removeTrailingCharacters() {
@@ -77,6 +87,9 @@ public class SAXBuffer extends DefaultHandler {
     }
 
     public void addStartElement(String uri, String localName, String qName) {
+        if (!assumeMixedContent && lastElement == START_ELEMENT)
+            removeTrailingCharacters();
+
         events.push(START_ELEMENT);
         strings.push(uri);
         strings.push(localName);
@@ -101,8 +114,10 @@ public class SAXBuffer extends DefaultHandler {
     }
 
     public void addCharacters(char[] chars) {
-        events.push(CHARACTERS);
-        characters.push(chars);
+        if (assumeMixedContent || lastElement == START_ELEMENT) {
+            events.push(CHARACTERS);
+            characters.push(chars);
+        }
     }
 
     @Override
