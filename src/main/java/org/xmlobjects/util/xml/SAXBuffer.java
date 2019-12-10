@@ -48,8 +48,9 @@ public class SAXBuffer extends DefaultHandler {
         return assumeMixedContent;
     }
 
-    public void setAssumeMixedContent(boolean assumeMixedContent) {
+    public SAXBuffer assumeMixedContent(boolean assumeMixedContent) {
         this.assumeMixedContent = assumeMixedContent;
+        return this;
     }
 
     public void removeTrailingCharacters() {
