@@ -498,7 +498,7 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public String getVersion() {
-        return null;
+        return "1.0";
     }
 
     @Override
