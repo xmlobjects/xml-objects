@@ -17,14 +17,15 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class SchemaHandler {
-    protected final Map<String, XSSchemaSet> schemas = new ConcurrentHashMap<>();
-    protected final Map<String, String> visitedSchemaLocations = new ConcurrentHashMap<>();
-    private final Map<String, String> userSchemaLocations = new ConcurrentHashMap<>();
+    protected final Map<String, XSSchemaSet> schemas = new HashMap<>();
+    protected final Map<String, String> visitedSchemaLocations = new LinkedHashMap<>();
+    private final Map<String, String> userSchemaLocations = new HashMap<>();
 
     private SAXParserFactory saxParserFactory;
     private ErrorHandler errorHandler;
