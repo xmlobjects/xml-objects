@@ -139,7 +139,7 @@ public class ArrayBuffer<T> implements Iterable<T> {
                     && current.next.index > 0)
                 return current.next.items[0];
 
-            throw new NoSuchElementException();
+            return null;
         }
 
         @Override
