@@ -214,7 +214,7 @@ public class SAXBuffer extends DefaultHandler {
         if (qName.isEmpty())
             qName = localName;
 
-        while (events.peek() == ATTRIBUTE) {
+        while (events.hasNext() && events.peek() == ATTRIBUTE) {
             events.next();
             String attributeURI = strings.next();
             String attributeLocalName = strings.next();
