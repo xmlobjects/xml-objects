@@ -108,7 +108,7 @@ public class SAXStreamReader implements XMLStreamReader {
         }
 
         attributes.clear();
-        while (events.peek() == SAXBuffer.ATTRIBUTE) {
+        while (events.hasNext() && events.peek() == SAXBuffer.ATTRIBUTE) {
             events.next();
             String attributeURI = strings.next();
             String attributeLocalName = strings.next();
