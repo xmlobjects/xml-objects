@@ -784,7 +784,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         }
 
         private Map<String, String> getRootNamespaceContext() {
-            return !contexts.isEmpty() ? contexts.getLast().namespaces : Collections.emptyMap();
+            return !contexts.isEmpty() ? contexts.getFirst().namespaces : Collections.emptyMap();
         }
     }
 
