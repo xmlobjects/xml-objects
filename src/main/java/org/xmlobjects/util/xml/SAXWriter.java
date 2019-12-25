@@ -146,19 +146,19 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
-    public SAXWriter usePrefix(String prefix, String namespaceURI) {
-        if (prefix != null && namespaceURI != null)
-            namespaceContext.declarePrefix(prefix, namespaceURI);
-
-        return this;
-    }
-
     public String getPrefix(String namespaceURI) {
         String prefix = namespaceContext.getPrefix(namespaceURI);
         if (prefix == null)
             prefix = getReportedPrefix(namespaceURI);
 
         return prefix;
+    }
+
+    public SAXWriter usePrefix(String prefix, String namespaceURI) {
+        if (prefix != null && namespaceURI != null)
+            namespaceContext.declarePrefix(prefix, namespaceURI);
+
+        return this;
     }
 
     public String getNamespaceURI(String prefix) {

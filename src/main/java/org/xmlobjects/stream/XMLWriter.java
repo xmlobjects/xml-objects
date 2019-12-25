@@ -100,13 +100,13 @@ public class XMLWriter implements AutoCloseable {
         return this;
     }
 
+    public String getPrefix(String namespaceURI) {
+        return saxWriter.getPrefix(namespaceURI);
+    }
+
     public XMLWriter usePrefix(String prefix, String namespaceURI) {
         saxWriter.usePrefix(prefix,namespaceURI);
         return this;
-    }
-
-    public String getPrefix(String namespaceURI) {
-        return saxWriter.getPrefix(namespaceURI);
     }
 
     public String getNamespaceURI(String prefix) {
