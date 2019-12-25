@@ -159,7 +159,7 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public XMLWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
-        saxWriter.useHeaderComment(namespaceURI, schemaLocation);
+        saxWriter.useSchemaLocation(namespaceURI, schemaLocation);
         return this;
     }
 
