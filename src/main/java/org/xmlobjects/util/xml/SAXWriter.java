@@ -155,8 +155,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     public SAXWriter usePrefix(String prefix, String namespaceURI) {
-        if (prefix != null && namespaceURI != null)
+        if (prefix != null && namespaceURI != null) {
+            if (namespaceContext.containsPrefix(prefix))
+                namespaceContext.removePrefix(prefix);
+
             namespaceContext.declarePrefix(prefix, namespaceURI);
+        }
 
         return this;
     }
@@ -770,6 +774,11 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             }
 
             return false;
+        }
+
+        private void removePrefix(String prefix) {
+            for (NamespaceMap context : contexts)
+                context.namespaces.values().removeIf(v -> v.equals(prefix));
         }
 
         private String getNamespaceURI(String prefix) {
