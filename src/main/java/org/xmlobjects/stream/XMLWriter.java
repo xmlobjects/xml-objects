@@ -289,21 +289,6 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
-    public void writeCharacters(String text) throws XMLWriteException {
-        try {
-            char[] characters = text.toCharArray();
-            saxWriter.characters(characters, 0, characters.length);
-        } catch (SAXException e) {
-            throw new XMLWriteException("Caused by:", e);
-        }
-    }
-
-    public void writeCharacters(String text, boolean escapeCharacters) throws XMLWriteException {
-        saxWriter.escapeCharacters(escapeCharacters);
-        writeCharacters(text);
-        saxWriter.escapeCharacters(true);
-    }
-
     public void writeCharacters(String text, int start, int length) throws XMLWriteException {
         try {
             char[] characters = text.toCharArray();
@@ -313,10 +298,19 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
+    public void writeCharacters(String text) throws XMLWriteException {
+        writeCharacters(text, 0, text.length());
+    }
+
     public void writeCharacters(String text, int start, int length, boolean escapeCharacters) throws XMLWriteException {
+        boolean previous = saxWriter.isEscapeCharacters();
         saxWriter.escapeCharacters(escapeCharacters);
         writeCharacters(text, start, length);
-        saxWriter.escapeCharacters(true);
+        saxWriter.escapeCharacters(previous);
+    }
+
+    public void writeCharacters(String text, boolean escapeCharacters) throws XMLWriteException {
+        writeCharacters(text, 0, text.length(), escapeCharacters);
     }
 
     public void writeMixedContent(String mixedContent) throws XMLWriteException {
