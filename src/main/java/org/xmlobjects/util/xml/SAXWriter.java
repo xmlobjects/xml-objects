@@ -55,9 +55,6 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         COMMENT
     }
 
-    public SAXWriter() {
-    }
-
     public SAXWriter(StreamResult streamResult) throws IOException {
         setOutput(streamResult);
     }
