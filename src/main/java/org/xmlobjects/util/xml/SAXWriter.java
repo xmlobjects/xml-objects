@@ -315,7 +315,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
             writer.write("<?");
             writer.write(target);
-            writer.write(" ");
+            writer.write(' ');
             writer.write(data);
             writer.write("?>");
             writeIndent();
@@ -352,9 +352,9 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
 
                     if (writeEncoding && encoding != null) {
                         writer.write(" encoding=");
-                        writer.write("\"");
+                        writer.write('"');
                         writer.write(encoding);
-                        writer.write("\"");
+                        writer.write('"');
                     }
 
                     writer.write(" standalone=\"yes\"");
@@ -490,7 +490,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     }
                 }
 
-                writer.write(" ");
+                writer.write(' ');
                 writeQName(prefix, localName);
                 writer.write("=\"");
                 writeAttributeContent(atts.getValue(i));
@@ -542,7 +542,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             return;
 
         try {
-            writer.write(" ");
+            writer.write(' ');
             writer.write(XMLConstants.XMLNS_ATTRIBUTE);
 
             if (prefix.length() > 0) {
@@ -570,7 +570,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     writeNamespace(prefix, namespaceURI);
                 }
 
-                writer.write(" ");
+                writer.write(' ');
                 writeQName(prefix, "schemaLocation");
                 writer.write("=\"");
 
@@ -578,11 +578,11 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 while (iter.hasNext()) {
                     Entry<String, String> entry = iter.next();
                     writeAttributeContent(entry.getKey());
-                    writer.write(" ");
+                    writer.write(' ');
                     writeAttributeContent(entry.getValue());
 
                     if (iter.hasNext())
-                        writer.write(" ");
+                        writer.write(' ');
                 }
 
                 writer.write('"');
@@ -607,9 +607,9 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     continue;
 
                 writer.write("<!--");
-                writer.write(" ");
+                writer.write(' ');
                 writer.write(line);
-                writer.write(" ");
+                writer.write(' ');
                 writer.write("-->");
                 writeIndent();
             }
