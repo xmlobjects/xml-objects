@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class ArrayBuffer<T> implements Iterable<T> {
     private static final Object[] EMPTY = {};

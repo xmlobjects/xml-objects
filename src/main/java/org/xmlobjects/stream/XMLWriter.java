@@ -176,8 +176,12 @@ public class XMLWriter implements AutoCloseable {
         while (!elements.isEmpty())
             writeEndElement();
 
-        saxWriter.endDocument();
-        lastEvent = EventType.END_DOCUMENT;
+        try {
+            saxWriter.endDocument();
+            lastEvent = EventType.END_DOCUMENT;
+        } catch (SAXException e) {
+            throw new XMLWriteException("Caused by:", e);
+        }
     }
 
     public <T> void writeObject(T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {

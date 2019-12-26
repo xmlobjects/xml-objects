@@ -256,7 +256,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     @Override
-    public void endDocument() {
+    public void endDocument() throws SAXException {
         // nothing to do
     }
 
@@ -290,7 +290,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     @Override
-    public void endPrefixMapping(String prefix) {
+    public void endPrefixMapping(String prefix) throws SAXException {
         // nothing to do
     }
 
@@ -339,7 +339,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     @Override
-    public void skippedEntity(String name) {
+    public void skippedEntity(String name) throws SAXException {
         // nothing to do
     }
 
@@ -441,7 +441,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     }
 
     @Override
-    public void startPrefixMapping(String prefix, String namespaceURI) {
+    public void startPrefixMapping(String prefix, String namespaceURI) throws SAXException {
         if (needNamespaceContext) {
             prefixMapping.pushContext();
             needNamespaceContext = false;
