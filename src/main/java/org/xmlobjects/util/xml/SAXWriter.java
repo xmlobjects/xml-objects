@@ -78,15 +78,15 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         setOutput(writer);
     }
 
-    public void setOutput(StreamResult streamResult) throws IOException {
+    private void setOutput(StreamResult streamResult) throws IOException {
         setOutput(streamResult, null);
     }
 
-    public void setOutput(OutputStream outputStream) throws IOException {
+    private void setOutput(OutputStream outputStream) throws IOException {
         setOutput(outputStream, null);
     }
 
-    public void setOutput(StreamResult streamResult, String encoding) throws IOException {
+    private void setOutput(StreamResult streamResult, String encoding) throws IOException {
         if (streamResult.getOutputStream() != null)
             setOutput(streamResult.getOutputStream(), encoding);
         else if (streamResult.getWriter() != null)
@@ -95,7 +95,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             setOutput(new FileOutputStream(streamResult.getSystemId()), encoding);
     }
 
-    public void setOutput(Writer writer) {
+    private void setOutput(Writer writer) {
         if (writer instanceof OutputStreamWriter) {
             this.writer = new BufferedWriter(writer);
             String encoding = ((OutputStreamWriter) writer).getEncoding();
@@ -105,16 +105,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             this.writer = writer;
     }
 
-    public void setOutput(OutputStream outputStream, String encoding) throws IOException {
+    private void setOutput(OutputStream outputStream, String encoding) throws IOException {
         if (encoding == null)
             encoding = System.getProperty("file.encoding", "UTF-8");
 
         writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoding));
         setEncoding(encoding);
-    }
-
-    public Writer getWriter() {
-        return writer;
     }
 
     public void flush() throws IOException {
