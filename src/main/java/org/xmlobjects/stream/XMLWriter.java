@@ -1,5 +1,6 @@
 package org.xmlobjects.stream;
 
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.XMLObjects;
@@ -46,7 +47,7 @@ public class XMLWriter implements AutoCloseable {
         return xmlObjects;
     }
 
-    public SAXWriter getSAXWriter() {
+    public ContentHandler getContentHandler() {
         return saxWriter;
     }
 
