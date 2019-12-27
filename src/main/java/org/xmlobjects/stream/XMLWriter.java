@@ -1,12 +1,14 @@
 package org.xmlobjects.stream;
 
 import org.xml.sax.ContentHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
+import org.xmlobjects.util.xml.SAXBuffer;
 import org.xmlobjects.util.xml.SAXWriter;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
@@ -15,6 +17,9 @@ import org.xmlobjects.xml.Namespaces;
 import org.xmlobjects.xml.TextContent;
 
 import javax.xml.namespace.QName;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -22,6 +27,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.HashMap;
@@ -34,6 +40,7 @@ public class XMLWriter implements AutoCloseable {
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
     private Properties properties;
     private Transformer transformer;
+    private SAXParser parser;
 
     private final Deque<QName> elements = new ArrayDeque<>();
     private EventType lastEvent;
@@ -309,19 +316,26 @@ public class XMLWriter implements AutoCloseable {
         writeCharacters(text, 0, text.length());
     }
 
-    public void writeCharacters(String text, int start, int length, boolean escapeCharacters) throws XMLWriteException {
-        boolean previous = saxWriter.isEscapeCharacters();
-        saxWriter.escapeCharacters(escapeCharacters);
-        writeCharacters(text, start, length);
-        saxWriter.escapeCharacters(previous);
-    }
-
-    public void writeCharacters(String text, boolean escapeCharacters) throws XMLWriteException {
-        writeCharacters(text, 0, text.length(), escapeCharacters);
-    }
-
     public void writeMixedContent(String mixedContent) throws XMLWriteException {
-        writeCharacters(mixedContent, false);
+        try {
+            if (parser == null) {
+                SAXParserFactory factory = SAXParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                parser = factory.newSAXParser();
+            }
+
+            SAXBuffer buffer = new MixedContentBuffer();
+            parser.getXMLReader().setContentHandler(buffer);
+            parser.getXMLReader().parse(new InputSource(new StringReader("<dummy>" + mixedContent + "</dummy>")));
+            buffer.send(saxWriter, true);
+        } catch (ParserConfigurationException e) {
+            throw new XMLWriteException("Failed to initialize mixed content parser.", e);
+        } catch (SAXException | IOException e) {
+            throw new XMLWriteException("Failed to write mixed content.", e);
+        } finally {
+            if (parser != null)
+                parser.reset();
+        }
     }
 
     public <T> ObjectSerializer<T> getOrCreateSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
@@ -341,5 +355,29 @@ public class XMLWriter implements AutoCloseable {
         }
 
         return serializer;
+    }
+
+    private static class MixedContentBuffer extends SAXBuffer {
+        int depth = 0;
+
+        @Override
+        public void startDocument() throws SAXException {
+        }
+
+        @Override
+        public void endDocument() throws SAXException {
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws SAXException {
+            if (depth++ > 0)
+                super.startElement(uri, localName, qName, attributes);
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            if (--depth > 0)
+                super.endElement(uri, localName, qName);
+        }
     }
 }
