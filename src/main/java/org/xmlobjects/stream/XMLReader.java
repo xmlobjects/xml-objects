@@ -221,7 +221,6 @@ public class XMLReader implements AutoCloseable {
             DOMResult result = new DOMResult();
             transformer.transform(new StAXSource(reader), result);
             Node node = result.getNode();
-            transformer.reset();
 
             if (node.hasChildNodes()) {
                 Node child = node.getFirstChild();
@@ -234,6 +233,9 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Failed to initialize DOM transformer.", e);
         } catch (TransformerException e) {
             throw new XMLReadException("Failed to read XML content as DOM element.", e);
+        } finally {
+            if (transformer != null)
+                transformer.reset();
         }
     }
 

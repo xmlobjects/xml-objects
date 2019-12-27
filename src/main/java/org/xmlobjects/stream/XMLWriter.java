@@ -243,11 +243,13 @@ public class XMLWriter implements AutoCloseable {
             DOMSource source = new DOMSource(element);
             SAXResult result = new SAXResult(saxWriter);
             transformer.transform(source, result);
-            transformer.reset();
         } catch (TransformerConfigurationException e) {
             throw new XMLWriteException("Failed to initialize DOM transformer.", e);
         } catch (TransformerException e) {
             throw new XMLWriteException("Failed to write DOM element as XML content.", e);
+        } finally {
+            if (transformer != null)
+                transformer.reset();
         }
     }
 
