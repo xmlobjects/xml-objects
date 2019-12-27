@@ -69,7 +69,7 @@ public class XMLReaderFactory {
     }
 
     public XMLReaderFactory withReporter(XMLReporter reporter) {
-        xmlInputFactory.setProperty(XMLInputFactory.REPORTER, reporter);
+        xmlInputFactory.setXMLReporter(reporter);
         return this;
     }
 
@@ -78,7 +78,7 @@ public class XMLReaderFactory {
     }
 
     public XMLReaderFactory withResolver(XMLResolver resolver) {
-        xmlInputFactory.setProperty(XMLInputFactory.RESOLVER, resolver);
+        xmlInputFactory.setXMLResolver(resolver);
         return this;
     }
 

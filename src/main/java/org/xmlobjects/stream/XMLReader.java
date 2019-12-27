@@ -212,7 +212,7 @@ public class XMLReader implements AutoCloseable {
 
     public Element getDOMElement() throws XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
-            throw new XMLReadException("Illegal to call getObjectAsDOMElement when event is not START_ELEMENT.");
+            throw new XMLReadException("Illegal to call getDOMElement when event is not START_ELEMENT.");
 
         try {
             if (transformer == null)
