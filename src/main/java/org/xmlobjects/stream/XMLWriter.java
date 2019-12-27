@@ -192,7 +192,7 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
-    public <T> void writeObject(T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
+    public void writeObject(Object object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         writeElement(null, object, namespaces);
     }
 
