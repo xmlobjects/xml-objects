@@ -187,15 +187,6 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
-    public boolean isWriteEncoding() {
-        return writeEncoding;
-    }
-
-    public SAXWriter writeEncoding(boolean writeEncoding) {
-        this.writeEncoding = writeEncoding;
-        return this;
-    }
-
     public boolean isWriteXMLDeclaration() {
         return writeXMLDeclaration;
     }

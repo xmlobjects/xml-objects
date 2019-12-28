@@ -293,9 +293,7 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getMixedContent when event is not START_ELEMENT.");
 
         try (StringWriter writer = new StringWriter()) {
-            try (SAXWriter saxWriter = new SAXWriter(writer)
-                    .writeXMLDeclaration(false)
-                    .writeEncoding(false)) {
+            try (SAXWriter saxWriter = new SAXWriter(writer).writeXMLDeclaration(false)) {
                 int stopAt = reader.getDepth() - 1;
                 StAXStream2SAX mapper = new StAXStream2SAX(saxWriter);
 

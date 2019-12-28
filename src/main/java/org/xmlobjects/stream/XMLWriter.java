@@ -90,24 +90,6 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
-    public boolean isEscapeCharacters() {
-        return saxWriter.isEscapeCharacters();
-    }
-
-    public XMLWriter escapeCharacters(boolean escapeCharacters) {
-        saxWriter.escapeCharacters(escapeCharacters);
-        return this;
-    }
-
-    public boolean isWriteReportedNamespaces() {
-        return saxWriter.isWriteReportedNamespaces();
-    }
-
-    public XMLWriter writeReportedNamespaces(boolean writeReportedNamespaces) {
-        saxWriter.writeReportedNamespaces(writeReportedNamespaces);
-        return this;
-    }
-
     public String getPrefix(String namespaceURI) {
         return saxWriter.getPrefix(namespaceURI);
     }
@@ -132,15 +114,6 @@ public class XMLWriter implements AutoCloseable {
 
     public XMLWriter useIndentString(String indent) {
         saxWriter.useIndentString(indent);
-        return this;
-    }
-
-    public boolean isWriteEncoding() {
-        return saxWriter.isWriteEncoding();
-    }
-
-    public XMLWriter writeEncoding(boolean writeEncoding) {
-        saxWriter.writeEncoding(writeEncoding);
         return this;
     }
 
