@@ -1,7 +1,9 @@
 package org.xmlobjects.stream;
 
+import org.xml.sax.ContentHandler;
 import org.xmlobjects.XMLObjects;
 import org.xmlobjects.util.Properties;
+import org.xmlobjects.util.xml.SAXOutputHandler;
 import org.xmlobjects.util.xml.SAXWriter;
 
 import javax.xml.transform.stream.StreamResult;
@@ -108,6 +110,13 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(SAXWriter saxWriter) {
         XMLWriter xmlWriter = new XMLWriter(xmlObjects, saxWriter);
+        xmlWriter.setProperties(properties);
+
+        return xmlWriter;
+    }
+    
+    public XMLWriter createWriter(ContentHandler contentHandler) {
+        XMLWriter xmlWriter = new XMLWriter(xmlObjects, new SAXOutputHandler(contentHandler));
         xmlWriter.setProperties(properties);
 
         return xmlWriter;

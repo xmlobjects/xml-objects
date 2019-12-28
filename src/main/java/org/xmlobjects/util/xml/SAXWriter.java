@@ -1,10 +1,10 @@
 package org.xmlobjects.util.xml;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.NamespaceSupport;
+import org.xmlobjects.stream.XMLOutput;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamResult;
@@ -25,7 +25,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class SAXWriter implements ContentHandler, AutoCloseable {
+public class SAXWriter implements XMLOutput<SAXWriter> {
     private final String LINE_SEPARATOR = System.getProperty("line.separator");
     private final NamespaceSupport prefixMapping = new NamespaceSupport();
     private final NamespaceContext namespaceContext = new NamespaceContext();
@@ -48,14 +48,11 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     private XMLEvents lastEvent;
 
     private enum XMLEvents {
+        START_DOCUMENT,
         START_ELEMENT,
         END_ELEMENT,
         CHARACTERS,
-        PROCESSING_INSTRUCTION,
-        COMMENT
-    }
-
-    public SAXWriter() {
+        PROCESSING_INSTRUCTION
     }
 
     public SAXWriter(StreamResult streamResult) throws IOException {
@@ -78,15 +75,15 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         setOutput(writer);
     }
 
-    public void setOutput(StreamResult streamResult) throws IOException {
+    private void setOutput(StreamResult streamResult) throws IOException {
         setOutput(streamResult, null);
     }
 
-    public void setOutput(OutputStream outputStream) throws IOException {
+    private void setOutput(OutputStream outputStream) throws IOException {
         setOutput(outputStream, null);
     }
 
-    public void setOutput(StreamResult streamResult, String encoding) throws IOException {
+    private void setOutput(StreamResult streamResult, String encoding) throws IOException {
         if (streamResult.getOutputStream() != null)
             setOutput(streamResult.getOutputStream(), encoding);
         else if (streamResult.getWriter() != null)
@@ -95,7 +92,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             setOutput(new FileOutputStream(streamResult.getSystemId()), encoding);
     }
 
-    public void setOutput(Writer writer) {
+    private void setOutput(Writer writer) {
         if (writer instanceof OutputStreamWriter) {
             this.writer = new BufferedWriter(writer);
             String encoding = ((OutputStreamWriter) writer).getEncoding();
@@ -105,7 +102,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
             this.writer = writer;
     }
 
-    public void setOutput(OutputStream outputStream, String encoding) throws IOException {
+    private void setOutput(OutputStream outputStream, String encoding) throws IOException {
         if (encoding == null)
             encoding = System.getProperty("file.encoding", "UTF-8");
 
@@ -113,6 +110,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         setEncoding(encoding);
     }
 
+    @Override
     public void flush() throws IOException {
         if (writer != null)
             writer.flush();
@@ -142,6 +140,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
+    @Override
     public String getPrefix(String namespaceURI) {
         String prefix = namespaceContext.getPrefix(namespaceURI);
         if (prefix == null)
@@ -150,6 +149,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return prefix;
     }
 
+    @Override
     public SAXWriter usePrefix(String prefix, String namespaceURI) {
         if (prefix != null && namespaceURI != null) {
             if (namespaceContext.containsPrefix(prefix))
@@ -161,6 +161,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
+    @Override
     public String getNamespaceURI(String prefix) {
         String namespaceURI = namespaceContext.getNamespaceURI(prefix);
         if (namespaceURI == null)
@@ -169,6 +170,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return namespaceURI;
     }
 
+    @Override
     public SAXWriter useDefaultNamespace(String namespaceURI) {
         if (namespaceURI != null)
             namespaceContext.declarePrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
@@ -176,10 +178,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
+    @Override
     public String getIndentString() {
         return indentString;
     }
 
+    @Override
     public SAXWriter useIndentString(String indent) {
         if (indent != null)
             this.indentString = indent;
@@ -187,19 +191,23 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
+    @Override
     public boolean isWriteXMLDeclaration() {
         return writeXMLDeclaration;
     }
 
+    @Override
     public SAXWriter writeXMLDeclaration(boolean writeXMLDeclaration) {
         this.writeXMLDeclaration = writeXMLDeclaration;
         return this;
     }
 
+    @Override
     public String[] getHeaderComment() {
         return headerComment;
     }
 
+    @Override
     public SAXWriter useHeaderComment(String... headerMessage) {
         if (headerMessage != null)
             this.headerComment = headerMessage;
@@ -207,10 +215,12 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
         return this;
     }
 
+    @Override
     public String getSchemaLocation(String namespaceURI) {
         return schemaLocations.get(namespaceURI);
     }
 
+    @Override
     public SAXWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
         if (namespaceURI != null && schemaLocation != null)
             schemaLocations.put(namespaceURI, schemaLocation);
@@ -333,7 +343,7 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
     @Override
     public void startDocument() throws SAXException {
         try {
-            if (depth == 0) {
+            if (depth == 0 && lastEvent != XMLEvents.START_DOCUMENT) {
                 if (writeXMLDeclaration) {
                     if (encoding == null && writer instanceof OutputStreamWriter) {
                         encoding = ((OutputStreamWriter) writer).getEncoding();
@@ -354,17 +364,13 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                     writer.write(" standalone=\"yes\"");
                     writer.write("?>");
                     writeIndent();
-
-                    lastEvent = XMLEvents.PROCESSING_INSTRUCTION;
                 }
 
-                if (headerComment != null) {
+                if (headerComment != null)
                     writeHeader(headerComment);
-
-                    lastEvent = XMLEvents.COMMENT;
-                }
             }
 
+            lastEvent = XMLEvents.START_DOCUMENT;
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }
@@ -607,8 +613,6 @@ public class SAXWriter implements ContentHandler, AutoCloseable {
                 writer.write("-->");
                 writeIndent();
             }
-
-            lastEvent = XMLEvents.COMMENT;
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }

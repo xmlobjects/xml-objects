@@ -9,7 +9,6 @@ import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
-import org.xmlobjects.util.xml.SAXWriter;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.ElementContent;
@@ -35,7 +34,7 @@ import java.util.Map;
 
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
-    private final SAXWriter saxWriter;
+    private final XMLOutput<?> output;
 
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
     private Properties properties;
@@ -43,11 +42,12 @@ public class XMLWriter implements AutoCloseable {
     private SAXParser parser;
 
     private final Deque<QName> elements = new ArrayDeque<>();
+    private int prefixCounter = 1;
     private EventType lastEvent;
 
-    XMLWriter(XMLObjects xmlObjects, SAXWriter saxWriter) {
+    XMLWriter(XMLObjects xmlObjects, XMLOutput<?> output) {
         this.xmlObjects = xmlObjects;
-        this.saxWriter = saxWriter;
+        this.output = output;
     }
 
     public XMLObjects getXMLObjects() {
@@ -55,7 +55,7 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public ContentHandler getContentHandler() {
-        return saxWriter;
+        return output;
     }
 
     public Properties getProperties() {
@@ -71,8 +71,8 @@ public class XMLWriter implements AutoCloseable {
 
     public void flush() throws XMLWriteException {
         try {
-            saxWriter.flush();
-        } catch (IOException e) {
+            output.flush();
+        } catch (Exception e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
@@ -84,69 +84,69 @@ public class XMLWriter implements AutoCloseable {
                 writeEndDocument();
 
             serializerCache.clear();
-            saxWriter.close();
-        } catch (IOException e) {
+            output.close();
+        } catch (Exception e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
 
     public String getPrefix(String namespaceURI) {
-        return saxWriter.getPrefix(namespaceURI);
+        return output.getPrefix(namespaceURI);
     }
 
     public XMLWriter usePrefix(String prefix, String namespaceURI) {
-        saxWriter.usePrefix(prefix,namespaceURI);
+        output.usePrefix(prefix,namespaceURI);
         return this;
     }
 
     public String getNamespaceURI(String prefix) {
-        return saxWriter.getNamespaceURI(prefix);
+        return output.getNamespaceURI(prefix);
     }
 
     public XMLWriter useDefaultNamespace(String namespaceURI) {
-        saxWriter.useDefaultNamespace(namespaceURI);
+        output.useDefaultNamespace(namespaceURI);
         return this;
     }
 
     public String getIndentString() {
-        return saxWriter.getIndentString();
+        return output.getIndentString();
     }
 
     public XMLWriter useIndentString(String indent) {
-        saxWriter.useIndentString(indent);
+        output.useIndentString(indent);
         return this;
     }
 
     public boolean isWriteXMLDeclaration() {
-        return saxWriter.isWriteXMLDeclaration();
+        return output.isWriteXMLDeclaration();
     }
 
     public XMLWriter writeXMLDeclaration(boolean writeXMLDeclaration) {
-        saxWriter.writeXMLDeclaration(writeXMLDeclaration);
+        output.writeXMLDeclaration(writeXMLDeclaration);
         return this;
     }
 
     public String[] getHeaderComment() {
-        return saxWriter.getHeaderComment();
+        return output.getHeaderComment();
     }
 
     public XMLWriter useHeaderComment(String... headerComment) {
-        saxWriter.useHeaderComment(headerComment);
+        output.useHeaderComment(headerComment);
         return this;
     }
 
     public String getSchemaLocation(String namespaceURI) {
-        return saxWriter.getSchemaLocation(namespaceURI);
+        return output.getSchemaLocation(namespaceURI);
     }
 
     public XMLWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
-        saxWriter.useSchemaLocation(namespaceURI, schemaLocation);
+        output.useSchemaLocation(namespaceURI, schemaLocation);
         return this;
     }
 
     public void writeStartDocument() throws XMLWriteException {
         try {
-            saxWriter.startDocument();
+            output.startDocument();
             lastEvent = EventType.START_DOCUMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
@@ -158,7 +158,7 @@ public class XMLWriter implements AutoCloseable {
             writeEndElement();
 
         try {
-            saxWriter.endDocument();
+            output.endDocument();
             lastEvent = EventType.END_DOCUMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
@@ -221,7 +221,7 @@ public class XMLWriter implements AutoCloseable {
                 transformer = TransformerFactory.newInstance().newTransformer();
 
             DOMSource source = new DOMSource(element);
-            SAXResult result = new SAXResult(saxWriter);
+            SAXResult result = new SAXResult(output);
             transformer.transform(source, result);
         } catch (TransformerConfigurationException e) {
             throw new XMLWriteException("Failed to initialize DOM transformer.", e);
@@ -253,12 +253,16 @@ public class XMLWriter implements AutoCloseable {
             AttributesImpl attrs = new AttributesImpl();
             if (attributes != null && !attributes.isEmpty()) {
                 for (Map.Entry<QName, TextContent> entry : attributes.toMap().entrySet()) {
-                    if (entry.getValue().isPresent())
-                        attrs.addAttribute(entry.getKey().getNamespaceURI(), entry.getKey().getLocalPart(), "", "CDATA", entry.getValue().get());
+                    if (entry.getValue().isPresent()) {
+                        String namespaceURI = entry.getKey().getNamespaceURI();
+                        String localName = entry.getKey().getLocalPart();
+                        String qName = getQName(namespaceURI, localName);
+                        attrs.addAttribute(namespaceURI, localName, qName, "CDATA", entry.getValue().get());
+                    }
                 }
             }
 
-            saxWriter.startElement(name.getNamespaceURI(), name.getLocalPart(), "", attrs);
+            output.startElement(name.getNamespaceURI(), name.getLocalPart(), "", attrs);
             elements.push(name);
             lastEvent = EventType.START_ELEMENT;
         } catch (SAXException e) {
@@ -269,7 +273,7 @@ public class XMLWriter implements AutoCloseable {
     public void writeEndElement() throws XMLWriteException {
         try {
             QName name = elements.pop();
-            saxWriter.endElement(name.getNamespaceURI(), name.getLocalPart(), "");
+            output.endElement(name.getNamespaceURI(), name.getLocalPart(), "");
             lastEvent = EventType.END_ELEMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
@@ -279,7 +283,7 @@ public class XMLWriter implements AutoCloseable {
     public void writeCharacters(String text, int start, int length) throws XMLWriteException {
         try {
             char[] characters = text.toCharArray();
-            saxWriter.characters(characters, start, length);
+            output.characters(characters, start, length);
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -300,7 +304,7 @@ public class XMLWriter implements AutoCloseable {
             SAXBuffer buffer = new MixedContentBuffer();
             parser.getXMLReader().setContentHandler(buffer);
             parser.getXMLReader().parse(new InputSource(new StringReader("<dummy>" + mixedContent + "</dummy>")));
-            buffer.send(saxWriter, true);
+            buffer.send(output, true);
         } catch (ParserConfigurationException e) {
             throw new XMLWriteException("Failed to initialize mixed content parser.", e);
         } catch (SAXException | IOException e) {
@@ -330,15 +334,28 @@ public class XMLWriter implements AutoCloseable {
         return serializer;
     }
 
+    private String getQName(String namespaceURI, String localName) {
+        if (namespaceURI != null && !namespaceURI.isEmpty()) {
+            String prefix = output.getPrefix(namespaceURI);
+            if (prefix == null) {
+                prefix = "ns" + prefixCounter++;
+                output.usePrefix(prefix, namespaceURI);
+            }
+
+            return prefix + ":" + localName;
+        } else
+            return "";
+    }
+
     private static class MixedContentBuffer extends SAXBuffer {
         int depth = 0;
 
         @Override
-        public void startDocument() throws SAXException {
+        public void startDocument() {
         }
 
         @Override
-        public void endDocument() throws SAXException {
+        public void endDocument() {
         }
 
         @Override
