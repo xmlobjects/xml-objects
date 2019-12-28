@@ -4,16 +4,16 @@ import org.xml.sax.ContentHandler;
 
 public interface XMLOutput<T extends XMLOutput<?>> extends ContentHandler, AutoCloseable {
     String getPrefix(String namespaceURI);
-    T usePrefix(String prefix, String namespaceURI);
+    T withPrefix(String prefix, String namespaceURI);
     String getNamespaceURI(String prefix);
-    T useDefaultNamespace(String namespaceURI);
+    T withDefaultNamespace(String namespaceURI);
     String getIndentString();
-    T useIndentString(String indent);
+    T withIndentString(String indent);
     boolean isWriteXMLDeclaration();
     T writeXMLDeclaration(boolean writeXMLDeclaration);
     String[] getHeaderComment();
-    T useHeaderComment(String... headerComment);
+    T withHeaderComment(String... headerComment);
     String getSchemaLocation(String namespaceURI);
-    T useSchemaLocation(String namespaceURI, String schemaLocation);
+    T withSchemaLocation(String namespaceURI, String schemaLocation);
     void flush() throws Exception;
 }

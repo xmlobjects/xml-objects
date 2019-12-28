@@ -94,8 +94,8 @@ public class XMLWriter implements AutoCloseable {
         return output.getPrefix(namespaceURI);
     }
 
-    public XMLWriter usePrefix(String prefix, String namespaceURI) {
-        output.usePrefix(prefix,namespaceURI);
+    public XMLWriter withPrefix(String prefix, String namespaceURI) {
+        output.withPrefix(prefix,namespaceURI);
         return this;
     }
 
@@ -103,8 +103,8 @@ public class XMLWriter implements AutoCloseable {
         return output.getNamespaceURI(prefix);
     }
 
-    public XMLWriter useDefaultNamespace(String namespaceURI) {
-        output.useDefaultNamespace(namespaceURI);
+    public XMLWriter withDefaultNamespace(String namespaceURI) {
+        output.withDefaultNamespace(namespaceURI);
         return this;
     }
 
@@ -112,8 +112,8 @@ public class XMLWriter implements AutoCloseable {
         return output.getIndentString();
     }
 
-    public XMLWriter useIndentString(String indent) {
-        output.useIndentString(indent);
+    public XMLWriter withIndentString(String indent) {
+        output.withIndentString(indent);
         return this;
     }
 
@@ -130,8 +130,8 @@ public class XMLWriter implements AutoCloseable {
         return output.getHeaderComment();
     }
 
-    public XMLWriter useHeaderComment(String... headerComment) {
-        output.useHeaderComment(headerComment);
+    public XMLWriter withHeaderComment(String... headerComment) {
+        output.withHeaderComment(headerComment);
         return this;
     }
 
@@ -139,8 +139,8 @@ public class XMLWriter implements AutoCloseable {
         return output.getSchemaLocation(namespaceURI);
     }
 
-    public XMLWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
-        output.useSchemaLocation(namespaceURI, schemaLocation);
+    public XMLWriter withSchemaLocation(String namespaceURI, String schemaLocation) {
+        output.withSchemaLocation(namespaceURI, schemaLocation);
         return this;
     }
 
@@ -339,7 +339,7 @@ public class XMLWriter implements AutoCloseable {
             String prefix = output.getPrefix(namespaceURI);
             if (prefix == null) {
                 prefix = "ns" + prefixCounter++;
-                output.usePrefix(prefix, namespaceURI);
+                output.withPrefix(prefix, namespaceURI);
             }
 
             return prefix + ":" + localName;

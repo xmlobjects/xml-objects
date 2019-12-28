@@ -35,7 +35,7 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler usePrefix(String prefix, String namespaceURI) {
+    public SAXOutputHandler withPrefix(String prefix, String namespaceURI) {
         if (prefix != null
                 && namespaceURI != null
                 && !XMLConstants.XML_NS_PREFIX.equals(prefix)
@@ -51,8 +51,8 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler useDefaultNamespace(String namespaceURI) {
-        usePrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
+    public SAXOutputHandler withDefaultNamespace(String namespaceURI) {
+        withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
         return this;
     }
 
@@ -62,7 +62,7 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler useIndentString(String indent) {
+    public SAXOutputHandler withIndentString(String indent) {
         return this;
     }
 
@@ -82,7 +82,7 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler useHeaderComment(String... headerComment) {
+    public SAXOutputHandler withHeaderComment(String... headerComment) {
         return this;
     }
 
@@ -92,7 +92,7 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler useSchemaLocation(String namespaceURI, String schemaLocation) {
+    public SAXOutputHandler withSchemaLocation(String namespaceURI, String schemaLocation) {
         if (namespaceURI != null && schemaLocation != null)
             schemaLocations.put(namespaceURI, schemaLocation);
 
@@ -143,7 +143,7 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
 
                 if (prefix == null) {
                     prefix = "xsi";
-                    usePrefix(prefix, namespaceURI);
+                    withPrefix(prefix, namespaceURI);
                 }
 
                 atts = new AttributesImpl(atts);

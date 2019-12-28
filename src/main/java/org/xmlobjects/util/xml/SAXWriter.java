@@ -150,7 +150,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public SAXWriter usePrefix(String prefix, String namespaceURI) {
+    public SAXWriter withPrefix(String prefix, String namespaceURI) {
         if (prefix != null && namespaceURI != null) {
             if (namespaceContext.containsPrefix(prefix))
                 namespaceContext.removePrefix(prefix);
@@ -171,7 +171,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public SAXWriter useDefaultNamespace(String namespaceURI) {
+    public SAXWriter withDefaultNamespace(String namespaceURI) {
         if (namespaceURI != null)
             namespaceContext.declarePrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
 
@@ -184,7 +184,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public SAXWriter useIndentString(String indent) {
+    public SAXWriter withIndentString(String indent) {
         if (indent != null)
             this.indentString = indent;
 
@@ -208,7 +208,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public SAXWriter useHeaderComment(String... headerMessage) {
+    public SAXWriter withHeaderComment(String... headerMessage) {
         if (headerMessage != null)
             this.headerComment = headerMessage;
 
@@ -221,7 +221,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public SAXWriter useSchemaLocation(String namespaceURI, String schemaLocation) {
+    public SAXWriter withSchemaLocation(String namespaceURI, String schemaLocation) {
         if (namespaceURI != null && schemaLocation != null)
             schemaLocations.put(namespaceURI, schemaLocation);
 
