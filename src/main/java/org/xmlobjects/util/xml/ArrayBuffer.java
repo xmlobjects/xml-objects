@@ -6,6 +6,7 @@ import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 public class ArrayBuffer<T> implements Iterable<T> {
+    static final int DEFAULT_BUFFER_SIZE = 512;
     private static final Object[] EMPTY = {};
 
     private final Class<T> type;

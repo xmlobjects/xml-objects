@@ -20,6 +20,8 @@ public class SAXStreamReader implements XMLStreamReader {
     private final ArrayBufferIterator<Byte> events;
     private final ArrayBufferIterator<String> strings;
     private final ArrayBufferIterator<char[]> characters;
+
+    private final ArrayBuffer<String> elements = new ArrayBuffer<>(String.class, ArrayBuffer.DEFAULT_BUFFER_SIZE);
     private final NamespaceSupport namespaceSupport = new NamespaceSupport();
     private final AttributesImpl attributes = new AttributesImpl();
     private final Namespaces namespaces = new Namespaces();
@@ -123,10 +125,14 @@ public class SAXStreamReader implements XMLStreamReader {
                     attributeValue);
         }
 
+        elements.push(namespaceURI);
+        elements.push(localName);
         needNamespaceContext = true;
     }
 
     private void processEndElement() {
+        localName = elements.pop();
+        namespaceURI = elements.pop();
         namespaces.clear();
         namespaceSupport.popContext();
     }
