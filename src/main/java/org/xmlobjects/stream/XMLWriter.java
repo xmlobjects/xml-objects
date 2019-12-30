@@ -9,6 +9,7 @@ import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
+import org.xmlobjects.util.xml.SAXFilter;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.ElementContent;
@@ -52,10 +53,6 @@ public class XMLWriter implements AutoCloseable {
 
     public XMLObjects getXMLObjects() {
         return xmlObjects;
-    }
-
-    public ContentHandler getContentHandler() {
-        return output;
     }
 
     public Properties getProperties() {
@@ -212,27 +209,6 @@ public class XMLWriter implements AutoCloseable {
         writeEndElement();
     }
 
-    public void writeDOMElement(org.w3c.dom.Element element) throws XMLWriteException {
-        if (element == null)
-            return;
-
-        try {
-            if (transformer == null)
-                transformer = TransformerFactory.newInstance().newTransformer();
-
-            DOMSource source = new DOMSource(element);
-            SAXResult result = new SAXResult(output);
-            transformer.transform(source, result);
-        } catch (TransformerConfigurationException e) {
-            throw new XMLWriteException("Failed to initialize DOM transformer.", e);
-        } catch (TransformerException e) {
-            throw new XMLWriteException("Failed to write DOM element as XML content.", e);
-        } finally {
-            if (transformer != null)
-                transformer.reset();
-        }
-    }
-
     public void writeStartElement(Element element) throws XMLWriteException {
         if (element == null)
             throw new XMLWriteException("Illegal to call writeStartElement with a null element.");
@@ -270,6 +246,19 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
+    private String getQName(String namespaceURI, String localName) {
+        if (namespaceURI != null && !namespaceURI.isEmpty()) {
+            String prefix = output.getPrefix(namespaceURI);
+            if (prefix == null) {
+                prefix = "ns" + prefixCounter++;
+                output.withPrefix(prefix, namespaceURI);
+            }
+
+            return prefix + ":" + localName;
+        } else
+            return "";
+    }
+
     public void writeEndElement() throws XMLWriteException {
         try {
             QName name = elements.pop();
@@ -291,6 +280,27 @@ public class XMLWriter implements AutoCloseable {
 
     public void writeCharacters(String text) throws XMLWriteException {
         writeCharacters(text, 0, text.length());
+    }
+
+    public void writeDOMElement(org.w3c.dom.Element element) throws XMLWriteException {
+        if (element == null)
+            return;
+
+        try {
+            if (transformer == null)
+                transformer = TransformerFactory.newInstance().newTransformer();
+
+            DOMSource source = new DOMSource(element);
+            SAXResult result = new SAXResult(new DOMHandler(output));
+            transformer.transform(source, result);
+        } catch (TransformerConfigurationException e) {
+            throw new XMLWriteException("Failed to initialize DOM transformer.", e);
+        } catch (TransformerException e) {
+            throw new XMLWriteException("Failed to write DOM element as XML content.", e);
+        } finally {
+            if (transformer != null)
+                transformer.reset();
+        }
     }
 
     public void writeMixedContent(String mixedContent) throws XMLWriteException {
@@ -334,17 +344,45 @@ public class XMLWriter implements AutoCloseable {
         return serializer;
     }
 
-    private String getQName(String namespaceURI, String localName) {
-        if (namespaceURI != null && !namespaceURI.isEmpty()) {
-            String prefix = output.getPrefix(namespaceURI);
-            if (prefix == null) {
-                prefix = "ns" + prefixCounter++;
-                output.withPrefix(prefix, namespaceURI);
+    public ContentHandler getContentHandler() {
+        return new SAXFilter(output) {
+            @Override
+            public void startDocument() {
             }
 
-            return prefix + ":" + localName;
-        } else
-            return "";
+            @Override
+            public void endDocument() {
+            }
+
+            @Override
+            public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes atts) throws SAXException {
+                super.startElement(uri, localName, qName, atts);
+                elements.push(new QName(uri, localName));
+                lastEvent = EventType.START_ELEMENT;
+            }
+
+            @Override
+            public void endElement(String uri, String localName, String qName) throws SAXException {
+                super.endElement(uri, localName, qName);
+                elements.pop();
+                lastEvent = EventType.END_ELEMENT;
+            }
+        };
+    }
+
+    private static class DOMHandler extends SAXFilter {
+
+        DOMHandler(ContentHandler parent) {
+            super(parent);
+        }
+
+        @Override
+        public void startDocument() {
+        }
+
+        @Override
+        public void endDocument() {
+        }
     }
 
     private static class MixedContentBuffer extends SAXBuffer {
