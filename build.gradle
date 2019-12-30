@@ -10,11 +10,12 @@ plugins {
 group 'org.xml-objects'
 version '0.3.0'
 description 'A simple and lightweight XML-to-object mapping library'
+ext.date = new Date()
 
-sourceCompatibility = 1.8
-
-ext {
-    date = new Date()
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    withJavadocJar()
+    withSourcesJar()
 }
 
 repositories {
@@ -79,11 +80,6 @@ distributions.main.contents {
     into('license') {
         from 'LICENSE'
     }
-}
-
-java {
-    withJavadocJar()
-    withSourcesJar()
 }
 
 publishing {
