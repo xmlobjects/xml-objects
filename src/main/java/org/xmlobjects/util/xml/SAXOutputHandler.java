@@ -2,7 +2,6 @@ package org.xmlobjects.util.xml;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.stream.XMLOutput;
@@ -10,18 +9,16 @@ import org.xmlobjects.stream.XMLOutput;
 import javax.xml.XMLConstants;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
-    private final ContentHandler parent;
+public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHandler> {
     private final Map<String, String> prefixes = new HashMap<>();
     private final Map<String, String> schemaLocations = new HashMap<>();
 
     private int depth;
 
     public SAXOutputHandler(ContentHandler parent) {
-        this.parent = Objects.requireNonNull(parent, "Parent must not be null.");
+        super(parent);
     }
 
     @Override
@@ -110,31 +107,6 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public void setDocumentLocator(Locator locator) {
-        parent.setDocumentLocator(locator);
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-        parent.startDocument();
-    }
-
-    @Override
-    public void endDocument() throws SAXException {
-        parent.endDocument();
-    }
-
-    @Override
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
-        parent.startPrefixMapping(prefix, uri);
-    }
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-        parent.endPrefixMapping(prefix);
-    }
-
-    @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
         if (depth == 0) {
             if (!schemaLocations.isEmpty()) {
@@ -154,41 +126,21 @@ public class SAXOutputHandler implements XMLOutput<SAXOutputHandler> {
             }
 
             for (Map.Entry<String, String> entry : prefixes.entrySet())
-                parent.startPrefixMapping(entry.getKey(), entry.getValue());
+                super.startPrefixMapping(entry.getKey(), entry.getValue());
         }
 
-        parent.startElement(uri, localName, qName, atts);
+        super.startElement(uri, localName, qName, atts);
         depth++;
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         depth--;
-        parent.endElement(uri, localName, qName);
+        super.endElement(uri, localName, qName);
 
         if (depth == 0) {
             for (String prefix : prefixes.keySet())
-                parent.endPrefixMapping(prefix);
+                super.endPrefixMapping(prefix);
         }
-    }
-
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        parent.characters(ch, start, length);
-    }
-
-    @Override
-    public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
-        parent.ignorableWhitespace(ch, start, length);
-    }
-
-    @Override
-    public void processingInstruction(String target, String data) throws SAXException {
-        parent.processingInstruction(target, data);
-    }
-
-    @Override
-    public void skippedEntity(String name) throws SAXException {
-        parent.skippedEntity(name);
     }
 }
