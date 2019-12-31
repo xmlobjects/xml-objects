@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -49,20 +50,30 @@ public class CopyBuilder {
         registerKnownCloners();
     }
 
-    public <T> T shallowCopy(T src) {
-        return copy(src, null, true);
+    public <S> S shallowCopy(S src) {
+        return copy(src, null, null, true);
     }
 
-    public <T> T shallowCopy(T src, T dest) {
-        return copy(src, dest, true);
+    public <S, D extends S> D shallowCopy(S src, D dest) {
+        return shallowCopy(src, dest, null);
     }
 
-    public <T> T deepCopy(T src) {
-        return copy(src, null, false);
+    @SuppressWarnings("unchecked")
+    public <S extends T, D extends T, T> D shallowCopy(S src, D dest, Class<T> template) {
+        return (D) copy(src, Objects.requireNonNull(dest, "The target object must not be null."), template, true);
     }
 
-    public <T> T deepCopy(T src, T dest) {
-        return copy(src, dest, false);
+    public <S> S deepCopy(S src) {
+        return copy(src, null, null, false);
+    }
+
+    public <S, D extends S> D deepCopy(S src, D dest) {
+        return deepCopy(src, dest, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <S extends T, D extends T, T> D deepCopy(S src, D dest, Class<T> template) {
+        return (D) copy(src, Objects.requireNonNull(dest, "The target object must not be null."), template, false);
     }
 
     public <T> CopyBuilder registerCloner(Class<T> type, AbstractCloner<T> cloner) {
@@ -106,9 +117,12 @@ public class CopyBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T copy(T src, T dest, boolean shallowCopy) {
+    private <T> T copy(T src, T dest, Class<T> template, boolean shallowCopy) {
         if (src == null || src == dest)
-            return src;
+            return dest;
+
+        if (template == null)
+            template = (Class<T>) src.getClass();
 
         boolean isInitial = !isCloning;
         if (isInitial) {
@@ -125,7 +139,7 @@ public class CopyBuilder {
         T clone = (T) clones.get(src);
         if (clone == null) {
             try {
-                AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(src.getClass());
+                AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(template);
 
                 if (cloner != IDENTITY_CLONER && cloner != NULL_CLONER) {
                     if (dest == null)
