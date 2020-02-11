@@ -7,8 +7,8 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.4'
 }
 
-group 'org.xml-objects'
-version '0.3.0'
+group 'org.xmlobjects'
+version '0.9.0'
 description 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
@@ -34,9 +34,9 @@ javadoc {
         overview "$buildDir/tmp/javadoc/overview.html"
         header "xml-objects $project.version"
         bottom """
-            <a target="_blank" href="https://github.com/clausnagel/xml-objects/issues">Report a bug or suggest an enhancement</a><br>
+            <a target="_blank" href="https://github.com/xmlobjects/xml-objects/issues">Report a bug or suggest an enhancement</a><br>
             xml-objects is open source and licensed under the <a target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><br>
-            Official website and more information at: <a target="_blank" href="https://github.com/clausnagel/xml-objects">https://github.com/clausnagel/xml-objects</a><br>
+            Official website and more information at: <a target="_blank" href="https://github.com/xmlobjects">https://github.com/xmlobjects</a><br>
             Copyright &copy; 2013-${date.format('yyyy')}<br>
             Claus Nagel &lt;claus.nagel@gmail.com&gt;
             """.replaceAll("[\r|\n]+", "")
@@ -89,7 +89,7 @@ publishing {
             pom {
                 name = project.name
                 description = project.description
-                url = 'https://github.com/clausnagel/xml-objects'
+                url = 'https://github.com/xmlobjects/xml-objects'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -107,8 +107,8 @@ publishing {
                     }
                 }
                 scm {
-                    url = 'https://github.com/clausnagel/xml-objects'
-                    connection = 'scm:git:https://github.com/clausnagel/xml-objects.git'
+                    url = 'https://github.com/xmlobjects/xml-objects'
+                    connection = 'https://github.com/xmlobjects/xml-objects.git'
                 }
             }
         }
@@ -124,9 +124,9 @@ bintray {
         repo = 'maven'
         name = project.name
         desc = project.description
-        websiteUrl = 'https://github.com/clausnagel/xml-objects'
-        vcsUrl = 'https://github.com/clausnagel/xml-objects.git'
-        issueTrackerUrl = 'https://github.com/clausnagel/xml-objects/issues'
+        websiteUrl = 'https://github.com/xmlobjects/xml-objects'
+        vcsUrl = 'https://github.com/xmlobjects/xml-objects.git'
+        issueTrackerUrl = 'https://github.com/xmlobjects/xml-objects/issues'
         labels = ['xml', 'object', 'mapping', 'parsing', 'writing']
         licenses = ['Apache-2.0']
         version {
