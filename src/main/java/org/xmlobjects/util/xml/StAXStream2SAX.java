@@ -51,7 +51,7 @@ public class StAXStream2SAX {
     }
 
     private void handleCharacters(XMLStreamReader reader) throws SAXException {
-        handler.characters(reader.getText().toCharArray(), 0, reader.getTextLength());
+        handler.characters(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
     }
 
     private void handleEndElement(XMLStreamReader reader) throws SAXException {
