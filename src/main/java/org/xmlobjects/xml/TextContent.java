@@ -341,13 +341,14 @@ public class TextContent {
     public Double getAsDouble() {
         if (value instanceof Double)
             return (Double) value;
-        else {
+        else if (!isEmpty() && !formatContent().isEmpty()) {
             try {
-                return setValue(Double.parseDouble(formatContent()));
+                return setValue(Double.parseDouble(formattedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isDouble() {
@@ -392,13 +393,14 @@ public class TextContent {
     public Integer getAsInteger() {
         if (value instanceof Integer)
             return (Integer) value;
-        else {
+        else if (!isEmpty() && !formatContent().isEmpty()) {
             try {
-                return setValue(Integer.parseInt(formatContent()));
+                return setValue(Integer.parseInt(formattedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isInteger() {
@@ -443,13 +445,14 @@ public class TextContent {
     public Duration getAsDuration() {
         if (value instanceof Duration)
             return (Duration) value;
-        else {
+        else if (!isEmpty() && !formatContent().isEmpty()) {
             try {
-                return setValue(XML_TYPE_FACTORY.newDuration(formatContent()));
+                return setValue(XML_TYPE_FACTORY.newDuration(formattedContent));
             } catch (Throwable e) {
                 return setValue(null);
             }
-        }
+        } else
+            return setValue(null);
     }
 
     public boolean isDuration() {
@@ -725,10 +728,11 @@ public class TextContent {
     private OffsetDateTime getAsOffsetDateTime(String localName) {
         if (value instanceof XMLGregorianCalendar && ((XMLGregorianCalendar) value).getXMLSchemaType().getLocalPart().equals(localName))
             return toOffsetDateTime((XMLGregorianCalendar) value);
-        else {
+        else if (!isEmpty() && !formatContent().isEmpty()) {
             XMLGregorianCalendar calendar = setValue(toCalendar(formatContent(), localName));
             return calendar != null ? toOffsetDateTime(calendar) : null;
-        }
+        } else
+            return setValue(null);
     }
 
     @SuppressWarnings("unchecked")
