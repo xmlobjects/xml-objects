@@ -272,7 +272,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     @Override
     public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length) throws XMLStreamException {
-        return reader.getTextCharacters(sourceStart,target,targetStart,length);
+        return reader.getTextCharacters(sourceStart, target, targetStart, length);
     }
 
     @Override
