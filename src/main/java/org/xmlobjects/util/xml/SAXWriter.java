@@ -638,7 +638,7 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     private void writeIndent() throws SAXException {
-        if (indentString == null || indentString.length() == 0)
+        if (indentString == null)
             return;
 
         if (lastEvent == XMLEvents.CHARACTERS)
