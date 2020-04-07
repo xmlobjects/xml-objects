@@ -22,6 +22,7 @@ package org.xmlobjects.util.xml;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
+import java.util.EmptyStackException;
 import java.util.Iterator;
 
 public class ArrayBuffer<T> implements Iterable<T> {
@@ -59,7 +60,7 @@ public class ArrayBuffer<T> implements Iterable<T> {
         modCount++;
         if (current.index == 0) {
             if (current.previous == null)
-                throw new IllegalArgumentException("Cannot pop from an empty buffer.");
+                throw new EmptyStackException();
 
             current = current.previous;
             current.next = null;
