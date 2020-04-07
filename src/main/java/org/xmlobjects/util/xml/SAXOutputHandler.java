@@ -26,45 +26,14 @@ import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.stream.XMLOutput;
 
 import javax.xml.XMLConstants;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
-    private final NamespaceSupport prefixMapping = new NamespaceSupport();
-    private final Map<String, String> schemaLocations = new HashMap<>();
-
     private int depth;
 
     public SAXOutputHandler(ContentHandler parent) {
         super(parent);
-    }
-
-    @Override
-    public String getPrefix(String namespaceURI) {
-        return prefixMapping.getPrefix(namespaceURI);
-    }
-
-    @Override
-    protected String createPrefix() {
-        return prefixMapping.createPrefix();
-    }
-
-    @Override
-    public SAXOutputHandler withPrefix(String prefix, String namespaceURI) {
-        prefixMapping.pushContext();
-        prefixMapping.declarePrefix(prefix, namespaceURI);
-        return this;
-    }
-
-    @Override
-    public String getNamespaceURI(String prefix) {
-        return prefixMapping.getNamespaceURI(prefix);
-    }
-
-    @Override
-    public SAXOutputHandler withDefaultNamespace(String namespaceURI) {
-        return withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
     }
 
     @Override
@@ -73,43 +42,13 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public SAXOutputHandler withIndentString(String indent) {
-        return this;
-    }
-
-    @Override
     public boolean isWriteXMLDeclaration() {
         return false;
     }
 
     @Override
-    public SAXOutputHandler writeXMLDeclaration(boolean writeXMLDeclaration) {
-        return this;
-    }
-
-    @Override
     public String[] getHeaderComment() {
         return null;
-    }
-
-    @Override
-    public SAXOutputHandler withHeaderComment(String... headerComment) {
-        return this;
-    }
-
-    @Override
-    public String getSchemaLocation(String namespaceURI) {
-        return schemaLocations.get(namespaceURI);
-    }
-
-    @Override
-    public SAXOutputHandler withSchemaLocation(String namespaceURI, String schemaLocation) {
-        if (namespaceURI != null && schemaLocation != null) {
-            schemaLocations.put(namespaceURI, schemaLocation);
-            withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        }
-
-        return this;
     }
 
     @Override

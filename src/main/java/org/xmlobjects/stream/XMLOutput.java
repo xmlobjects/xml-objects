@@ -21,9 +21,19 @@ package org.xmlobjects.stream;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
+import org.xmlobjects.util.xml.NamespaceSupport;
 import org.xmlobjects.util.xml.SAXFilter;
 
+import javax.xml.XMLConstants;
+import java.util.HashMap;
+import java.util.Map;
+
 public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implements AutoCloseable {
+    protected final NamespaceSupport prefixMapping = new NamespaceSupport();
+    protected final Map<String, String> schemaLocations = new HashMap<>();
+    protected String indentString;
+    protected boolean writeXMLDeclaration = true;
+    protected String[] headerComment;
 
     public XMLOutput() {
         super(new DefaultHandler());
@@ -33,19 +43,76 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
         super(parent);
     }
 
-    public abstract String getPrefix(String namespaceURI);
-    public abstract T withPrefix(String prefix, String namespaceURI);
-    public abstract String getNamespaceURI(String prefix);
-    public abstract T withDefaultNamespace(String namespaceURI);
-    public abstract String getIndentString();
-    public abstract T withIndentString(String indent);
-    public abstract boolean isWriteXMLDeclaration();
-    public abstract T writeXMLDeclaration(boolean writeXMLDeclaration);
-    public abstract String[] getHeaderComment();
-    public abstract T withHeaderComment(String... headerComment);
-    public abstract String getSchemaLocation(String namespaceURI);
-    public abstract T withSchemaLocation(String namespaceURI, String schemaLocation);
     public abstract void flush() throws Exception;
 
-    protected abstract String createPrefix();
+    public String getPrefix(String namespaceURI) {
+        return prefixMapping.getPrefix(namespaceURI);
+    }
+
+    String createPrefix() {
+        return prefixMapping.createPrefix();
+    }
+
+    @SuppressWarnings("unchecked")
+    public T withPrefix(String prefix, String namespaceURI) {
+        prefixMapping.pushContext();
+        prefixMapping.declarePrefix(prefix, namespaceURI);
+        return (T) this;
+    }
+
+    public String getNamespaceURI(String prefix) {
+        return prefixMapping.getNamespaceURI(prefix);
+    }
+
+    public T withDefaultNamespace(String namespaceURI) {
+        return withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
+    }
+
+    public String getSchemaLocation(String namespaceURI) {
+        return schemaLocations.get(namespaceURI);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T withSchemaLocation(String namespaceURI, String schemaLocation) {
+        if (namespaceURI != null && schemaLocation != null) {
+            schemaLocations.put(namespaceURI, schemaLocation);
+            withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        }
+
+        return (T) this;
+    }
+
+    public String getIndentString() {
+        return indentString;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T withIndentString(String indent) {
+        if (indent != null)
+            this.indentString = indent;
+
+        return (T) this;
+    }
+
+    public boolean isWriteXMLDeclaration() {
+        return writeXMLDeclaration;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T writeXMLDeclaration(boolean writeXMLDeclaration) {
+        this.writeXMLDeclaration = writeXMLDeclaration;
+        return (T) this;
+    }
+
+    public String[] getHeaderComment() {
+        return headerComment;
+    }
+
+    @SuppressWarnings("unchecked")
+    public T withHeaderComment(String... headerMessage) {
+        if (headerMessage != null)
+            this.headerComment = headerMessage;
+
+        return (T) this;
+    }
 }

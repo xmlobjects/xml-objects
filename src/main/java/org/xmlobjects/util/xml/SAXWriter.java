@@ -33,25 +33,17 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 public class SAXWriter extends XMLOutput<SAXWriter> {
     private final String LINE_SEPARATOR = System.getProperty("line.separator");
-    private final NamespaceSupport prefixMapping = new NamespaceSupport();
-    private final Map<String, String> schemaLocations = new HashMap<>();
-
     private Writer writer;
     private String encoding;
     private CharsetEncoder encoder;
 
     private boolean escapeCharacters = true;
     private boolean writeEncoding = false;
-    private boolean writeXMLDeclaration = true;
-    private String indentString;
-    private String[] headerComment;
-
     private int depth = 0;
     private XMLEvents lastEvent;
 
@@ -136,85 +128,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     public SAXWriter escapeCharacters(boolean escapeCharacters) {
         this.escapeCharacters = escapeCharacters;
-        return this;
-    }
-
-    @Override
-    public String getPrefix(String namespaceURI) {
-        return prefixMapping.getPrefix(namespaceURI);
-    }
-
-    @Override
-    protected String createPrefix() {
-        return prefixMapping.createPrefix();
-    }
-
-    @Override
-    public SAXWriter withPrefix(String prefix, String namespaceURI) {
-        prefixMapping.pushContext();
-        prefixMapping.declarePrefix(prefix, namespaceURI);
-        return this;
-    }
-
-    @Override
-    public String getNamespaceURI(String prefix) {
-        return prefixMapping.getNamespaceURI(prefix);
-    }
-
-    @Override
-    public SAXWriter withDefaultNamespace(String namespaceURI) {
-        return withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
-    }
-
-    @Override
-    public String getIndentString() {
-        return indentString;
-    }
-
-    @Override
-    public SAXWriter withIndentString(String indent) {
-        if (indent != null)
-            this.indentString = indent;
-
-        return this;
-    }
-
-    @Override
-    public boolean isWriteXMLDeclaration() {
-        return writeXMLDeclaration;
-    }
-
-    @Override
-    public SAXWriter writeXMLDeclaration(boolean writeXMLDeclaration) {
-        this.writeXMLDeclaration = writeXMLDeclaration;
-        return this;
-    }
-
-    @Override
-    public String[] getHeaderComment() {
-        return headerComment;
-    }
-
-    @Override
-    public SAXWriter withHeaderComment(String... headerMessage) {
-        if (headerMessage != null)
-            this.headerComment = headerMessage;
-
-        return this;
-    }
-
-    @Override
-    public String getSchemaLocation(String namespaceURI) {
-        return schemaLocations.get(namespaceURI);
-    }
-
-    @Override
-    public SAXWriter withSchemaLocation(String namespaceURI, String schemaLocation) {
-        if (namespaceURI != null && schemaLocation != null) {
-            schemaLocations.put(namespaceURI, schemaLocation);
-            withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
-        }
-
         return this;
     }
 
