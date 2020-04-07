@@ -20,19 +20,32 @@
 package org.xmlobjects.stream;
 
 import org.xml.sax.ContentHandler;
+import org.xml.sax.helpers.DefaultHandler;
+import org.xmlobjects.util.xml.SAXFilter;
 
-public interface XMLOutput<T extends XMLOutput<?>> extends ContentHandler, AutoCloseable {
-    String getPrefix(String namespaceURI);
-    T withPrefix(String prefix, String namespaceURI);
-    String getNamespaceURI(String prefix);
-    T withDefaultNamespace(String namespaceURI);
-    String getIndentString();
-    T withIndentString(String indent);
-    boolean isWriteXMLDeclaration();
-    T writeXMLDeclaration(boolean writeXMLDeclaration);
-    String[] getHeaderComment();
-    T withHeaderComment(String... headerComment);
-    String getSchemaLocation(String namespaceURI);
-    T withSchemaLocation(String namespaceURI, String schemaLocation);
-    void flush() throws Exception;
+public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implements AutoCloseable {
+
+    public XMLOutput() {
+        super(new DefaultHandler());
+    }
+
+    public XMLOutput(ContentHandler parent) {
+        super(parent);
+    }
+
+    public abstract String getPrefix(String namespaceURI);
+    public abstract T withPrefix(String prefix, String namespaceURI);
+    public abstract String getNamespaceURI(String prefix);
+    public abstract T withDefaultNamespace(String namespaceURI);
+    public abstract String getIndentString();
+    public abstract T withIndentString(String indent);
+    public abstract boolean isWriteXMLDeclaration();
+    public abstract T writeXMLDeclaration(boolean writeXMLDeclaration);
+    public abstract String[] getHeaderComment();
+    public abstract T withHeaderComment(String... headerComment);
+    public abstract String getSchemaLocation(String namespaceURI);
+    public abstract T withSchemaLocation(String namespaceURI, String schemaLocation);
+    public abstract void flush() throws Exception;
+
+    protected abstract String createPrefix();
 }

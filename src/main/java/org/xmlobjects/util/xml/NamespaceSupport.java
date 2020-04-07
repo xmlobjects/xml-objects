@@ -77,17 +77,7 @@ public class NamespaceSupport {
         return new HashMap<>(current.namespaceURIs);
     }
 
-    public String getOrCreatePrefix(String namespaceURI) {
-        String prefix = getPrefix(namespaceURI);
-        if (prefix == null) {
-            prefix = createPrefix();
-            declarePrefix(prefix, namespaceURI);
-        }
-
-        return prefix;
-    }
-
-    public String processQName(String qName, String namespaceURI) {
+    public String createPrefixFromQName(String qName, String namespaceURI) {
         String prefix = null;
         if (!qName.isEmpty()) {
             int index = qName.indexOf(':');
@@ -101,14 +91,10 @@ public class NamespaceSupport {
             }
         }
 
-        if (prefix == null)
-            prefix = createPrefix();
-
-        declarePrefix(prefix, namespaceURI);
-        return prefix;
+        return prefix != null ? prefix : createPrefix();
     }
 
-    private String createPrefix() {
+    public String createPrefix() {
         String prefix;
         do {
             prefix = "ns" + prefixCounter++;

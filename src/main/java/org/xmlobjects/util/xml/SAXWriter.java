@@ -20,7 +20,6 @@
 package org.xmlobjects.util.xml;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xmlobjects.stream.XMLOutput;
 
@@ -38,7 +37,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public class SAXWriter implements XMLOutput<SAXWriter> {
+public class SAXWriter extends XMLOutput<SAXWriter> {
     private final String LINE_SEPARATOR = System.getProperty("line.separator");
     private final NamespaceSupport prefixMapping = new NamespaceSupport();
     private final Map<String, String> schemaLocations = new HashMap<>();
@@ -147,6 +146,11 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
+    protected String createPrefix() {
+        return prefixMapping.createPrefix();
+    }
+
+    @Override
     public SAXWriter withPrefix(String prefix, String namespaceURI) {
         if (needNamespaceContext) {
             prefixMapping.pushContext();
@@ -244,11 +248,6 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     }
 
     @Override
-    public void endDocument() throws SAXException {
-        // nothing to do
-    }
-
-    @Override
     public void endElement(String namespaceURI, String localName, String qName) throws SAXException {
         try {
             depth--;
@@ -274,11 +273,6 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }
-    }
-
-    @Override
-    public void endPrefixMapping(String prefix) throws SAXException {
-        // nothing to do
     }
 
     @Override
@@ -318,16 +312,6 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }
-    }
-
-    @Override
-    public void setDocumentLocator(Locator locator) {
-        // nothing to do
-    }
-
-    @Override
-    public void skippedEntity(String name) throws SAXException {
-        // nothing to do
     }
 
     @Override
@@ -383,8 +367,10 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
 
             if (!localName.isEmpty()) {
                 String prefix = prefixMapping.getPrefix(namespaceURI);
-                if (prefix == null)
-                    prefix = prefixMapping.processQName(qName, namespaceURI);
+                if (prefix == null) {
+                    prefix = prefixMapping.createPrefixFromQName(qName, namespaceURI);
+                    prefixMapping.declarePrefix(prefix, namespaceURI);
+                }
 
                 writeQName(prefix, localName);
             } else
@@ -428,8 +414,10 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
                         continue;
 
                     prefix = prefixMapping.getPrefix(namespaceURI);
-                    if (prefix == null)
-                        prefix = prefixMapping.processQName(atts.getQName(i), namespaceURI);
+                    if (prefix == null) {
+                        prefix = prefixMapping.createPrefixFromQName(atts.getQName(i), namespaceURI);
+                        prefixMapping.declarePrefix(prefix, namespaceURI);
+                    }
                 }
 
                 writer.write(' ');

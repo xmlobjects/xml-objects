@@ -62,7 +62,6 @@ public class XMLWriter implements AutoCloseable {
     private SAXParser parser;
 
     private final Deque<QName> elements = new ArrayDeque<>();
-    private int prefixCounter = 1;
     private EventType lastEvent;
 
     XMLWriter(XMLObjects xmlObjects, XMLOutput<?> output) {
@@ -265,12 +264,12 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
-    private String getQName(String namespaceURI, String localName) {
+    private String getQName(String namespaceURI, String localName) throws SAXException {
         if (namespaceURI != null && !namespaceURI.isEmpty()) {
             String prefix = output.getPrefix(namespaceURI);
             if (prefix == null) {
-                prefix = "ns" + prefixCounter++;
-                output.withPrefix(prefix, namespaceURI);
+                prefix = output.createPrefix();
+                output.startPrefixMapping(prefix, namespaceURI);
             }
 
             return prefix + ":" + localName;

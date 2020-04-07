@@ -30,10 +30,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHandler> {
-    private final Map<String, String> prefixes = new HashMap<>();
+public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
+    private final NamespaceSupport prefixMapping = new NamespaceSupport();
     private final Map<String, String> schemaLocations = new HashMap<>();
 
+    private boolean needNamespaceContext = true;
     private int depth;
 
     public SAXOutputHandler(ContentHandler parent) {
@@ -42,34 +43,33 @@ public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHa
 
     @Override
     public String getPrefix(String namespaceURI) {
-        for (Map.Entry<String, String> entry : prefixes.entrySet()) {
-            if (entry.getValue().equals(namespaceURI))
-                return entry.getKey();
-        }
+        return prefixMapping.getPrefix(namespaceURI);
+    }
 
-        return null;
+    @Override
+    protected String createPrefix() {
+        return prefixMapping.createPrefix();
     }
 
     @Override
     public SAXOutputHandler withPrefix(String prefix, String namespaceURI) {
-        if (prefix != null
-                && namespaceURI != null
-                && !XMLConstants.XML_NS_PREFIX.equals(prefix)
-                && !XMLConstants.XML_NS_URI.equals(namespaceURI))
-            prefixes.put(prefix, namespaceURI);
+        if (needNamespaceContext) {
+            prefixMapping.pushContext();
+            needNamespaceContext = false;
+        }
 
+        prefixMapping.declarePrefix(prefix, namespaceURI);
         return this;
     }
 
     @Override
     public String getNamespaceURI(String prefix) {
-        return prefixes.get(prefix);
+        return prefixMapping.getNamespaceURI(prefix);
     }
 
     @Override
     public SAXOutputHandler withDefaultNamespace(String namespaceURI) {
-        withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
-        return this;
+        return withPrefix(XMLConstants.DEFAULT_NS_PREFIX, namespaceURI);
     }
 
     @Override
@@ -109,8 +109,10 @@ public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHa
 
     @Override
     public SAXOutputHandler withSchemaLocation(String namespaceURI, String schemaLocation) {
-        if (namespaceURI != null && schemaLocation != null)
+        if (namespaceURI != null && schemaLocation != null) {
             schemaLocations.put(namespaceURI, schemaLocation);
+            withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        }
 
         return this;
     }
@@ -127,29 +129,37 @@ public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHa
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
+        if (needNamespaceContext)
+            prefixMapping.pushContext();
+
         if (depth == 0) {
             if (!schemaLocations.isEmpty()) {
-                String namespaceURI = XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
-                String prefix = getPrefix(namespaceURI);
-
-                if (prefix == null) {
-                    prefix = "xsi";
-                    withPrefix(prefix, namespaceURI);
-                }
-
                 atts = new AttributesImpl(atts);
                 ((AttributesImpl) atts).addAttribute(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI, "schemaLocation",
-                        prefix + ":schemaLocation", "CDATA", schemaLocations.entrySet().stream()
+                        prefixMapping.getPrefix(XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI) +
+                                ":schemaLocation", "CDATA", schemaLocations.entrySet().stream()
                                 .map(e -> e.getKey() + " " + e.getValue())
                                 .collect(Collectors.joining(" ")));
             }
 
-            for (Map.Entry<String, String> entry : prefixes.entrySet())
+            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet())
                 super.startPrefixMapping(entry.getKey(), entry.getValue());
         }
 
         super.startElement(uri, localName, qName, atts);
+        needNamespaceContext = true;
         depth++;
+    }
+
+    @Override
+    public void startPrefixMapping(String prefix, String namespaceURI) throws SAXException {
+        if (needNamespaceContext) {
+            prefixMapping.pushContext();
+            needNamespaceContext = false;
+        }
+
+        prefixMapping.declarePrefix(prefix, namespaceURI);
+        super.startPrefixMapping(prefix, namespaceURI);
     }
 
     @Override
@@ -158,8 +168,10 @@ public class SAXOutputHandler extends SAXFilter implements XMLOutput<SAXOutputHa
         super.endElement(uri, localName, qName);
 
         if (depth == 0) {
-            for (String prefix : prefixes.keySet())
-                super.endPrefixMapping(prefix);
+            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet())
+                super.endPrefixMapping(entry.getKey());
         }
+
+        prefixMapping.popContext();
     }
 }
