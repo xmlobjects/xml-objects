@@ -67,10 +67,15 @@ public class XMLWriter implements AutoCloseable {
     XMLWriter(XMLObjects xmlObjects, XMLOutput<?> output) {
         this.xmlObjects = xmlObjects;
         this.output = output;
+        output.getPrefixMapping().createInternalPrefixes(xmlObjects);
     }
 
     public XMLObjects getXMLObjects() {
         return xmlObjects;
+    }
+
+    public XMLOutput<?> getXMLOutput() {
+        return output;
     }
 
     public Properties getProperties() {
@@ -268,7 +273,7 @@ public class XMLWriter implements AutoCloseable {
         if (namespaceURI != null && !namespaceURI.isEmpty()) {
             String prefix = output.getPrefix(namespaceURI);
             if (prefix == null) {
-                prefix = output.createPrefix();
+                prefix = output.createPrefix(namespaceURI);
                 output.startPrefixMapping(prefix, namespaceURI);
             }
 

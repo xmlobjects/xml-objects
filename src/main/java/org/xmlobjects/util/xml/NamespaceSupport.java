@@ -19,6 +19,8 @@
 
 package org.xmlobjects.util.xml;
 
+import org.xmlobjects.XMLObjects;
+
 import javax.xml.XMLConstants;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -26,8 +28,16 @@ import java.util.Map;
 
 public class NamespaceSupport {
     private Context current = new Context();
+    private Map<String, String> prefixes;
     private boolean needsNextContext = true;
     private int prefixCounter = 1;
+
+    public void createInternalPrefixes(XMLObjects xmlObjects) {
+        prefixes = new HashMap<>();
+        xmlObjects.getSerializableNamespaces().stream()
+                .sorted()
+                .forEach(n -> prefixes.put(n, "ns" + prefixCounter++));
+    }
 
     public boolean needsNextContext() {
         return needsNextContext;
@@ -103,14 +113,13 @@ public class NamespaceSupport {
             }
         }
 
-        return prefix != null ? prefix : createPrefix();
+        return prefix != null ? prefix : createPrefix(namespaceURI);
     }
 
-    public String createPrefix() {
-        String prefix;
-        do {
+    public String createPrefix(String namespaceURI) {
+        String prefix = prefixes != null ? prefixes.get(namespaceURI) : null;
+        while (prefix == null || getNamespaceURI(prefix) != null)
             prefix = "ns" + prefixCounter++;
-        } while (getNamespaceURI(prefix) != null);
 
         return prefix;
     }

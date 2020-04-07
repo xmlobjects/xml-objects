@@ -45,12 +45,16 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
 
     public abstract void flush() throws Exception;
 
+    NamespaceSupport getPrefixMapping() {
+        return prefixMapping;
+    }
+
     public String getPrefix(String namespaceURI) {
         return prefixMapping.getPrefix(namespaceURI);
     }
 
-    String createPrefix() {
-        return prefixMapping.createPrefix();
+    String createPrefix(String namespaceURI) {
+        return prefixMapping.createPrefix(namespaceURI);
     }
 
     @SuppressWarnings("unchecked")
