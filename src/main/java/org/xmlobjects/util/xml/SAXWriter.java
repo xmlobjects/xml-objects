@@ -55,7 +55,6 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
     private String[] headerComment;
 
     private int depth = 0;
-    private int prefixCounter = 1;
     private XMLEvents lastEvent;
 
     private enum XMLEvents {
