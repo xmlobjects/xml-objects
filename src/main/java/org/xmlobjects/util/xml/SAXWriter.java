@@ -387,10 +387,8 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
 
             if (!localName.isEmpty()) {
                 String prefix = prefixMapping.getPrefix(namespaceURI);
-                if (prefix == null) {
-                    prefix = getOrCreatePrefix(qName);
-                    prefixMapping.declarePrefix(prefix, namespaceURI);
-                }
+                if (prefix == null)
+                    prefix = prefixMapping.processQName(qName, namespaceURI);
 
                 writeQName(prefix, localName);
             } else
@@ -422,20 +420,6 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
             prefixMapping.declarePrefix(prefix, namespaceURI);
     }
 
-    private String getOrCreatePrefix(String qName) {
-        String prefix = null;
-        if (!qName.isEmpty()) {
-            int index = qName.indexOf(':');
-            if (index != -1)
-                prefix = qName.substring(0, index);
-        }
-
-        while (prefix == null || prefixMapping.getNamespaceURI(prefix) != null)
-            prefix = "ns" + prefixCounter++;
-
-        return prefix;
-    }
-
     private void writeAttributes(Attributes atts) throws SAXException {
         try {
             for (int i = 0; i < atts.getLength(); i++) {
@@ -448,10 +432,8 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
                         continue;
 
                     prefix = prefixMapping.getPrefix(namespaceURI);
-                    if (prefix == null) {
-                        prefix = getOrCreatePrefix(atts.getQName(i));
-                        prefixMapping.declarePrefix(prefix, namespaceURI);
-                    }
+                    if (prefix == null)
+                        prefix = prefixMapping.processQName(atts.getQName(i), namespaceURI);
                 }
 
                 writer.write(' ');

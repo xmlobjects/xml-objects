@@ -25,10 +25,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NamespaceSupport {
-    private Context current;
+    private Context current = new Context();
+    private int prefixCounter = 1;
 
-    public NamespaceSupport() {
-        current = new Context();
+    public void pushContext() {
+        current = new Context(current);
+    }
+
+    public void popContext() {
+        current = current.previous;
+        if (current == null)
+            throw new EmptyStackException();
     }
 
     public void declarePrefix(String prefix, String namespaceURI) {
@@ -70,14 +77,44 @@ public class NamespaceSupport {
         return new HashMap<>(current.namespaceURIs);
     }
 
-    public void pushContext() {
-        current = new Context(current);
+    public String getOrCreatePrefix(String namespaceURI) {
+        String prefix = getPrefix(namespaceURI);
+        if (prefix == null) {
+            prefix = createPrefix();
+            declarePrefix(prefix, namespaceURI);
+        }
+
+        return prefix;
     }
 
-    public void popContext() {
-        current = current.previous;
-        if (current == null)
-            throw new EmptyStackException();
+    public String processQName(String qName, String namespaceURI) {
+        String prefix = null;
+        if (!qName.isEmpty()) {
+            int index = qName.indexOf(':');
+            if (index != -1) {
+                String candidate = qName.substring(0, index);
+                String previous = getNamespaceURI(candidate);
+                if (previous == null)
+                    prefix = candidate;
+                else if (previous.equals(namespaceURI))
+                    return candidate;
+            }
+        }
+
+        if (prefix == null)
+            prefix = createPrefix();
+
+        declarePrefix(prefix, namespaceURI);
+        return prefix;
+    }
+
+    private String createPrefix() {
+        String prefix;
+        do {
+            prefix = "ns" + prefixCounter++;
+        } while (getNamespaceURI(prefix) != null);
+
+        return prefix;
     }
 
     private static class Context {
