@@ -148,15 +148,12 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
 
     @Override
     public SAXWriter withPrefix(String prefix, String namespaceURI) {
-        if (prefix != null && namespaceURI != null) {
-            if (needNamespaceContext) {
-                prefixMapping.pushContext();
-                needNamespaceContext = false;
-            }
-
-            prefixMapping.declarePrefix(prefix, namespaceURI);
+        if (needNamespaceContext) {
+            prefixMapping.pushContext();
+            needNamespaceContext = false;
         }
 
+        prefixMapping.declarePrefix(prefix, namespaceURI);
         return this;
     }
 
