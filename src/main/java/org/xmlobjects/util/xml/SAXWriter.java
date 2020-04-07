@@ -34,7 +34,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -652,75 +651,5 @@ public class SAXWriter implements XMLOutput<SAXWriter> {
         }
 
         writer.write(content, pos, end - pos);
-    }
-
-    private static class NamespaceSupport {
-        private Context current;
-
-        NamespaceSupport() {
-            current = new Context();
-        }
-
-        void declarePrefix(String prefix, String namespaceURI) {
-            if (prefix != null
-                    && namespaceURI != null
-                    && !XMLConstants.XML_NS_PREFIX.equals(prefix)
-                    && !XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)
-                    && !XMLConstants.XML_NS_URI.equals(namespaceURI)) {
-                // we only support one prefix per namespace URI and context
-                // so, we first delete a previous mapping
-                current.prefixes.remove(current.namespaceURIs.get(prefix));
-                current.namespaceURIs.remove(current.prefixes.get(namespaceURI));
-                current.prefixes.put(namespaceURI, prefix);
-                current.namespaceURIs.put(prefix, namespaceURI);
-            }
-        }
-
-        String getPrefix(String namespaceURI) {
-            Context context = current;
-            String prefix = null;
-
-            while (context != null && (prefix = context.prefixes.get(namespaceURI)) == null)
-                context = context.previous;
-
-            return prefix;
-        }
-
-        String getNamespaceURI(String prefix) {
-            Context context = current;
-            String namespaceURI = null;
-
-            while (context != null && (namespaceURI = context.namespaceURIs.get(prefix)) == null)
-                context = context.previous;
-
-            return namespaceURI;
-        }
-
-        Map<String, String> getCurrentContext() {
-            return new HashMap<>(current.namespaceURIs);
-        }
-
-        void pushContext() {
-            current = new Context(current);
-        }
-
-        void popContext() {
-            current = current.previous;
-            if (current == null)
-                throw new EmptyStackException();
-        }
-    }
-
-    private static class Context {
-        private final Map<String, String> prefixes = new HashMap<>();
-        private final Map<String, String> namespaceURIs = new HashMap<>();
-        private Context previous;
-
-        Context() {
-        }
-
-        Context(Context previous) {
-            this.previous = previous;
-        }
     }
 }
