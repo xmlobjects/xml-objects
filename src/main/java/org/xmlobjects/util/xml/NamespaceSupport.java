@@ -26,10 +26,22 @@ import java.util.Map;
 
 public class NamespaceSupport {
     private Context current = new Context();
+    private boolean needsNextContext = true;
     private int prefixCounter = 1;
 
+    public boolean needsNextContext() {
+        return needsNextContext;
+    }
+
+    public void requireNextContext() {
+        needsNextContext = true;
+    }
+
     public void pushContext() {
-        current = new Context(current);
+        if (needsNextContext) {
+            current = new Context(current);
+            needsNextContext = false;
+        }
     }
 
     public void popContext() {

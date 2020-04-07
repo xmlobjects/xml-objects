@@ -34,7 +34,6 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
     private final NamespaceSupport prefixMapping = new NamespaceSupport();
     private final Map<String, String> schemaLocations = new HashMap<>();
 
-    private boolean needNamespaceContext = true;
     private int depth;
 
     public SAXOutputHandler(ContentHandler parent) {
@@ -53,11 +52,7 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
 
     @Override
     public SAXOutputHandler withPrefix(String prefix, String namespaceURI) {
-        if (needNamespaceContext) {
-            prefixMapping.pushContext();
-            needNamespaceContext = false;
-        }
-
+        prefixMapping.pushContext();
         prefixMapping.declarePrefix(prefix, namespaceURI);
         return this;
     }
@@ -129,8 +124,7 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-        if (needNamespaceContext)
-            prefixMapping.pushContext();
+        prefixMapping.pushContext();
 
         if (depth == 0) {
             if (!schemaLocations.isEmpty()) {
@@ -147,17 +141,13 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
         }
 
         super.startElement(uri, localName, qName, atts);
-        needNamespaceContext = true;
+        prefixMapping.requireNextContext();
         depth++;
     }
 
     @Override
     public void startPrefixMapping(String prefix, String namespaceURI) throws SAXException {
-        if (needNamespaceContext) {
-            prefixMapping.pushContext();
-            needNamespaceContext = false;
-        }
-
+        prefixMapping.pushContext();
         prefixMapping.declarePrefix(prefix, namespaceURI);
         super.startPrefixMapping(prefix, namespaceURI);
     }

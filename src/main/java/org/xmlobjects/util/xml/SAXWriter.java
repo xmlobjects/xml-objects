@@ -46,7 +46,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     private String encoding;
     private CharsetEncoder encoder;
 
-    private boolean needNamespaceContext = true;
     private boolean escapeCharacters = true;
     private boolean writeEncoding = false;
     private boolean writeXMLDeclaration = true;
@@ -152,11 +151,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     @Override
     public SAXWriter withPrefix(String prefix, String namespaceURI) {
-        if (needNamespaceContext) {
-            prefixMapping.pushContext();
-            needNamespaceContext = false;
-        }
-
+        prefixMapping.pushContext();
         prefixMapping.declarePrefix(prefix, namespaceURI);
         return this;
     }
@@ -353,8 +348,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     @Override
     public void startElement(String namespaceURI, String localName, String qName, Attributes atts) throws SAXException {
         try {
-            if (needNamespaceContext)
-                prefixMapping.pushContext();
+            prefixMapping.pushContext();
 
             if (depth > 0) {
                 if (lastEvent == XMLEvents.START_ELEMENT)
@@ -383,7 +377,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 writeSchemaLocations();
 
             lastEvent = XMLEvents.START_ELEMENT;
-            needNamespaceContext = true;
+            prefixMapping.requireNextContext();
             depth++;
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
@@ -392,14 +386,11 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     @Override
     public void startPrefixMapping(String prefix, String namespaceURI) throws SAXException {
-        if (needNamespaceContext) {
-            prefixMapping.pushContext();
-            needNamespaceContext = false;
-        }
-
         String previous = prefixMapping.getPrefix(namespaceURI);
-        if (previous == null || !namespaceURI.equals(prefixMapping.getNamespaceURI(previous)))
+        if (previous == null || !namespaceURI.equals(prefixMapping.getNamespaceURI(previous))) {
+            prefixMapping.pushContext();
             prefixMapping.declarePrefix(prefix, namespaceURI);
+        }
     }
 
     private void writeAttributes(Attributes atts) throws SAXException {
