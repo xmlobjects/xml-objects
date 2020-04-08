@@ -36,7 +36,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class TextContent {
     private static final DatatypeFactory XML_TYPE_FACTORY;
@@ -737,13 +736,13 @@ public class TextContent {
 
     @SuppressWarnings("unchecked")
     private List<OffsetDateTime> getAsOffsetDateTimeList(String localName) {
-        List<XMLGregorianCalendar> result;
+        List<XMLGregorianCalendar> calendars;
         if (value instanceof List
                 && ((List<?>) value).stream().allMatch(v -> v instanceof XMLGregorianCalendar
                 && ((XMLGregorianCalendar) v).getXMLSchemaType().getLocalPart().equals(localName)))
-            result = (List<XMLGregorianCalendar>) value;
+            calendars = (List<XMLGregorianCalendar>) value;
         else if (tokenizeContent() != 0) {
-            List<XMLGregorianCalendar> calendars = new ArrayList<>(tokenizedContent.length);
+            calendars = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 XMLGregorianCalendar value = toCalendar(token, localName);
                 if (value != null)
@@ -752,11 +751,15 @@ public class TextContent {
                     return setValue(null);
             }
 
-            result = setValue(calendars);
+            setValue(calendars);
         } else
             return setValue(null);
 
-        return result.stream().map(this::toOffsetDateTime).collect(Collectors.toList());
+        List<OffsetDateTime> result = new ArrayList<>(calendars.size());
+        for (XMLGregorianCalendar calendar : calendars)
+            result.add(toOffsetDateTime(calendar));
+
+        return result;
     }
 
     private <T> T setValue(T value) {
@@ -824,10 +827,24 @@ public class TextContent {
     }
 
     private static TextContent ofObjectList(List<?> content) {
-        return content != null && !content.isEmpty() ? new TextContent(content.stream()
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .collect(Collectors.joining(" "))) : EMPTY;
+        if (content != null && !content.isEmpty()) {
+            StringBuilder builder = new StringBuilder(content.size());
+            boolean first = true;
+
+            for (Object object : content) {
+                if (object != null) {
+                    if (!first)
+                        builder.append(" ");
+                    else
+                        first = false;
+
+                    builder.append(object.toString());
+                }
+            }
+
+            return new TextContent(builder.toString());
+        } else
+            return EMPTY;
     }
 
     private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<Fields> fields, boolean withOffset) {
@@ -836,11 +853,25 @@ public class TextContent {
     }
 
     private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<Fields> fields, boolean withOffset) {
-        return content != null && !content.isEmpty() ? new TextContent(content.stream()
-                .map(v -> toCalendar(v, fields, withOffset))
-                .filter(Objects::nonNull)
-                .map(XMLGregorianCalendar::toXMLFormat)
-                .collect(Collectors.joining(" "))) : EMPTY;
+        if (content != null && !content.isEmpty()) {
+            StringBuilder builder = new StringBuilder(content.size());
+            boolean first = true;
+
+            for (OffsetDateTime dateTime : content) {
+                XMLGregorianCalendar calendar = toCalendar(dateTime, fields, withOffset);
+                if (calendar != null) {
+                    if (!first)
+                        builder.append(" ");
+                    else
+                        first = false;
+
+                    builder.append(calendar.toXMLFormat());
+                }
+            }
+
+            return new TextContent(builder.toString());
+        } else
+            return EMPTY;
     }
 
     private static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<Fields> fields, boolean withOffset) {

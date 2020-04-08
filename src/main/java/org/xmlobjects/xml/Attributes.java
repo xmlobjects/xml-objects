@@ -21,11 +21,11 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Attributes {
     private final Map<String, Map<String, TextContent>> attributes = new HashMap<>();
@@ -70,9 +70,13 @@ public class Attributes {
         return attributes.isEmpty();
     }
 
-    public Map<QName, TextContent> toMap() {
-        return attributes.entrySet().stream().flatMap(namespace -> namespace.getValue().entrySet().stream()
-                .map(attribute -> new AbstractMap.SimpleEntry<>(new QName(namespace.getKey(), attribute.getKey()), attribute.getValue())))
-                .collect(Collectors.toMap(AbstractMap.SimpleEntry::getKey, AbstractMap.SimpleEntry::getValue));
+    public List<Attribute> toList() {
+        List<Attribute> attributes = new ArrayList<>();
+        for (Map.Entry<String, Map<String, TextContent>> namespace : this.attributes.entrySet()) {
+            for (Map.Entry<String, TextContent> attribute : namespace.getValue().entrySet())
+                attributes.add(new Attribute(namespace.getKey(), attribute.getKey(), attribute.getValue()));
+        }
+
+        return attributes;
     }
 }
