@@ -59,6 +59,11 @@ public class XMLWriterFactory {
         return this;
     }
 
+    public XMLWriterFactory withProperty(Object value) {
+        properties.set(value);
+        return this;
+    }
+
     public XMLWriter createWriter(File file) throws XMLWriteException {
         try {
             return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file))));
