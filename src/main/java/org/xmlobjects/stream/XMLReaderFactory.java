@@ -110,11 +110,6 @@ public class XMLReaderFactory {
         return this;
     }
 
-    public XMLReaderFactory withProperty(Object value) {
-        properties.set(value);
-        return this;
-    }
-
     public XMLReader createReader(File file) throws XMLReadException {
         try {
             return createReader(xmlInputFactory.createXMLStreamReader(new BufferedReader(new FileReader(file))), file.toURI().normalize());

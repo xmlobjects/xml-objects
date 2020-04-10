@@ -49,16 +49,8 @@ public class Properties implements Serializable {
             return null;
     }
 
-    public <T> T get(Class<T> type) {
-        return get(type.getName(), type);
-    }
-
     public boolean getAndCompare(String name, Object expectedValue) {
         return Objects.equals(get(name), expectedValue);
-    }
-
-    public <T> boolean getAndCompare(Class<T> type, T expectedValue) {
-        return getAndCompare(type.getName(), expectedValue);
     }
 
     public void set(String name, Object value) {
@@ -68,17 +60,9 @@ public class Properties implements Serializable {
         properties.put(name, value);
     }
 
-    public void set(Object value) {
-        set(value.getClass().getName(), value);
-    }
-
     public void remove(String name) {
         if (properties != null)
             properties.remove(name);
-    }
-
-    public void remove(Class<?> type) {
-        remove(type.getName());
     }
 
     public void clear() {
