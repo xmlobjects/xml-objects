@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
@@ -178,6 +180,12 @@ public class SchemaHandler {
 
     public XSSchemaSet getSchemaSet(String namespaceURI) {
         return schemas.get(namespaceURI);
+    }
+
+    public Source[] getSchemas() {
+        return visitedSchemaLocations.values().stream()
+                .map(StreamSource::new)
+                .toArray(Source[]::new);
     }
 
     public Set<String> getTargetNamespaces() {
