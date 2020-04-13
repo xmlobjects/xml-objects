@@ -65,7 +65,8 @@ public class NamespaceSupport {
                 && namespaceURI != null
                 && !XMLConstants.XML_NS_PREFIX.equals(prefix)
                 && !XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)
-                && !XMLConstants.XML_NS_URI.equals(namespaceURI)) {
+                && !XMLConstants.XML_NS_URI.equals(namespaceURI)
+                && !XMLConstants.NULL_NS_URI.equals(namespaceURI)) {
             // we only support one prefix per namespace URI and context
             // so, we first delete a previous mapping
             current.prefixes.remove(current.namespaceURIs.get(prefix));
@@ -76,6 +77,9 @@ public class NamespaceSupport {
     }
 
     public String getPrefix(String namespaceURI) {
+        if (XMLConstants.NULL_NS_URI.equals(namespaceURI))
+            return XMLConstants.DEFAULT_NS_PREFIX;
+
         Context context = current;
         String prefix = null;
 
