@@ -74,10 +74,6 @@ public class XMLWriter implements AutoCloseable {
         return xmlObjects;
     }
 
-    public XMLOutput<?> getXMLOutput() {
-        return output;
-    }
-
     public Properties getProperties() {
         if (properties == null)
             properties = new Properties();
