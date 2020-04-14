@@ -20,7 +20,6 @@
 package org.xmlobjects.util.xml;
 
 import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.helpers.NamespaceSupport;
 import org.xmlobjects.util.xml.ArrayBuffer.ArrayBufferIterator;
 
 import javax.xml.XMLConstants;
@@ -31,7 +30,6 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -41,7 +39,7 @@ public class SAXStreamReader implements XMLStreamReader {
     private final ArrayBufferIterator<char[]> characters;
 
     private final ArrayBuffer<String> elements = new ArrayBuffer<>(String.class, ArrayBuffer.DEFAULT_BUFFER_SIZE);
-    private final NamespaceSupport namespaceSupport = new NamespaceSupport();
+    private final NamespaceSupport prefixMapping = new NamespaceSupport();
     private final AttributesImpl attributes = new AttributesImpl();
     private final Namespaces namespaces = new Namespaces();
 
@@ -49,9 +47,7 @@ public class SAXStreamReader implements XMLStreamReader {
     private String namespaceURI;
     private String prefix;
     private char[] chars;
-
     private int eventType = XMLStreamConstants.START_DOCUMENT;
-    private boolean needNamespaceContext = true;
 
     SAXStreamReader(ArrayBufferIterator<Byte> events, ArrayBufferIterator<String> strings, ArrayBufferIterator<char[]> characters) {
         this.events = events;
@@ -97,35 +93,27 @@ public class SAXStreamReader implements XMLStreamReader {
     }
 
     private void processNamespace() {
-        if (needNamespaceContext) {
-            namespaceSupport.pushContext();
-            needNamespaceContext = false;
-        }
-
         String prefix = strings.next();
         String uri = strings.next();
         if (prefix == null)
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
 
         namespaces.add(prefix, uri);
-        namespaceSupport.declarePrefix(prefix, uri);
+        prefixMapping.pushContext();
+        prefixMapping.declarePrefix(prefix, uri);
     }
 
     private void processStartElement() {
-        if (needNamespaceContext)
-            namespaceSupport.pushContext();
+        prefixMapping.pushContext();
 
         namespaceURI = strings.next();
         localName = strings.next();
         String qName = strings.next();
 
-        prefix = namespaceSupport.getPrefix(namespaceURI);
-        if (prefix == null && !qName.isEmpty()) {
-            int index = qName.indexOf(':');
-            if (index != -1) {
-                prefix = qName.substring(0, index);
-                namespaceSupport.declarePrefix(prefix, namespaceURI);
-            }
+        prefix = prefixMapping.getPrefix(namespaceURI);
+        if (prefix == null) {
+            prefix = prefixMapping.createPrefixFromQName(qName, namespaceURI);
+            prefixMapping.declarePrefix(prefix, namespaceURI);
         }
 
         attributes.clear();
@@ -146,14 +134,14 @@ public class SAXStreamReader implements XMLStreamReader {
 
         elements.push(namespaceURI);
         elements.push(localName);
-        needNamespaceContext = true;
+        prefixMapping.requireNextContext();
     }
 
     private void processEndElement() {
         localName = elements.pop();
         namespaceURI = elements.pop();
         namespaces.clear();
-        namespaceSupport.popContext();
+        prefixMapping.popContext();
     }
 
     @Override
@@ -213,12 +201,7 @@ public class SAXStreamReader implements XMLStreamReader {
         if (prefix == null)
             throw new IllegalArgumentException("Prefix must not be null.");
 
-        if (XMLConstants.XML_NS_PREFIX.equals(prefix))
-            return XMLConstants.XML_NS_URI;
-        else if (XMLConstants.XMLNS_ATTRIBUTE.equals(prefix))
-            return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-
-        return namespaceSupport.getURI(prefix);
+        return prefixMapping.getNamespaceURI(prefix);
     }
 
     @Override
@@ -292,7 +275,7 @@ public class SAXStreamReader implements XMLStreamReader {
         if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
             throw new IllegalStateException("Illegal to call getAttributePrefix when event is neither START_ELEMENT nor ATTRIBUTE.");
 
-        return namespaceSupport.getPrefix(attributes.getURI(index));
+        return prefixMapping.getPrefix(attributes.getURI(index));
     }
 
     @Override
@@ -354,7 +337,7 @@ public class SAXStreamReader implements XMLStreamReader {
         return new NamespaceContext() {
             @Override
             public String getNamespaceURI(String prefix) {
-                String namespaceURI = SAXStreamReader.this.getNamespaceURI(prefix);
+                String namespaceURI = prefixMapping.getNamespaceURI(prefix);
                 return namespaceURI != null ? namespaceURI : XMLConstants.NULL_NS_URI;
             }
 
@@ -363,12 +346,7 @@ public class SAXStreamReader implements XMLStreamReader {
                 if (namespaceURI == null)
                     throw new IllegalArgumentException("Namespace URI must not be null.");
 
-                if (XMLConstants.XML_NS_URI.equals(namespaceURI))
-                    return XMLConstants.XML_NS_PREFIX;
-                else if (XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI))
-                    return XMLConstants.XMLNS_ATTRIBUTE;
-
-                return namespaceSupport.getPrefix(namespaceURI);
+                return prefixMapping.getPrefix(namespaceURI);
             }
 
             @Override
@@ -376,12 +354,7 @@ public class SAXStreamReader implements XMLStreamReader {
                 if (namespaceURI == null)
                     throw new IllegalArgumentException("Namespace URI must not be null.");
 
-                if (XMLConstants.XML_NS_URI.equals(namespaceURI))
-                    return Collections.singleton(XMLConstants.XML_NS_PREFIX).iterator();
-                else if (XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI))
-                    return Collections.singleton(XMLConstants.XMLNS_ATTRIBUTE).iterator();
-
-                return Collections.list(namespaceSupport.getPrefixes(namespaceURI)).iterator();
+                return prefixMapping.getPrefixes(namespaceURI).iterator();
             }
         };
     }
