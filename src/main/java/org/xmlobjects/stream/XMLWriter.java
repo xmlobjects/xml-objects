@@ -55,13 +55,13 @@ import java.util.Map;
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final XMLOutput<?> output;
-
     private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
+    private final Deque<QName> elements = new ArrayDeque<>();
+
     private Properties properties;
     private Transformer transformer;
     private SAXParser parser;
-
-    private final Deque<QName> elements = new ArrayDeque<>();
+    private boolean prologWritten;
     private EventType lastEvent;
 
     XMLWriter(XMLObjects xmlObjects, XMLOutput<?> output) {
@@ -97,7 +97,7 @@ public class XMLWriter implements AutoCloseable {
     public void close() throws XMLWriteException {
         try {
             if (lastEvent != EventType.END_DOCUMENT)
-                writeEndDocument();
+                finishDocument(prologWritten);
 
             serializerCache.clear();
             output.close();
@@ -163,6 +163,7 @@ public class XMLWriter implements AutoCloseable {
     public void writeStartDocument() throws XMLWriteException {
         try {
             output.startDocument();
+            prologWritten = true;
             lastEvent = EventType.START_DOCUMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
@@ -170,14 +171,20 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public void writeEndDocument() throws XMLWriteException {
+        finishDocument(true);
+    }
+
+    private void finishDocument(boolean writeEndDocument) throws XMLWriteException {
         while (!elements.isEmpty())
             writeEndElement();
 
-        try {
-            output.endDocument();
-            lastEvent = EventType.END_DOCUMENT;
-        } catch (SAXException e) {
-            throw new XMLWriteException("Caused by:", e);
+        if (writeEndDocument) {
+            try {
+                output.endDocument();
+                lastEvent = EventType.END_DOCUMENT;
+            } catch (SAXException e) {
+                throw new XMLWriteException("Caused by:", e);
+            }
         }
     }
 
