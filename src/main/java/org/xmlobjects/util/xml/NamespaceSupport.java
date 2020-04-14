@@ -24,13 +24,23 @@ import org.xmlobjects.XMLObjects;
 import javax.xml.XMLConstants;
 import java.util.EmptyStackException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class NamespaceSupport {
     private Context current = new Context();
     private Map<String, String> prefixes;
-    private boolean needsNextContext = true;
+    private boolean nextContext = true;
     private int prefixCounter = 1;
+
+    public NamespaceSupport() {
+        current.prefixes.put(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX);
+        current.namespaceURIs.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
+        current.prefixes.put(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
+        current.namespaceURIs.put(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
+        current.prefixes.put(XMLConstants.NULL_NS_URI, XMLConstants.DEFAULT_NS_PREFIX);
+    }
 
     public void createInternalPrefixes(XMLObjects xmlObjects) {
         prefixes = new HashMap<>();
@@ -39,18 +49,18 @@ public class NamespaceSupport {
                 .forEach(n -> prefixes.put(n, "ns" + prefixCounter++));
     }
 
-    public boolean needsNextContext() {
-        return needsNextContext;
+    public boolean requiresNextContext() {
+        return nextContext;
     }
 
     public void requireNextContext() {
-        needsNextContext = true;
+        nextContext = true;
     }
 
     public void pushContext() {
-        if (needsNextContext) {
+        if (nextContext) {
             current = new Context(current);
-            needsNextContext = false;
+            nextContext = false;
         }
     }
 
@@ -66,6 +76,7 @@ public class NamespaceSupport {
                 && !XMLConstants.XML_NS_PREFIX.equals(prefix)
                 && !XMLConstants.XMLNS_ATTRIBUTE.equals(prefix)
                 && !XMLConstants.XML_NS_URI.equals(namespaceURI)
+                && !XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI)
                 && !XMLConstants.NULL_NS_URI.equals(namespaceURI)) {
             // we only support one prefix per namespace URI and context
             // so, we first delete a previous mapping
@@ -77,9 +88,6 @@ public class NamespaceSupport {
     }
 
     public String getPrefix(String namespaceURI) {
-        if (XMLConstants.NULL_NS_URI.equals(namespaceURI))
-            return XMLConstants.DEFAULT_NS_PREFIX;
-
         Context context = current;
         String prefix = null;
 
@@ -87,6 +95,21 @@ public class NamespaceSupport {
             context = context.previous;
 
         return prefix;
+    }
+
+    public Set<String> getPrefixes(String namespaceURI) {
+        Context context = current;
+        Set<String> prefixes = new LinkedHashSet<>();
+
+        while (context != null) {
+            String prefix = context.prefixes.get(namespaceURI);
+            if (prefix != null)
+                prefixes.add(prefix);
+
+            context = context.previous;
+        }
+
+        return prefixes;
     }
 
     public String getNamespaceURI(String prefix) {
