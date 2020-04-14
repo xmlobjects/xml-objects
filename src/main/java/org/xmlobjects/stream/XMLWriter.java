@@ -371,13 +371,26 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public ContentHandler getContentHandler() {
+        return getContentHandler(false);
+    }
+
+    public ContentHandler getContentHandler(boolean writeFragment) {
         return new SAXFilter(output) {
             @Override
-            public void startDocument() {
+            public void startDocument() throws SAXException {
+                if (!writeFragment) {
+                    super.startDocument();
+                    prologWritten = true;
+                    lastEvent = EventType.START_DOCUMENT;
+                }
             }
 
             @Override
-            public void endDocument() {
+            public void endDocument() throws SAXException {
+                if (!writeFragment) {
+                    super.endDocument();
+                    lastEvent = EventType.END_DOCUMENT;
+                }
             }
 
             @Override
