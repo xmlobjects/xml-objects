@@ -38,9 +38,7 @@ public class ObjectCloner<T> extends AbstractCloner<T> {
                     if (Modifier.isStatic(modifiers))
                         continue;
 
-                    if (!field.isAccessible())
-                        field.setAccessible(true);
-
+                    field.setAccessible(true);
                     this.fields.add(field);
                 }
             } catch (Throwable e) {
