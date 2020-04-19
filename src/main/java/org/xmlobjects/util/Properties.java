@@ -44,7 +44,7 @@ public class Properties implements Serializable {
     public <T> T get(String name, Class<T> type) {
         if (properties != null) {
             Object value = properties.get(name);
-            return value != null && type.isAssignableFrom(value.getClass()) ? type.cast(value) : null;
+            return type.isInstance(value) ? type.cast(value) : null;
         } else
             return null;
     }
