@@ -19,39 +19,21 @@
 
 package org.xmlobjects.util.composite;
 
-import org.xmlobjects.builder.ObjectBuildException;
-import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
-import org.xmlobjects.stream.XMLReadException;
-import org.xmlobjects.stream.XMLReader;
 import org.xmlobjects.stream.XMLWriteException;
 import org.xmlobjects.stream.XMLWriter;
-import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.Namespaces;
 
-import javax.xml.namespace.QName;
 import java.util.Objects;
 
-public abstract class CompositeAdapter<T> implements ObjectBuilder<T>, ObjectSerializer<T> {
-    private final Class<? extends ObjectBuilder<T>> builder;
+public abstract class CompositeObjectSerializer<T> implements ObjectSerializer<T> {
     private final Class<? extends ObjectSerializer<T>> serializer;
 
     @SuppressWarnings("unchecked")
-    public <S extends ObjectBuilder<? super T> & ObjectSerializer<? super T>> CompositeAdapter(Class<S> adapter) {
-        this.builder = Objects.requireNonNull((Class<? extends ObjectBuilder<T>>) adapter, "Object adapter must not be null.");
-        this.serializer = (Class<? extends ObjectSerializer<T>>) adapter;
-    }
-
-    @Override
-    public void initializeObject(T object, QName name, Attributes attributes, XMLReader reader) throws ObjectBuildException, XMLReadException {
-        reader.getOrCreateBuilder(builder).initializeObject(object, name, attributes, reader);
-    }
-
-    @Override
-    public void buildChildObject(T object, QName name, Attributes attributes, XMLReader reader) throws ObjectBuildException, XMLReadException {
-        reader.getOrCreateBuilder(builder).buildChildObject(object, name, attributes, reader);
+    public <S extends ObjectSerializer<? super T>> CompositeObjectSerializer(Class<S> adapter) {
+        this.serializer = Objects.requireNonNull((Class<? extends ObjectSerializer<T>>) adapter, "Object serializer must not be null.");
     }
 
     @Override
