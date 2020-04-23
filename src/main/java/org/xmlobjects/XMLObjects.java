@@ -49,8 +49,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class XMLObjects {
-    private final ConcurrentHashMap<String, Map<String, BuilderInfo>> builders = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, BuilderInfo>> builders = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
 
     private XMLObjects() {
         // just to thwart instantiation
@@ -62,8 +62,8 @@ public class XMLObjects {
 
     public static XMLObjects newInstance(ClassLoader classLoader) throws XMLObjectsException {
         XMLObjects context = new XMLObjects();
-        context.loadBuilders(classLoader);
-        context.loadSerializers(classLoader);
+        context.loadBuilders(classLoader, true);
+        context.loadSerializers(classLoader, true);
 
         return context;
     }
@@ -186,7 +186,7 @@ public class XMLObjects {
     }
 
     @SuppressWarnings("rawtypes")
-    private void loadBuilders(ClassLoader classLoader) throws XMLObjectsException {
+    public void loadBuilders(ClassLoader classLoader, boolean failOnDuplicates) throws XMLObjectsException {
         for (Class<? extends ObjectBuilder> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
                 .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
@@ -207,17 +207,17 @@ public class XMLObjects {
 
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
-                registerBuilder(builder, element.namespaceURI(), element.name(), true);
+                registerBuilder(builder, element.namespaceURI(), element.name(), failOnDuplicates);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
                 for (XMLElement element : elements.value())
-                    registerBuilder(builder, element.namespaceURI(), element.name(), true);
+                    registerBuilder(builder, element.namespaceURI(), element.name(), failOnDuplicates);
             }
         }
     }
 
     @SuppressWarnings("rawtypes")
-    private void loadSerializers(ClassLoader classLoader) throws XMLObjectsException {
+    public void loadSerializers(ClassLoader classLoader, boolean failOnDuplicates) throws XMLObjectsException {
         for (Class<? extends ObjectSerializer> type : ClassFilter.only()
                 .withoutModifiers(Modifier.ABSTRACT)
                 .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
@@ -242,13 +242,23 @@ public class XMLObjects {
 
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
-                registerSerializer(serializer, objectType, element.namespaceURI(), true);
+                registerSerializer(serializer, objectType, element.namespaceURI(), failOnDuplicates);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
                 for (XMLElement element : elements.value())
-                    registerSerializer(serializer, objectType, element.namespaceURI(), true);
+                    registerSerializer(serializer, objectType, element.namespaceURI(), failOnDuplicates);
             }
         }
+    }
+
+    public void unloadBuilders(String namespaceURI) {
+        if (namespaceURI != null)
+            builders.remove(namespaceURI);
+    }
+
+    public void unloadSerializers(String namespaceURI) {
+        if (namespaceURI != null)
+            serializers.values().forEach(v -> v.remove(namespaceURI));
     }
 
     private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectsException {
@@ -316,5 +326,4 @@ public class XMLObjects {
             this.objectType = objectType;
         }
     }
-
 }
