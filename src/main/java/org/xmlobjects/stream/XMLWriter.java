@@ -111,7 +111,7 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public XMLWriter withPrefix(String prefix, String namespaceURI) {
-        output.withPrefix(prefix,namespaceURI);
+        output.withPrefix(prefix, namespaceURI);
         return this;
     }
 
@@ -264,7 +264,10 @@ public class XMLWriter implements AutoCloseable {
                 }
             }
 
-            output.startElement(name.getNamespaceURI(), name.getLocalPart(), "", attrs);
+            String namespaceURI = name.getNamespaceURI();
+            String localName = name.getLocalPart();
+
+            output.startElement(namespaceURI, localName, localName, attrs);
             elements.push(name);
             lastEvent = EventType.START_ELEMENT;
         } catch (SAXException e) {

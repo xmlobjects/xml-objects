@@ -33,6 +33,10 @@ public abstract class SAXFilter implements ContentHandler {
         this.parent = Objects.requireNonNull(parent, "The parent handler must not be null.");
     }
 
+    public ContentHandler getParent() {
+        return parent;
+    }
+
     @Override
     public void setDocumentLocator(Locator locator) {
         parent.setDocumentLocator(locator);
