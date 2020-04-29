@@ -285,7 +285,7 @@ public class XMLWriter implements AutoCloseable {
 
             return prefix + ":" + localName;
         } else
-            return "";
+            return localName;
     }
 
     public void writeEndElement() throws XMLWriteException {
