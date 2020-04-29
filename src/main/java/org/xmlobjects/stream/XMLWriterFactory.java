@@ -25,6 +25,11 @@ import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXOutputHandler;
 import org.xmlobjects.util.xml.SAXWriter;
 
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -41,6 +46,8 @@ import java.util.Objects;
 public class XMLWriterFactory {
     private final XMLObjects xmlObjects;
     private final Properties properties = new Properties();
+
+    private SAXTransformerFactory transformerFactory;
 
     private XMLWriterFactory(XMLObjects xmlObjects) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -103,6 +110,20 @@ public class XMLWriterFactory {
         try {
             return createWriter(new SAXWriter(result, encoding));
         } catch (IOException e) {
+            throw new XMLWriteException("Caused by:", e);
+        }
+    }
+
+    public XMLWriter createWriter(DOMResult result) throws XMLWriteException {
+        try {
+            if (transformerFactory == null)
+                transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
+
+            TransformerHandler handler = transformerFactory.newTransformerHandler();
+            handler.setResult(result);
+
+            return createWriter(handler);
+        } catch (TransformerConfigurationException e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
