@@ -83,20 +83,20 @@ public class XMLReaderFactory {
         return this;
     }
 
-    public XMLReporter getReporter() {
+    public XMLReporter getXMLReporter() {
         return xmlInputFactory.getXMLReporter();
     }
 
-    public XMLReaderFactory withReporter(XMLReporter reporter) {
+    public XMLReaderFactory withXMLReporter(XMLReporter reporter) {
         xmlInputFactory.setXMLReporter(reporter);
         return this;
     }
 
-    public XMLResolver getResolver() {
+    public XMLResolver getXMLResolver() {
         return xmlInputFactory.getXMLResolver();
     }
 
-    public XMLReaderFactory withResolver(XMLResolver resolver) {
+    public XMLReaderFactory withXMLResolver(XMLResolver resolver) {
         xmlInputFactory.setXMLResolver(resolver);
         return this;
     }
