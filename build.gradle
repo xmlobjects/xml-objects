@@ -23,9 +23,9 @@ repositories {
 }
 
 dependencies {
-    api 'org.glassfish.jaxb:xsom:2.3.2'
+    api 'org.glassfish.jaxb:xsom:2.3.3'
     api 'org.atteo.classindex:classindex:3.9'
-    implementation 'com.fasterxml.woodstox:woodstox-core:6.1.1'
+    implementation 'com.fasterxml.woodstox:woodstox-core:6.2.0'
     annotationProcessor 'org.atteo.classindex:classindex:3.9'
 }
 
