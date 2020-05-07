@@ -61,7 +61,8 @@ javadoc {
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
-                'Implementation-Version': project.version
+                'Implementation-Version': project.version,
+                'Automatic-Module-Name': project.group
         )
     }
     into('META-INF') {
