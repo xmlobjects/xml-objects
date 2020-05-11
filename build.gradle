@@ -109,7 +109,7 @@ publishing {
                 }
                 scm {
                     url = 'https://github.com/xmlobjects/xml-objects'
-                    connection = 'https://github.com/xmlobjects/xml-objects.git'
+                    connection = 'scm:git:https://github.com/xmlobjects/xml-objects.git'
                 }
             }
         }
