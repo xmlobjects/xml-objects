@@ -237,9 +237,6 @@ public class XMLObjects {
             }
 
             Class<?> objectType = findObjectType(serializer);
-            if (objectType == null)
-                throw new XMLObjectsException("Failed to retrieve object type of serializer " + type.getName() + ".");
-
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
                 registerSerializer(serializer, objectType, element.namespaceURI(), failOnDuplicates);
@@ -265,16 +262,16 @@ public class XMLObjects {
         BuilderInfo info = new BuilderInfo(builder, findObjectType(builder));
         BuilderInfo current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, info);
         if (current != null && current.builder != builder && failOnDuplicates)
-            throw new XMLObjectsException("Two builders are registered for the XML element '" +
-                    new QName(namespaceURI, localName) + "': " +
+            throw new XMLObjectsException("Two builders are registered for the XML element " +
+                    new QName(namespaceURI, localName) + ": " +
                     builder.getClass().getName() + " and " + current.builder.getClass().getName() + ".");
     }
 
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
         ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new HashMap<>()).put(namespaceURI, serializer);
         if (current != null && current != serializer && failOnDuplicates)
-            throw new XMLObjectsException("Two serializers are registered for the object type '" +
-                    objectType.getName() + "': " +
+            throw new XMLObjectsException("Two serializers are registered for the object type " +
+                    objectType.getName() + ": " +
                     serializer.getClass().getName() + " and " + current.getClass().getName() + ".");
     }
 
@@ -289,32 +286,45 @@ public class XMLObjects {
     private Class<?> findObjectType(ObjectSerializer<?> serializer) throws XMLObjectsException {
         Class<?> clazz = serializer.getClass();
         Class<?> objectType = null;
-        boolean hasCreateElementMethod = false;
 
-        try {
-            do {
-                for (Method method : clazz.getDeclaredMethods()) {
-                    if (method.getName().equals("createElement") && !method.isSynthetic()) {
-                        Type[] parameters = method.getGenericParameterTypes();
-                        if (parameters.length == 2
-                                && parameters[0] instanceof Class<?>
-                                && parameters[1] == Namespaces.class
-                                && !Modifier.isAbstract(((Class<?>) parameters[0]).getModifiers())) {
-                            objectType = (Class<?>) parameters[0];
-                            hasCreateElementMethod = true;
-                            break;
-                        }
+        for (Method method : clazz.getMethods()) {
+            if (method.isSynthetic())
+                continue;
+
+            Class<?> candidateType = null;
+            Type[] parameters;
+
+            switch (method.getName()) {
+                case "createElement":
+                    parameters = method.getGenericParameterTypes();
+                    if (parameters.length == 2
+                            && parameters[0] instanceof Class<?>
+                            && parameters[1] == Namespaces.class) {
+                        candidateType = (Class<?>) parameters[0];
                     }
-                }
-            } while (objectType == null && (clazz = clazz.getSuperclass()) != Object.class);
-        } catch (Exception e) {
-            throw new XMLObjectsException("Failed to retrieve object type of serializer " + serializer.getClass().getName() + ".", e);
+                    break;
+                case "writeChildElements":
+                    parameters = method.getGenericParameterTypes();
+                    if (parameters.length == 3
+                            && parameters[0] instanceof Class<?>
+                            && parameters[1] == Namespaces.class
+                            && parameters[2] == XMLWriter.class) {
+                        candidateType = (Class<?>) parameters[0];
+                    }
+                    break;
+            }
+
+            if (candidateType != null) {
+                if (objectType != null && candidateType != objectType)
+                    throw new XMLObjectsException("The serializer " + serializer.getClass().getName() +
+                            " uses different object types: " +
+                            objectType.getName() + " and " + candidateType.getName() + ".");
+
+                objectType = candidateType;
+            }
         }
 
-        if (!hasCreateElementMethod)
-            throw new XMLObjectsException("The serializer " + serializer.getClass().getName() + " does not implement the createElement method.");
-
-        return objectType;
+        return objectType != null ? objectType : Object.class;
     }
 
     private static class BuilderInfo {
