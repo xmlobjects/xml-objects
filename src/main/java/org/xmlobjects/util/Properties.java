@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class Properties implements Serializable {
     private Map<String, Object> properties;
@@ -47,6 +48,11 @@ public class Properties implements Serializable {
             return type.isInstance(value) ? type.cast(value) : null;
         } else
             return null;
+    }
+
+    public <T> T getOrDefault(String name, Class<T> type, Supplier<T> supplier) {
+        T property = get(name, type);
+        return  property != null ? property : supplier.get();
     }
 
     public boolean getAndCompare(String name, Object expectedValue) {
