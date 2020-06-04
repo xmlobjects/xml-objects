@@ -50,13 +50,23 @@ public class Properties implements Serializable {
             return null;
     }
 
-    public <T> T getOrDefault(String name, Class<T> type, Supplier<T> supplier) {
-        T property = get(name, type);
-        return  property != null ? property : supplier.get();
-    }
-
     public boolean getAndCompare(String name, Object expectedValue) {
         return Objects.equals(get(name), expectedValue);
+    }
+
+    public <T> T getOrDefault(String name, Class<T> type, Supplier<T> supplier) {
+        T value = get(name, type);
+        return  value != null ? value : supplier.get();
+    }
+
+    public <T> T getOrSet(String name, Class<T> type, Supplier<T> supplier) {
+        T value = get(name, type);
+        if (value == null) {
+            value = supplier.get();
+            set(name, value);
+        }
+
+        return value;
     }
 
     public void set(String name, Object value) {
