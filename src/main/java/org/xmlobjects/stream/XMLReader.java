@@ -170,7 +170,7 @@ public class XMLReader implements AutoCloseable {
             if (object == null)
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
-            return getObject(object, name, builder);
+            return processObject(object, name, builder);
         } else
             return null;
     }
@@ -188,10 +188,37 @@ public class XMLReader implements AutoCloseable {
         if (object == null)
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
-        return getObject(object, name, builder);
+        return processObject(object, name, builder);
     }
 
-    private <T> T getObject(T object, QName name, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
+    @SuppressWarnings("unchecked")
+    public <T> T fillObject(T object) throws ObjectBuildException, XMLReadException {
+        if (object == null)
+            throw new ObjectBuildException("Illegal to call fillObject with a null object.");
+
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new XMLReadException("Illegal to call fillObject when event is not START_ELEMENT.");
+
+        QName name = reader.getName();
+        ObjectBuilder<T> builder = xmlObjects.getBuilder(name, (Class<T>) object.getClass());
+        return builder != null ? processObject(object, name, builder) : null;
+    }
+
+    public <T> T fillObjectUsingBuilder(T object, Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException, XMLReadException {
+        return fillObjectUsingBuilder(object, getOrCreateBuilder(type));
+    }
+
+    public <T> T fillObjectUsingBuilder(T object, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
+        if (object == null)
+            throw new ObjectBuildException("Illegal to call fillObjectUsingBuilder with a null object.");
+
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
+            throw new XMLReadException("Illegal to call fillObjectUsingBuilder when event is not START_ELEMENT.");
+
+        return processObject(object, reader.getName(), builder);
+    }
+
+    private <T> T processObject(T object, QName name, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
         try {
             int stopAt = reader.getDepth() - 1;
             int childLevel = reader.getDepth() + 1;
