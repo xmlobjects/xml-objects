@@ -112,6 +112,15 @@ public class XMLObjects {
         return Object.class;
     }
 
+    public Class<?> getObjectType(String namespaceURI, ObjectBuilder<?> builder) {
+        for (BuilderInfo info : builders.getOrDefault(namespaceURI, Collections.emptyMap()).values()) {
+            if (info.builder == builder)
+                return info.objectType;
+        }
+
+        return Object.class;
+    }
+
     public XMLObjects registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectsException {
         registerSerializer(serializer, objectType, namespaceURI, false);
         return this;
