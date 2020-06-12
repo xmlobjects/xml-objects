@@ -64,7 +64,7 @@ public class TextContent {
     }
 
     private String content;
-    private String formattedContent;
+    private String trimmedContent;
     private String[] tokenizedContent;
     private Object value;
 
@@ -250,8 +250,61 @@ public class TextContent {
         return this == EMPTY;
     }
 
-    public TextContent format() {
-        content = formatContent();
+    public TextContent trim() {
+        content = trimmedContent();
+        return this;
+    }
+
+    public TextContent normalize() {
+        int length = content.length();
+        if (length != 0) {
+            StringBuilder normalized = new StringBuilder(length);
+            for (int i = 0; i < length; i++) {
+                char ch = content.charAt(i);
+                normalized.append(isWhiteSpace(ch) ? ' ' : ch);
+            }
+
+            content = normalized.toString();
+        }
+
+        return this;
+    }
+
+    public TextContent collapse() {
+        int length = content.length();
+        if (length != 0) {
+            char ch = 0;
+            int i = 0;
+
+            for (; i < length; i++) {
+                ch = content.charAt(i);
+                if (!isWhiteSpace(ch))
+                    break;
+            }
+
+            if (i != length) {
+                StringBuilder collapsed = new StringBuilder(length - i).append(ch);
+                boolean isWhiteSpace = false;
+
+                for (i += 1; i < length; i++) {
+                    ch = content.charAt(i);
+                    if (isWhiteSpace(ch)) {
+                        isWhiteSpace = true;
+                    } else {
+                        if (isWhiteSpace) {
+                            collapsed.append(' ');
+                            isWhiteSpace = false;
+                        }
+
+                        collapsed.append(ch);
+                    }
+                }
+
+                content = trimmedContent = collapsed.toString();
+            } else
+                content = trimmedContent = "";
+        }
+
         return this;
     }
 
@@ -295,7 +348,7 @@ public class TextContent {
     }
 
     public Boolean getAsBoolean() {
-        return value instanceof Boolean ? (Boolean) value : setValue(toBoolean(formatContent()));
+        return value instanceof Boolean ? (Boolean) value : setValue(toBoolean(trimmedContent()));
     }
 
     public boolean isBoolean() {
@@ -340,9 +393,9 @@ public class TextContent {
     public Double getAsDouble() {
         if (value instanceof Double)
             return (Double) value;
-        else if (!isEmpty() && !formatContent().isEmpty()) {
+        else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
-                return setValue(Double.parseDouble(formattedContent));
+                return setValue(Double.parseDouble(trimmedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
@@ -392,9 +445,9 @@ public class TextContent {
     public Integer getAsInteger() {
         if (value instanceof Integer)
             return (Integer) value;
-        else if (!isEmpty() && !formatContent().isEmpty()) {
+        else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
-                return setValue(Integer.parseInt(formattedContent));
+                return setValue(Integer.parseInt(trimmedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
@@ -444,9 +497,9 @@ public class TextContent {
     public Duration getAsDuration() {
         if (value instanceof Duration)
             return (Duration) value;
-        else if (!isEmpty() && !formatContent().isEmpty()) {
+        else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
-                return setValue(XML_TYPE_FACTORY.newDuration(formattedContent));
+                return setValue(XML_TYPE_FACTORY.newDuration(trimmedContent));
             } catch (Throwable e) {
                 return setValue(null);
             }
@@ -727,8 +780,8 @@ public class TextContent {
     private OffsetDateTime getAsOffsetDateTime(String localName) {
         if (value instanceof XMLGregorianCalendar && ((XMLGregorianCalendar) value).getXMLSchemaType().getLocalPart().equals(localName))
             return toOffsetDateTime((XMLGregorianCalendar) value);
-        else if (!isEmpty() && !formatContent().isEmpty()) {
-            XMLGregorianCalendar calendar = setValue(toCalendar(formatContent(), localName));
+        else if (!isEmpty() && !trimmedContent().isEmpty()) {
+            XMLGregorianCalendar calendar = setValue(toCalendar(trimmedContent(), localName));
             return calendar != null ? toOffsetDateTime(calendar) : null;
         } else
             return setValue(null);
@@ -907,11 +960,11 @@ public class TextContent {
         WITH_DATE_OFFSET = useDateOffset;
     }
 
-    private String formatContent() {
-        if (formattedContent == null)
-            formattedContent = content.trim();
+    private String trimmedContent() {
+        if (trimmedContent == null)
+            trimmedContent = content.trim();
 
-        return formattedContent;
+        return trimmedContent;
     }
 
     private int tokenizeContent() {
@@ -939,12 +992,15 @@ public class TextContent {
 
     private int nextWhiteSpace(String value, int pos, int length) {
         for (int i = pos; i < length; i++) {
-            char ch = value.charAt(i);
-            if (ch == ' ' || ch == '\n' || Character.isWhitespace(ch))
+            if (isWhiteSpace(value.charAt(i)))
                 return i;
         }
 
         return length;
+    }
+
+    private boolean isWhiteSpace(char ch) {
+        return ch == ' ' || ch == '\n' || Character.isWhitespace(ch);
     }
 
     @Override
