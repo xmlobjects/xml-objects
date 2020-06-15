@@ -46,6 +46,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -56,6 +57,7 @@ public class XMLReader implements AutoCloseable {
     private final DepthXMLStreamReader reader;
 
     private final Map<Class<?>, ObjectBuilder<?>> builderCache = new IdentityHashMap<>();
+    private WeakReference<?> parent = new WeakReference<>(null);
     private boolean createDOMAsFallback;
     private Properties properties;
     private Transformer transformer;
@@ -115,6 +117,7 @@ public class XMLReader implements AutoCloseable {
     @Override
     public void close() throws XMLReadException {
         try {
+            parent.clear();
             builderCache.clear();
             reader.close();
         } catch (XMLStreamException e) {
@@ -166,7 +169,7 @@ public class XMLReader implements AutoCloseable {
         QName name = reader.getName();
         ObjectBuilder<T> builder = xmlObjects.getBuilder(name, type);
         if (builder != null) {
-            T object = builder.createObject(name);
+            T object = builder.createObject(name, parent.get());
             if (object == null)
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
@@ -184,7 +187,7 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getObjectUsingBuilder when event is not START_ELEMENT.");
 
         QName name = reader.getName();
-        T object = builder.createObject(name);
+        T object = builder.createObject(name, parent.get());
         if (object == null)
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
 
@@ -225,6 +228,7 @@ public class XMLReader implements AutoCloseable {
 
             // initialize object
             builder.initializeObject(object, name, getAttributes(), this);
+            parent = new WeakReference<>(object);
 
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {

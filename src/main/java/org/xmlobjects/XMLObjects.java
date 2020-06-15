@@ -286,7 +286,7 @@ public class XMLObjects {
 
     private Class<?> findObjectType(ObjectBuilder<?> builder) {
         try {
-            return builder.getClass().getMethod("createObject", QName.class).getReturnType();
+            return builder.getClass().getMethod("createObject", QName.class, Object.class).getReturnType();
         } catch (NoSuchMethodException e) {
             return Object.class;
         }
