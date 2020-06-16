@@ -222,13 +222,14 @@ public class XMLReader implements AutoCloseable {
     }
 
     private <T> T processObject(T object, QName name, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
+        WeakReference<?> previous = parent;
         try {
+            parent = new WeakReference<>(object);
             int stopAt = reader.getDepth() - 1;
             int childLevel = reader.getDepth() + 1;
 
             // initialize object
             builder.initializeObject(object, name, getAttributes(), this);
-            parent = new WeakReference<>(object);
 
             while (true) {
                 if (reader.getEventType() == XMLStreamConstants.START_ELEMENT && reader.getDepth() == childLevel) {
@@ -257,6 +258,8 @@ public class XMLReader implements AutoCloseable {
             }
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
+        } finally {
+            parent = previous;
         }
     }
 
