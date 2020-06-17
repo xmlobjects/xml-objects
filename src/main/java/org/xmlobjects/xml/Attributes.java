@@ -28,6 +28,10 @@ import java.util.Map;
 public class Attributes {
     private final Map<String, Map<String, TextContent>> attributes = new HashMap<>();
 
+    public boolean isEmpty() {
+        return attributes.isEmpty();
+    }
+
     public void add(String namespaceURI, String localName, TextContent value) {
         attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
     }
@@ -52,6 +56,10 @@ public class Attributes {
         add(name, TextContent.of(value));
     }
 
+    public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
+        this.attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).putAll(attributes);
+    }
+
     public Map<String, Map<String, TextContent>> get() {
         return attributes;
     }
@@ -70,9 +78,5 @@ public class Attributes {
 
     public TextContent getValue(QName name) {
         return getValue(name.getNamespaceURI(), name.getLocalPart());
-    }
-
-    public boolean isEmpty() {
-        return attributes.isEmpty();
     }
 }
