@@ -21,10 +21,8 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Attributes {
@@ -54,12 +52,20 @@ public class Attributes {
         add(name, TextContent.of(value));
     }
 
+    public Map<String, Map<String, TextContent>> get() {
+        return attributes;
+    }
+
+    public Map<String, TextContent> get(String namespaceURI) {
+        return attributes.getOrDefault(namespaceURI, Collections.emptyMap());
+    }
+
     public TextContent getValue(String localName) {
         return getValue(XMLConstants.NULL_NS_URI, localName);
     }
 
     public TextContent getValue(String namespaceURI, String localName) {
-        return attributes.getOrDefault(namespaceURI, Collections.emptyMap()).getOrDefault(localName, TextContent.empty());
+        return get(namespaceURI).getOrDefault(localName, TextContent.empty());
     }
 
     public TextContent getValue(QName name) {
@@ -68,15 +74,5 @@ public class Attributes {
 
     public boolean isEmpty() {
         return attributes.isEmpty();
-    }
-
-    public List<Attribute> toList() {
-        List<Attribute> attributes = new ArrayList<>();
-        for (Map.Entry<String, Map<String, TextContent>> namespace : this.attributes.entrySet()) {
-            for (Map.Entry<String, TextContent> attribute : namespace.getValue().entrySet())
-                attributes.add(new Attribute(namespace.getKey(), attribute.getKey(), attribute.getValue()));
-        }
-
-        return attributes;
     }
 }
