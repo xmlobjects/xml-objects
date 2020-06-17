@@ -29,11 +29,11 @@ import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
 import org.xmlobjects.util.xml.SAXFilter;
-import org.xmlobjects.xml.Attribute;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Element;
 import org.xmlobjects.xml.ElementContent;
 import org.xmlobjects.xml.Namespaces;
+import org.xmlobjects.xml.TextContent;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
@@ -254,12 +254,14 @@ public class XMLWriter implements AutoCloseable {
         try {
             AttributesImpl attrs = new AttributesImpl();
             if (attributes != null && !attributes.isEmpty()) {
-                for (Attribute attribute : attributes.toList()) {
-                    if (attribute.getValue().isPresent()) {
-                        String namespaceURI = attribute.getNamespaceURI();
-                        String localName = attribute.getLocalName();
-                        String qName = getQName(namespaceURI, localName);
-                        attrs.addAttribute(namespaceURI, localName, qName, "CDATA", attribute.getValue().get());
+                for (Map.Entry<String, Map<String, TextContent>> entry : attributes.get().entrySet()) {
+                    for (Map.Entry<String, TextContent> attribute : entry.getValue().entrySet()) {
+                        if (attribute.getValue().isPresent()) {
+                            String namespaceURI = entry.getKey();
+                            String localName = attribute.getKey();
+                            String qName = getQName(namespaceURI, localName);
+                            attrs.addAttribute(namespaceURI, localName, qName, "CDATA", attribute.getValue().get());
+                        }
                     }
                 }
             }
