@@ -300,6 +300,11 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
+    public void writeEndElements(int count) throws XMLWriteException {
+        while (count-- > 0)
+            writeEndElement();
+    }
+
     public void writeCharacters(String text, int start, int length) throws XMLWriteException {
         try {
             char[] characters = text.toCharArray();
