@@ -31,10 +31,10 @@ import javax.xml.stream.XMLResolver;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Source;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -112,7 +112,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(File file) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedReader(new FileReader(file))), file.toURI().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(new FileInputStream(file))), file.toURI().normalize());
         } catch (XMLStreamException | FileNotFoundException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -120,7 +120,7 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Path path) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(Files.newBufferedReader(path)), path.toUri().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(Files.newInputStream(path))), path.toUri().normalize());
         } catch (XMLStreamException | IOException e) {
             throw new XMLReadException("Caused by:", e);
         }
