@@ -8,7 +8,7 @@ plugins {
 }
 
 group 'org.xmlobjects'
-version '1.0.0-rc.2'
+version '1.0.0-rc.3'
 description 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
