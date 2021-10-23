@@ -27,11 +27,7 @@ import org.xmlobjects.builder.ObjectBuildException;
 import org.xmlobjects.builder.ObjectBuilder;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
-import org.xmlobjects.stream.EventType;
-import org.xmlobjects.stream.XMLReadException;
-import org.xmlobjects.stream.XMLReader;
-import org.xmlobjects.stream.XMLWriteException;
-import org.xmlobjects.stream.XMLWriter;
+import org.xmlobjects.stream.*;
 import org.xmlobjects.xml.Namespaces;
 
 import javax.xml.XMLConstants;
@@ -39,12 +35,7 @@ import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 

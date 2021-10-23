@@ -20,12 +20,7 @@
 package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class Namespaces {
     private static final Namespaces EMPTY = new Namespaces(Collections.singleton(XMLConstants.NULL_NS_URI));

@@ -29,11 +29,7 @@ import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
 import org.xmlobjects.util.xml.SAXFilter;
-import org.xmlobjects.xml.Attributes;
-import org.xmlobjects.xml.Element;
-import org.xmlobjects.xml.ElementContent;
-import org.xmlobjects.xml.Namespaces;
-import org.xmlobjects.xml.TextContent;
+import org.xmlobjects.xml.*;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
