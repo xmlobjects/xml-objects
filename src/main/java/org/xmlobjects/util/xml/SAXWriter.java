@@ -25,14 +25,10 @@ import org.xmlobjects.stream.XMLOutput;
 
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -284,7 +280,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 writer.write(qName);
 
             writeAttributes(atts);
-            writeNamespaces();
+            writeNamespaces(prefixMapping.getCurrentContext());
 
             if (depth == 0)
                 writeSchemaLocations();
@@ -307,31 +303,46 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeAttributes(Attributes atts) throws SAXException {
-        try {
-            for (int i = 0; i < atts.getLength(); i++) {
-                String localName = atts.getLocalName(i);
-                String namespaceURI = atts.getURI(i);
-                String prefix = null;
+        if (atts.getLength() > 0) {
+            try {
+                Map<String, String> prefixes = null;
+                for (int i = 0; i < atts.getLength(); i++) {
+                    String localName = atts.getLocalName(i);
+                    String namespaceURI = atts.getURI(i);
+                    String prefix = null;
 
-                if (namespaceURI != null && !namespaceURI.isEmpty()) {
-                    if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
-                        continue;
+                    if (namespaceURI != null && !namespaceURI.isEmpty()) {
+                        if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
+                            continue;
 
-                    prefix = prefixMapping.getPrefix(namespaceURI);
-                    if (prefix == null) {
-                        prefix = prefixMapping.createPrefixFromQName(atts.getQName(i), namespaceURI);
-                        prefixMapping.declarePrefix(prefix, namespaceURI);
+                        prefix = prefixMapping.getPrefix(namespaceURI);
+                        if (prefix == null) {
+                            prefix = prefixMapping.createPrefixFromQName(atts.getQName(i), namespaceURI);
+                            prefixMapping.declarePrefix(prefix, namespaceURI);
+                        } else if (prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
+                            if (prefixes == null) {
+                                prefixes = new HashMap<>();
+                            }
+
+                            String name = atts.getQName(i);
+                            prefix = prefixes.computeIfAbsent(namespaceURI,
+                                    v -> prefixMapping.createPrefixFromQName(name, namespaceURI));
+                        }
                     }
+
+                    writer.write(' ');
+                    writeQName(prefix, localName);
+                    writer.write("=\"");
+                    writeAttributeContent(atts.getValue(i));
+                    writer.write('"');
                 }
 
-                writer.write(' ');
-                writeQName(prefix, localName);
-                writer.write("=\"");
-                writeAttributeContent(atts.getValue(i));
-                writer.write('"');
+                if (prefixes != null) {
+                    writeNamespaces(prefixes);
+                }
+            } catch (IOException e) {
+                throw new SAXException("Caused by:", e);
             }
-        } catch (IOException e) {
-            throw new SAXException("Caused by:", e);
         }
     }
 
@@ -348,11 +359,11 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         }
     }
 
-    private void writeNamespaces() throws SAXException {
+    private void writeNamespaces(Map<String, String> prefixes) throws SAXException {
         try {
-            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet()) {
-                String prefix = entry.getKey();
-                String namespaceURI = entry.getValue();
+            for (Map.Entry<String, String> entry : prefixes.entrySet()) {
+                String namespaceURI = entry.getKey();
+                String prefix = entry.getValue();
 
                 writer.write(' ');
                 writer.write(XMLConstants.XMLNS_ATTRIBUTE);

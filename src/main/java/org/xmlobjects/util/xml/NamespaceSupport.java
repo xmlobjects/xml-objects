@@ -22,11 +22,7 @@ package org.xmlobjects.util.xml;
 import org.xmlobjects.XMLObjects;
 
 import javax.xml.XMLConstants;
-import java.util.EmptyStackException;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class NamespaceSupport {
     private Context current = new Context();
@@ -123,7 +119,7 @@ public class NamespaceSupport {
     }
 
     public Map<String, String> getCurrentContext() {
-        return new HashMap<>(current.namespaceURIs);
+        return new HashMap<>(current.prefixes);
     }
 
     public String createPrefixFromQName(String qName, String namespaceURI) {

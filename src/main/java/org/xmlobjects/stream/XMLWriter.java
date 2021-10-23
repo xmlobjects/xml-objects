@@ -35,6 +35,7 @@ import org.xmlobjects.xml.ElementContent;
 import org.xmlobjects.xml.Namespaces;
 import org.xmlobjects.xml.TextContent;
 
+import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -280,7 +281,7 @@ public class XMLWriter implements AutoCloseable {
     private String getQName(String namespaceURI, String localName) throws SAXException {
         if (namespaceURI != null && !namespaceURI.isEmpty()) {
             String prefix = output.getPrefix(namespaceURI);
-            if (prefix == null) {
+            if (prefix == null || prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
                 prefix = output.createPrefix(namespaceURI);
                 output.startPrefixMapping(prefix, namespaceURI);
             }
