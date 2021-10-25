@@ -31,18 +31,14 @@ public class ObjectCloner<T> extends AbstractCloner<T> {
         super(builder);
 
         do {
-            try {
-                Field[] fields = type.getDeclaredFields();
-                for (Field field : fields) {
-                    int modifiers = field.getModifiers();
-                    if (Modifier.isStatic(modifiers))
-                        continue;
+            Field[] fields = type.getDeclaredFields();
+            for (Field field : fields) {
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers))
+                    continue;
 
-                    field.setAccessible(true);
-                    this.fields.add(field);
-                }
-            } catch (Throwable e) {
-                //
+                field.setAccessible(true);
+                this.fields.add(field);
             }
         } while ((type = type.getSuperclass()) != Object.class && type != null);
     }
