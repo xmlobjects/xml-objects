@@ -26,16 +26,13 @@ tasks.named('compileJava') {
 }
 
 repositories {
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
     mavenCentral()
 }
 
 dependencies {
     api 'org.glassfish.jaxb:xsom:3.0.2'
-    api 'org.xmlobjects:classindex:3.11.1-SNAPSHOT'
-    annotationProcessor 'org.xmlobjects:classindex:3.11.1-SNAPSHOT'
+    api 'org.xmlobjects:classindex:3.11.1'
+    annotationProcessor 'org.xmlobjects:classindex:3.11.1'
 }
 
 javadoc {
