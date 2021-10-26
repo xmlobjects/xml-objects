@@ -5,11 +5,11 @@ plugins {
     id 'distribution'
     id 'maven-publish'
     id 'signing'
-    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
 }
 
 group 'org.xmlobjects'
-version '1.0.0-rc.3'
+version '1.0.0-SNAPSHOT'
 description 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
@@ -17,11 +17,12 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)
     }
-    compileJava {
-        options.release = 8
-    }
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.named('compileJava') {
+    options.javaModuleVersion = provider { project.version }
 }
 
 repositories {
@@ -29,9 +30,9 @@ repositories {
 }
 
 dependencies {
-    api 'org.glassfish.jaxb:xsom:3.0.1'
-    api 'org.atteo.classindex:classindex:3.11'
-    annotationProcessor 'org.atteo.classindex:classindex:3.11'
+    api 'org.glassfish.jaxb:xsom:3.0.2'
+    api 'org.xmlobjects:classindex:3.11.1'
+    annotationProcessor 'org.xmlobjects:classindex:3.11.1'
 }
 
 javadoc {
@@ -48,10 +49,6 @@ javadoc {
         addStringOption('doctitle', project.name + ' - ' + project.description)
     }
 
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-
     doFirst {
         copy {
             from 'resources/javadoc/overview.html'
@@ -66,8 +63,7 @@ javadoc {
 jar {
     manifest {
         attributes('Implementation-Title': project.name,
-                'Implementation-Version': project.version,
-                'Automatic-Module-Name': project.group
+                'Implementation-Version': project.version
         )
     }
     into('META-INF') {
