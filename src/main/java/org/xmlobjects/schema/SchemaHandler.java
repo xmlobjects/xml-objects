@@ -101,36 +101,45 @@ public class SchemaHandler {
     }
 
     public void parseSchema(String namespaceURI, String schemaLocation) throws SchemaHandlerException {
-        if (schemas.containsKey(namespaceURI))
+        if (schemas.containsKey(namespaceURI)) {
             return;
+        }
 
         parseSchema(userSchemaLocations.getOrDefault(namespaceURI, schemaLocation));
     }
 
     public void resolveAndParseSchema(String namespaceURI) throws SchemaHandlerException {
-        if (schemas.containsKey(namespaceURI))
+        if (schemas.containsKey(namespaceURI)) {
             return;
+        }
 
         String schemaLocation = userSchemaLocations.get(namespaceURI);
         if (schemaLocation != null) {
             InputSource source = new InputSource(schemaLocation);
             source.setPublicId(namespaceURI);
             parse(source);
-        } else
+        } else {
             throw new SchemaHandlerException("Failed to resolve the schema location for the target namespace '" + namespaceURI + "'.");
+        }
     }
 
     private void parse(InputSource source) throws SchemaHandlerException {
-        XSOMParser parser = new XSOMParser(getSAXParserFactory());
+        for (String schemaLocation : visitedSchemaLocations.values()) {
+            if (schemaLocation.equals(source.getSystemId())) {
+                return;
+            }
+        }
 
+        XSOMParser parser = new XSOMParser(getSAXParserFactory());
         parser.setErrorHandler(errorHandler);
         parser.setAnnotationParser(annotationParserFactory);
         parser.setEntityResolver((publicId, systemId) -> {
             InputSource resolved = null;
             if (publicId != null) {
                 String schemaLocation = visitedSchemaLocations.get(publicId);
-                if (schemaLocation == null)
+                if (schemaLocation == null) {
                     schemaLocation = userSchemaLocations.get(publicId);
+                }
 
                 if (schemaLocation != null) {
                     resolved = new InputSource(schemaLocation);
@@ -154,17 +163,18 @@ public class SchemaHandler {
                 if (XMLConstants.W3C_XML_SCHEMA_NS_URI.equals(schema.getTargetNamespace())
                         || XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(schema.getTargetNamespace())
                         || XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(schema.getTargetNamespace())
-                        || XMLConstants.XML_NS_URI.equals(schema.getTargetNamespace()))
+                        || XMLConstants.XML_NS_URI.equals(schema.getTargetNamespace())) {
                     continue;
+                }
 
                 schemas.put(schema.getTargetNamespace(), schemaSet);
 
                 Locator locator = schema.getLocator();
                 if (locator != null) {
                     String schemaLocation = visitedSchemaLocations.get(schema.getTargetNamespace());
-                    if (schemaLocation == null)
+                    if (schemaLocation == null) {
                         visitedSchemaLocations.put(schema.getTargetNamespace(), locator.getSystemId());
-                    else {
+                    } else {
                         try {
                             URL url = new URL(locator.getSystemId());
                             if (url.getProtocol().equals("file") || url.getProtocol().equals("jar"))
@@ -193,8 +203,9 @@ public class SchemaHandler {
     }
 
     private SAXParserFactory getSAXParserFactory() {
-        if (saxParserFactory == null)
+        if (saxParserFactory == null) {
             saxParserFactory = SAXParserFactory.newInstance();
+        }
 
         return saxParserFactory;
     }
