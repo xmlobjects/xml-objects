@@ -121,12 +121,12 @@ public class XMLWriter implements AutoCloseable {
         return this;
     }
 
-    public String getIndentString() {
-        return output.getIndentString();
+    public String getIndent() {
+        return output.getIndent();
     }
 
-    public XMLWriter withIndentString(String indent) {
-        output.withIndentString(indent);
+    public XMLWriter withIndent(String indent) {
+        output.withIndent(indent);
         return this;
     }
 

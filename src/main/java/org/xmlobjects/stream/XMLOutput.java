@@ -31,7 +31,7 @@ import java.util.Map;
 public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implements AutoCloseable {
     protected final NamespaceSupport prefixMapping = new NamespaceSupport();
     protected final Map<String, String> schemaLocations = new HashMap<>();
-    protected String indentString;
+    protected String indent;
     protected boolean writeXMLDeclaration = true;
     protected String[] headerComment;
 
@@ -86,15 +86,13 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
         return (T) this;
     }
 
-    public String getIndentString() {
-        return indentString;
+    public String getIndent() {
+        return indent;
     }
 
     @SuppressWarnings("unchecked")
-    public T withIndentString(String indent) {
-        if (indent != null)
-            this.indentString = indent;
-
+    public T withIndent(String indent) {
+        this.indent = indent;
         return (T) this;
     }
 

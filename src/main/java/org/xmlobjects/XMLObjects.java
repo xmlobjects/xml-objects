@@ -21,6 +21,7 @@ package org.xmlobjects;
 
 import org.atteo.classindex.ClassFilter;
 import org.atteo.classindex.ClassIndex;
+import org.w3c.dom.Element;
 import org.xmlobjects.annotation.XMLElement;
 import org.xmlobjects.annotation.XMLElements;
 import org.xmlobjects.builder.ObjectBuildException;
@@ -112,24 +113,28 @@ public class XMLObjects {
         return Object.class;
     }
 
-    public XMLObjects registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI) throws XMLObjectsException {
+    public <T> XMLObjects registerSerializer(ObjectSerializer<T> serializer, Class<T> objectType, String namespaceURI) throws XMLObjectsException {
         registerSerializer(serializer, objectType, namespaceURI, false);
         return this;
     }
 
-    public ObjectSerializer<?> getSerializer(Class<?> objectType, String namespaceURI) {
-        return serializers.getOrDefault(objectType.getName(), Collections.emptyMap()).get(namespaceURI);
+    @SuppressWarnings("unchecked")
+    public <T> ObjectSerializer<T> getSerializer(Class<T> objectType, String namespaceURI) {
+        ObjectSerializer<?> serializer = serializers.getOrDefault(objectType.getName(), Collections.emptyMap()).get(namespaceURI);
+        return serializer != null ? (ObjectSerializer<T>) serializer : null;
     }
 
-    public ObjectSerializer<?> getSerializer(Class<?> objectType) {
+    public <T> ObjectSerializer<T> getSerializer(Class<T> objectType) {
         return getSerializer(objectType, XMLConstants.NULL_NS_URI);
     }
 
-    public ObjectSerializer<?> getSerializer(Class<?> objectType, Namespaces namespaces) {
+    @SuppressWarnings("unchecked")
+    public <T> ObjectSerializer<T> getSerializer(Class<T> objectType, Namespaces namespaces) {
         Map<String, ObjectSerializer<?>> map = serializers.getOrDefault(objectType.getName(), Collections.emptyMap());
         for (Map.Entry<String, ObjectSerializer<?>> entry : map.entrySet()) {
-            if (namespaces.contains(entry.getKey()))
-                return entry.getValue();
+            if (namespaces.contains(entry.getKey())) {
+                return (ObjectSerializer<T>) entry.getValue();
+            }
         }
 
         return null;
@@ -300,6 +305,16 @@ public class XMLObjects {
                                     && parameters[0] instanceof Class<?>
                                     && parameters[1] == Namespaces.class) {
                                 candidateType = (Class<?>) parameters[0];
+                            }
+                            break;
+                        case "initializeElement":
+                            parameters = method.getGenericParameterTypes();
+                            if (parameters.length == 4
+                                    && parameters[0] == Element.class
+                                    && parameters[1] instanceof Class<?>
+                                    && parameters[2] == Namespaces.class
+                                    && parameters[3] == XMLWriter.class) {
+                                candidateType = (Class<?>) parameters[1];
                             }
                             break;
                         case "writeChildElements":

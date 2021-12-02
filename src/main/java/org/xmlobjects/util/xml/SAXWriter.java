@@ -436,7 +436,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeIndent() throws SAXException {
-        if (indentString == null)
+        if (indent == null)
             return;
 
         if (lastEvent == XMLEvents.CHARACTERS)
@@ -445,7 +445,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         try {
             writer.write(LINE_SEPARATOR);
             for (int i = 0; i < depth; i++)
-                writer.write(indentString);
+                writer.write(indent);
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }

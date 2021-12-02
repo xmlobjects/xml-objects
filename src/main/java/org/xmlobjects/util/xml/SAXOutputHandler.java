@@ -37,7 +37,7 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
     }
 
     @Override
-    public String getIndentString() {
+    public String getIndent() {
         return null;
     }
 
