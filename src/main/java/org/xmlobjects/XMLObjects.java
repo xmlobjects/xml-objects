@@ -280,11 +280,11 @@ public class XMLObjects {
                     serializer.getClass().getName() + " and " + current.getClass().getName() + ".");
     }
 
-    private Class<?> findObjectType(ObjectBuilder<?> builder) {
+    private Class<?> findObjectType(ObjectBuilder<?> builder) throws XMLObjectsException {
         try {
             return builder.getClass().getMethod("createObject", QName.class, Object.class).getReturnType();
         } catch (NoSuchMethodException e) {
-            return Object.class;
+            throw new XMLObjectsException("The builder " + builder.getClass().getName() + " lacks the createObject method.", e);
         }
     }
 
@@ -292,55 +292,58 @@ public class XMLObjects {
         Class<?> clazz = serializer.getClass();
         Class<?> objectType = null;
 
-        do {
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (!method.isSynthetic() && Modifier.isPublic(method.getModifiers())) {
-                    Class<?> candidateType = null;
-                    Type[] parameters;
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (!method.isSynthetic() && Modifier.isPublic(method.getModifiers())) {
+                Class<?> candidateType = null;
+                Type[] parameters;
 
-                    switch (method.getName()) {
-                        case "createElement":
-                            parameters = method.getGenericParameterTypes();
-                            if (parameters.length == 2
-                                    && parameters[0] instanceof Class<?>
-                                    && parameters[1] == Namespaces.class) {
-                                candidateType = (Class<?>) parameters[0];
-                            }
-                            break;
-                        case "initializeElement":
-                            parameters = method.getGenericParameterTypes();
-                            if (parameters.length == 4
-                                    && parameters[0] == Element.class
-                                    && parameters[1] instanceof Class<?>
-                                    && parameters[2] == Namespaces.class
-                                    && parameters[3] == XMLWriter.class) {
-                                candidateType = (Class<?>) parameters[1];
-                            }
-                            break;
-                        case "writeChildElements":
-                            parameters = method.getGenericParameterTypes();
-                            if (parameters.length == 3
-                                    && parameters[0] instanceof Class<?>
-                                    && parameters[1] == Namespaces.class
-                                    && parameters[2] == XMLWriter.class) {
-                                candidateType = (Class<?>) parameters[0];
-                            }
-                            break;
-                    }
+                switch (method.getName()) {
+                    case "createElement":
+                        parameters = method.getGenericParameterTypes();
+                        if (parameters.length == 2
+                                && parameters[0] instanceof Class<?>
+                                && parameters[1] == Namespaces.class) {
+                            candidateType = (Class<?>) parameters[0];
+                        }
+                        break;
+                    case "initializeElement":
+                        parameters = method.getGenericParameterTypes();
+                        if (parameters.length == 4
+                                && parameters[0] == Element.class
+                                && parameters[1] instanceof Class<?>
+                                && parameters[2] == Namespaces.class
+                                && parameters[3] == XMLWriter.class) {
+                            candidateType = (Class<?>) parameters[1];
+                        }
+                        break;
+                    case "writeChildElements":
+                        parameters = method.getGenericParameterTypes();
+                        if (parameters.length == 3
+                                && parameters[0] instanceof Class<?>
+                                && parameters[1] == Namespaces.class
+                                && parameters[2] == XMLWriter.class) {
+                            candidateType = (Class<?>) parameters[0];
+                        }
+                        break;
+                }
 
-                    if (candidateType != null) {
-                        if (objectType != null && candidateType != objectType)
-                            throw new XMLObjectsException("The serializer " + serializer.getClass().getName() +
-                                    " uses different object types: " +
-                                    objectType.getName() + " and " + candidateType.getName() + ".");
+                if (candidateType != null) {
+                    if (objectType != null && candidateType != objectType)
+                        throw new XMLObjectsException("The serializer " + serializer.getClass().getName() +
+                                " uses different object types: " +
+                                objectType.getName() + " and " + candidateType.getName() + ".");
 
-                        objectType = candidateType;
-                    }
+                    objectType = candidateType;
                 }
             }
-        } while (objectType == null && (clazz = clazz.getSuperclass()) != Object.class);
+        }
 
-        return objectType != null ? objectType : Object.class;
+        if (objectType == null) {
+            throw new XMLObjectsException("The serializer " + serializer.getClass().getName() + " must implement " +
+                    "at least one of the methods createElement, initializeElement, and writeChildElements.");
+        }
+
+        return objectType;
     }
 
     private static class BuilderInfo {
