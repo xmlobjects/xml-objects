@@ -96,10 +96,11 @@ public class XMLWriter implements AutoCloseable {
             if (lastEvent != EventType.END_DOCUMENT)
                 finishDocument(prologWritten);
 
-            serializerCache.clear();
             output.close();
         } catch (Exception e) {
             throw new XMLWriteException("Caused by:", e);
+        } finally {
+            serializerCache.clear();
         }
     }
 

@@ -117,11 +117,12 @@ public class XMLReader implements AutoCloseable {
     @Override
     public void close() throws XMLReadException {
         try {
-            parent.clear();
-            builderCache.clear();
             reader.close();
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
+        } finally {
+            parent.clear();
+            builderCache.clear();
         }
     }
 
