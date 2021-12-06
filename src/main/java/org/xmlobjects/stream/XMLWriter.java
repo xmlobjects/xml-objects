@@ -359,22 +359,18 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public <T> ObjectSerializer<T> getOrCreateSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
-        ObjectSerializer<T> serializer;
-
-        // get serializer from cache or create a new instance
         ObjectSerializer<?> cachedSerializer = serializerCache.get(type.getName());
-        if (cachedSerializer != null && type.isAssignableFrom(cachedSerializer.getClass()))
-            serializer = type.cast(cachedSerializer);
-        else {
+        if (cachedSerializer != null && type.isAssignableFrom(cachedSerializer.getClass())) {
+            return type.cast(cachedSerializer);
+        } else {
             try {
-                serializer = type.getDeclaredConstructor().newInstance();
+                ObjectSerializer<T> serializer = type.getDeclaredConstructor().newInstance();
                 serializerCache.put(type.getName(), serializer);
+                return serializer;
             } catch (Exception e) {
                 throw new ObjectSerializeException("The serializer " + type.getName() + " lacks a default constructor.");
             }
         }
-
-        return serializer;
     }
 
     public ContentHandler getContentHandler() {

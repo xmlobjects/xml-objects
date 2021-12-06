@@ -362,20 +362,17 @@ public class XMLReader implements AutoCloseable {
     }
 
     public <T> ObjectBuilder<T> getOrCreateBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
-        ObjectBuilder<T> builder;
-
         ObjectBuilder<?> cachedBuilder = builderCache.get(type);
-        if (cachedBuilder != null)
-            builder = type.cast(cachedBuilder);
-        else {
+        if (cachedBuilder != null) {
+            return type.cast(cachedBuilder);
+        } else {
             try {
-                builder = type.getDeclaredConstructor().newInstance();
+                ObjectBuilder<T> builder = type.getDeclaredConstructor().newInstance();
                 builderCache.put(type, builder);
+                return builder;
             } catch (Exception e) {
                 throw new ObjectBuildException("The builder " + type.getName() + " lacks a default constructor.");
             }
         }
-
-        return builder;
     }
 }
