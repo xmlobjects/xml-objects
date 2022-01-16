@@ -96,7 +96,7 @@ public class ArrayBuffer<T> implements Iterable<T> {
     }
 
     @Override
-    public ArrayBufferIterator<T> iterator() {
+    public Iterator<T> iterator() {
         return iterator(false);
     }
 
@@ -148,7 +148,7 @@ public class ArrayBuffer<T> implements Iterable<T> {
                 return false;
         }
 
-        public T peek() {
+        T peek() {
             if (modCount != buffer.modCount)
                 throw new ConcurrentModificationException();
 
