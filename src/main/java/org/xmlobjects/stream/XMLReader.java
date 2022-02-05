@@ -364,7 +364,7 @@ public class XMLReader implements AutoCloseable {
 
     public <T> ObjectBuilder<T> getOrCreateBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
         ObjectBuilder<?> cachedBuilder = builderCache.get(type);
-        if (cachedBuilder != null) {
+        if (cachedBuilder != null && type.isAssignableFrom(cachedBuilder.getClass())) {
             return type.cast(cachedBuilder);
         } else {
             try {
