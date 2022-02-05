@@ -46,13 +46,13 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class XMLWriter implements AutoCloseable {
     private final XMLObjects xmlObjects;
     private final XMLOutput<?> output;
-    private final Map<String, ObjectSerializer<?>> serializerCache = new HashMap<>();
+    private final Map<Class<?>, ObjectSerializer<?>> serializerCache = new IdentityHashMap<>();
     private final Deque<QName> elements = new ArrayDeque<>();
 
     private Properties properties;
@@ -360,13 +360,13 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public <T> ObjectSerializer<T> getOrCreateSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
-        ObjectSerializer<?> cachedSerializer = serializerCache.get(type.getName());
+        ObjectSerializer<?> cachedSerializer = serializerCache.get(type);
         if (cachedSerializer != null && type.isAssignableFrom(cachedSerializer.getClass())) {
             return type.cast(cachedSerializer);
         } else {
             try {
                 ObjectSerializer<T> serializer = type.getDeclaredConstructor().newInstance();
-                serializerCache.put(type.getName(), serializer);
+                serializerCache.put(type, serializer);
                 return serializer;
             } catch (Exception e) {
                 throw new ObjectSerializeException("The serializer " + type.getName() + " lacks a default constructor.");
