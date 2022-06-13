@@ -27,6 +27,7 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import org.xmlobjects.util.xml.SecureXMLProcessors;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.SAXParserFactory;
@@ -202,9 +203,13 @@ public class SchemaHandler {
         return schemas.keySet();
     }
 
-    private SAXParserFactory getSAXParserFactory() {
+    private SAXParserFactory getSAXParserFactory() throws SchemaHandlerException {
         if (saxParserFactory == null) {
-            saxParserFactory = SAXParserFactory.newInstance();
+            try {
+                saxParserFactory = SecureXMLProcessors.newSAXParserFactory();
+            } catch (Exception e) {
+                throw new SchemaHandlerException("Failed to initialize secure XML schema reader.", e);
+            }
         }
 
         return saxParserFactory;

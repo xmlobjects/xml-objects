@@ -23,6 +23,7 @@ import org.xmlobjects.XMLObjects;
 import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.SystemIDResolver;
+import org.xmlobjects.util.xml.SecureXMLProcessors;
 
 import javax.xml.stream.*;
 import javax.xml.transform.Source;
@@ -42,7 +43,7 @@ public class XMLReaderFactory {
 
     private XMLReaderFactory(XMLObjects xmlObjects) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
-        xmlInputFactory = XMLInputFactory.newFactory();
+        xmlInputFactory = SecureXMLProcessors.newXMLInputFactory();
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
     }
 
