@@ -37,10 +37,8 @@ public class SecureXMLProcessors {
 
     public static XMLInputFactory newXMLInputFactory() {
         XMLInputFactory factory = XMLInputFactory.newFactory();
-        factory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-        factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         return factory;
     }
 
