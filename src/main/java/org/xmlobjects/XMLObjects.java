@@ -329,7 +329,7 @@ public class XMLObjects {
 
                 if (candidateType != null) {
                     if (objectType != null && candidateType != objectType)
-                        throw new XMLObjectsException("The serializer " + serializer.getClass().getName() +
+                        throw new XMLObjectsException("The serializer " + clazz.getName() +
                                 " uses different object types: " +
                                 objectType.getName() + " and " + candidateType.getName() + ".");
 
@@ -339,7 +339,7 @@ public class XMLObjects {
         }
 
         if (objectType == null) {
-            throw new XMLObjectsException("The serializer " + serializer.getClass().getName() + " must implement " +
+            throw new XMLObjectsException("The serializer " + clazz.getName() + " must implement " +
                     "at least one of the methods createElement, initializeElement, and writeChildElements.");
         }
 
