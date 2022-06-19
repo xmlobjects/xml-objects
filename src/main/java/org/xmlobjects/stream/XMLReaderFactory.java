@@ -108,9 +108,25 @@ public class XMLReaderFactory {
         }
     }
 
+    public XMLReader createReader(File file, String encoding) throws XMLReadException {
+        try {
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding), file.toURI().normalize());
+        } catch (XMLStreamException | FileNotFoundException e) {
+            throw new XMLReadException("Caused by:", e);
+        }
+    }
+
     public XMLReader createReader(Path path) throws XMLReadException {
         try {
             return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(Files.newInputStream(path))), path.toUri().normalize());
+        } catch (XMLStreamException | IOException e) {
+            throw new XMLReadException("Caused by:", e);
+        }
+    }
+
+    public XMLReader createReader(Path path, String encoding) throws XMLReadException {
+        try {
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(Files.newInputStream(path)), encoding), path.toUri().normalize());
         } catch (XMLStreamException | IOException e) {
             throw new XMLReadException("Caused by:", e);
         }
