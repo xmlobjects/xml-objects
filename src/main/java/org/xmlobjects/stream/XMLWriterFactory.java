@@ -32,6 +32,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -60,48 +61,36 @@ public class XMLWriterFactory {
     }
 
     public XMLWriter createWriter(File file) throws XMLWriteException {
-        try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file))));
-        } catch (FileNotFoundException e) {
-            throw new XMLWriteException("Caused by:", e);
-        }
+        return createWriter(file, StandardCharsets.UTF_8.name());
     }
 
     public XMLWriter createWriter(File file, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file), encoding)));
+            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file), getEncoding(encoding))));
         } catch (UnsupportedEncodingException | FileNotFoundException e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
 
     public XMLWriter createWriter(Path path) throws XMLWriteException {
-        try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path))));
-        } catch (IOException e) {
-            throw new XMLWriteException("Caused by:", e);
-        }
+        return createWriter(path, StandardCharsets.UTF_8.name());
     }
 
     public XMLWriter createWriter(Path path, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path), encoding)));
+            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path), getEncoding(encoding))));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }
 
     public XMLWriter createWriter(StreamResult result) throws XMLWriteException {
-        try {
-            return createWriter(new SAXWriter(result));
-        } catch (IOException e) {
-            throw new XMLWriteException("Caused by:", e);
-        }
+        return createWriter(result, StandardCharsets.UTF_8.name());
     }
 
     public XMLWriter createWriter(StreamResult result, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(result, encoding));
+            return createWriter(new SAXWriter(result, getEncoding(encoding)));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -122,16 +111,12 @@ public class XMLWriterFactory {
     }
 
     public XMLWriter createWriter(OutputStream stream) throws XMLWriteException {
-        try {
-            return createWriter(new SAXWriter(stream));
-        } catch (IOException e) {
-            throw new XMLWriteException("Caused by:", e);
-        }
+        return createWriter(stream, StandardCharsets.UTF_8.name());
     }
 
     public XMLWriter createWriter(OutputStream stream, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(stream, encoding));
+            return createWriter(new SAXWriter(stream, getEncoding(encoding)));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -153,5 +138,9 @@ public class XMLWriterFactory {
         xmlWriter.setProperties(properties);
 
         return xmlWriter;
+    }
+
+    private String getEncoding(String encoding) {
+        return encoding != null ? encoding : StandardCharsets.UTF_8.name();
     }
 }
