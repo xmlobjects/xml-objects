@@ -21,6 +21,7 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Namespaces {
     private static final Namespaces EMPTY = new Namespaces(Collections.singleton(XMLConstants.NULL_NS_URI));
@@ -44,6 +45,10 @@ public class Namespaces {
 
     public static Namespaces empty() {
         return EMPTY;
+    }
+
+    public Set<String> get() {
+        return namespaces;
     }
 
     public Namespaces add(String namespaceURI) {
@@ -70,6 +75,11 @@ public class Namespaces {
 
     public Namespaces remove(String namespaceURI) {
         namespaces.remove(namespaceURI);
+        return this;
+    }
+
+    public Namespaces removeIf(Predicate<? super String> filter) {
+        namespaces.removeIf(filter);
         return this;
     }
 
