@@ -163,6 +163,13 @@ public class XMLReader implements AutoCloseable {
         return reader.getName();
     }
 
+    public String getPrefix() throws XMLReadException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT && reader.getEventType() != XMLStreamConstants.END_ELEMENT)
+            throw new XMLReadException("Illegal to call getPrefix when event is neither START_ELEMENT nor END_ELEMENT.");
+
+        return reader.getPrefix();
+    }
+
     public <T> T getObject(Class<T> type) throws ObjectBuildException, XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT)
             throw new XMLReadException("Illegal to call getObject when event is not START_ELEMENT.");
