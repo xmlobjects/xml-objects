@@ -203,6 +203,16 @@ public class SchemaHandler {
         return schemas.keySet();
     }
 
+    public SchemaHandler copy(SchemaHandler other) {
+        schemas.putAll(other.schemas);
+        visitedSchemaLocations.putAll(other.visitedSchemaLocations);
+        userSchemaLocations.putAll(other.userSchemaLocations);
+        saxParserFactory = other.saxParserFactory;
+        errorHandler = other.errorHandler;
+        annotationParserFactory = other.annotationParserFactory;
+        return this;
+    }
+
     private SAXParserFactory getSAXParserFactory() throws SchemaHandlerException {
         if (saxParserFactory == null) {
             try {
