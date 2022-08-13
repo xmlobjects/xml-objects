@@ -35,6 +35,10 @@ public class StAXStream2SAX {
         this.handler = handler;
     }
 
+    public ContentHandler getContentHandler() {
+        return handler;
+    }
+
     public void bridgeEvent(XMLStreamReader reader) throws SAXException {
         switch (reader.getEventType()) {
             case XMLStreamConstants.START_ELEMENT:
