@@ -4,7 +4,6 @@
 [![license](https://img.shields.io/badge/license-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # xml-objects
-
 xml-objects is a simple and lightweight XML-to-object mapping library.
 
 ## License
