@@ -73,6 +73,7 @@ jar {
 }
 
 distributions.main.contents {
+    from 'README.md'
     into('lib') {
         from jar
         from configurations.compileClasspath
