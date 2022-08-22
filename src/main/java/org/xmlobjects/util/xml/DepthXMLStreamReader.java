@@ -30,7 +30,9 @@ import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
 
 public class DepthXMLStreamReader implements XMLStreamReader {
@@ -102,8 +104,16 @@ public class DepthXMLStreamReader implements XMLStreamReader {
                                 case "schemaLocation":
                                     String[] schemaLocations = reader.getAttributeValue(i).split("\\s+");
                                     if (schemaLocations.length % 2 == 0) {
-                                        for (int j = 0; j < schemaLocations.length; j += 2)
-                                            schemaHandler.parseSchema(schemaLocations[j], baseURI.resolve(schemaLocations[j + 1]).toString());
+                                        for (int j = 0; j < schemaLocations.length; j += 2) {
+                                            try {
+                                                schemaHandler.parseSchema(schemaLocations[j], baseURI.isAbsolute() ?
+                                                        new URL(baseURI.toURL(), schemaLocations[j + 1]).toString() :
+                                                        schemaLocations[j + 1]);
+                                            } catch (MalformedURLException e) {
+                                                throw new XMLStreamException("Failed to read schema document " +
+                                                        schemaLocations[j + 1] + ".", e);
+                                            }
+                                        }
                                     }
                                     break;
                                 case "noNamespaceSchemaLocation":
