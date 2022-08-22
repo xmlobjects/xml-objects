@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Fixed
-- Fixed `DepthXMLStreamReader` to read schema documents specified by a relative Windows path in `xsi:schemaLocation`.
+- Fixed `DepthXMLStreamReader` to read schema documents specified by a Windows path in `xsi:schemaLocation`.
 
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
