@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class SAXWriter extends XMLOutput<SAXWriter> {
-    private final String LINE_SEPARATOR = System.getProperty("line.separator");
     private Writer writer;
     private String encoding;
     private CharsetEncoder encoder;
@@ -443,7 +442,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
             return;
 
         try {
-            writer.write(LINE_SEPARATOR);
+            writer.write("\n");
             for (int i = 0; i < depth; i++)
                 writer.write(indent);
         } catch (IOException e) {
