@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- `SAXWriter` now uses the newline character (`\n`) for line breaks instead of the system-specific line separator.
+
 ### Fixed
 - Fixed `DepthXMLStreamReader` to read schema documents specified by a Windows path in `xsi:schemaLocation`.
 
