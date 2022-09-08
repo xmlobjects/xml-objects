@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.1] - 2022-09-08
 ### Changed
 - `SAXWriter` now uses the newline character (`\n`) for line breaks instead of the system-specific line separator.
 
@@ -11,4 +13,5 @@
 This is the initial release of xml-objects.
 
 [Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.0.0...HEAD
+[1.0.1]: https://github.com/xmlobjects/xml-objects/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.0
