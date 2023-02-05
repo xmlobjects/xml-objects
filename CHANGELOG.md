@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 ### Changed
-- Updated `xsom` to version 4.0.1.
+- Updated xsom to 4.0.1.
 
 ## [1.0.1] - 2022-09-08
 ### Changed
