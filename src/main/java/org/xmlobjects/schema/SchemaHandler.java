@@ -53,6 +53,13 @@ public class SchemaHandler {
     private ErrorHandler errorHandler;
     private AnnotationParserFactory annotationParserFactory;
 
+    public SchemaHandler() {
+    }
+
+    public SchemaHandler(SAXParserFactory saxParserFactory) {
+        this.saxParserFactory = saxParserFactory;
+    }
+
     public ErrorHandler getErrorHandler() {
         return errorHandler;
     }

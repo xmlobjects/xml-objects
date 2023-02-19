@@ -41,18 +41,22 @@ public class XMLReaderFactory {
     private SchemaHandler schemaHandler;
     private boolean createDOMAsFallback;
 
-    private XMLReaderFactory(XMLObjects xmlObjects) {
+    private XMLReaderFactory(XMLObjects xmlObjects, XMLInputFactory xmlInputFactory) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
-        xmlInputFactory = SecureXMLProcessors.newXMLInputFactory();
+        this.xmlInputFactory = Objects.requireNonNull(xmlInputFactory, "XML input factory must not be null.");
         xmlInputFactory.setProperty(XMLInputFactory.IS_NAMESPACE_AWARE, true);
     }
 
-    public static XMLReaderFactory newInstance(XMLObjects xmlObjects) throws XMLReadException {
+    public static XMLReaderFactory newInstance(XMLObjects xmlObjects, XMLInputFactory xmlInputFactory) throws XMLReadException {
         try {
-            return new XMLReaderFactory(xmlObjects);
+            return new XMLReaderFactory(xmlObjects, xmlInputFactory);
         } catch (Throwable e) {
             throw new XMLReadException("Failed to initialize XML reader factory.", e);
         }
+    }
+
+    public static XMLReaderFactory newInstance(XMLObjects xmlObjects) throws XMLReadException {
+        return newInstance(xmlObjects, SecureXMLProcessors.newXMLInputFactory());
     }
 
     public SchemaHandler getSchemaHandler() {
