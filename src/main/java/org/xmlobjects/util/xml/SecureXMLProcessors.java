@@ -36,14 +36,28 @@ public class SecureXMLProcessors {
     }
 
     public static XMLInputFactory newXMLInputFactory() {
-        XMLInputFactory factory = XMLInputFactory.newFactory();
+        return secure(XMLInputFactory.newFactory());
+    }
+
+    public static XMLInputFactory newXMLInputFactory(String factoryClassName, ClassLoader loader) {
+        return secure(XMLInputFactory.newFactory(factoryClassName, loader));
+    }
+
+    private static XMLInputFactory secure(XMLInputFactory factory) {
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
         return factory;
     }
 
     public static SAXParserFactory newSAXParserFactory() throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
+        return secure(SAXParserFactory.newInstance());
+    }
+
+    public static SAXParserFactory newSAXParserFactory(String factoryClassName, ClassLoader loader) throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
+        return secure(SAXParserFactory.newInstance(factoryClassName, loader));
+    }
+
+    private static SAXParserFactory secure(SAXParserFactory factory) throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
         factory.setXIncludeAware(false);
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -53,7 +67,14 @@ public class SecureXMLProcessors {
     }
 
     public static DocumentBuilderFactory newDocumentBuilderFactory() throws ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        return secure(DocumentBuilderFactory.newInstance());
+    }
+
+    public static DocumentBuilderFactory newDocumentBuilderFactory(String factoryClassName, ClassLoader loader) throws ParserConfigurationException {
+        return secure(DocumentBuilderFactory.newInstance(factoryClassName, loader));
+    }
+
+    private static DocumentBuilderFactory secure(DocumentBuilderFactory factory) throws ParserConfigurationException {
         factory.setXIncludeAware(false);
         factory.setExpandEntityReferences(false);
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -65,7 +86,14 @@ public class SecureXMLProcessors {
     }
 
     public static TransformerFactory newTransformerFactory() throws TransformerConfigurationException {
-        TransformerFactory factory = TransformerFactory.newInstance();
+        return secure(TransformerFactory.newInstance());
+    }
+
+    public static TransformerFactory newTransformerFactory(String factoryClassName, ClassLoader loader) throws TransformerConfigurationException {
+        return secure(TransformerFactory.newInstance(factoryClassName, loader));
+    }
+
+    private static TransformerFactory secure(TransformerFactory factory) throws TransformerConfigurationException {
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
         factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
