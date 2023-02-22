@@ -39,10 +39,7 @@ import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SchemaHandler {
     protected final Map<String, XSSchemaSet> schemas = new HashMap<>();
@@ -57,7 +54,7 @@ public class SchemaHandler {
     }
 
     public SchemaHandler(SAXParserFactory saxParserFactory) {
-        this.saxParserFactory = saxParserFactory;
+        this.saxParserFactory = Objects.requireNonNull(saxParserFactory, "SAX parser factory must not be null.");
     }
 
     public ErrorHandler getErrorHandler() {
