@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Added support for providing an XML factory when creating an instance of `XMLReaderFactory` and `SchemaHandler`.
+- `SecureXMLProcessors` now allows for obtaining an XML factory from a class name and a class loader. This gives
+  more control to the application as it can specify which implementation should be loaded.
+
+### Changed
+- Updated xsom to 4.0.2.
 
 ## [1.0.2] - 2023-02-06
 ### Changed
