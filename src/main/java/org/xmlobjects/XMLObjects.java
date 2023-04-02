@@ -35,7 +35,6 @@ import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -295,34 +294,31 @@ public class XMLObjects {
         for (Method method : clazz.getDeclaredMethods()) {
             if (!method.isSynthetic() && Modifier.isPublic(method.getModifiers())) {
                 Class<?> candidateType = null;
-                Type[] parameters;
+                Class<?>[] parameters;
 
                 switch (method.getName()) {
                     case "createElement":
-                        parameters = method.getGenericParameterTypes();
+                        parameters = method.getParameterTypes();
                         if (parameters.length == 2
-                                && parameters[0] instanceof Class<?>
                                 && parameters[1] == Namespaces.class) {
-                            candidateType = (Class<?>) parameters[0];
+                            candidateType = parameters[0];
                         }
                         break;
                     case "initializeElement":
-                        parameters = method.getGenericParameterTypes();
+                        parameters = method.getParameterTypes();
                         if (parameters.length == 4
                                 && parameters[0] == Element.class
-                                && parameters[1] instanceof Class<?>
                                 && parameters[2] == Namespaces.class
                                 && parameters[3] == XMLWriter.class) {
-                            candidateType = (Class<?>) parameters[1];
+                            candidateType = parameters[1];
                         }
                         break;
                     case "writeChildElements":
-                        parameters = method.getGenericParameterTypes();
+                        parameters = method.getParameterTypes();
                         if (parameters.length == 3
-                                && parameters[0] instanceof Class<?>
                                 && parameters[1] == Namespaces.class
                                 && parameters[2] == XMLWriter.class) {
-                            candidateType = (Class<?>) parameters[0];
+                            candidateType = parameters[0];
                         }
                         break;
                 }
@@ -338,12 +334,12 @@ public class XMLObjects {
             }
         }
 
-        if (objectType == null) {
+        if (objectType != null) {
+            return objectType;
+        } else {
             throw new XMLObjectsException("The serializer " + clazz.getName() + " must implement " +
                     "at least one of the methods createElement, initializeElement, and writeChildElements.");
         }
-
-        return objectType;
     }
 
     private static class BuilderInfo {
