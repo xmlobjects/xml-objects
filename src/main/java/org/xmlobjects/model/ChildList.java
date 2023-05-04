@@ -21,6 +21,7 @@ package org.xmlobjects.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.UnaryOperator;
 
 public class ChildList<T extends Child> extends ArrayList<T> {
     private Child parent;
@@ -73,15 +74,29 @@ public class ChildList<T extends Child> extends ArrayList<T> {
         return super.addAll(index, c);
     }
 
+    @Override
+    public T set(int index, T element) {
+        applyParent(element);
+        return super.set(index, element);
+    }
+
+    @Override
+    public void replaceAll(UnaryOperator<T> operator) {
+        super.replaceAll(operator);
+        applyParent(this);
+    }
+
     private void applyParent(T child) {
-        if (child != null)
+        if (child != null) {
             child.setParent(parent);
+        }
     }
 
     private void applyParent(Collection<? extends T> c) {
         for (T child : c) {
-            if (child != null)
+            if (child != null) {
                 child.setParent(parent);
+            }
         }
     }
 }
