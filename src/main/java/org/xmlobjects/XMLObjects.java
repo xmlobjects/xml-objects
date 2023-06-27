@@ -42,6 +42,7 @@ import java.util.stream.Collectors;
 public class XMLObjects {
     private final Map<String, Map<String, BuilderInfo>> builders = new ConcurrentHashMap<>();
     private final Map<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
+    private Set<String> serializableNamespaces;
 
     private XMLObjects() {
         // just to thwart instantiation
@@ -114,6 +115,7 @@ public class XMLObjects {
 
     public <T> XMLObjects registerSerializer(ObjectSerializer<T> serializer, Class<T> objectType, String namespaceURI) throws XMLObjectsException {
         registerSerializer(serializer, objectType, namespaceURI, false);
+        serializableNamespaces = null;
         return this;
     }
 
@@ -140,7 +142,13 @@ public class XMLObjects {
     }
 
     public Set<String> getSerializableNamespaces() {
-        return serializers.values().stream().flatMap(map -> map.keySet().stream()).collect(Collectors.toSet());
+        if (serializableNamespaces == null) {
+            serializableNamespaces = serializers.values().stream()
+                    .flatMap(map -> map.keySet().stream())
+                    .collect(Collectors.toSet());
+        }
+
+        return serializableNamespaces;
     }
 
     public <T> T fromXML(XMLReader reader, Class<T> objectType) throws ObjectBuildException, XMLReadException {
