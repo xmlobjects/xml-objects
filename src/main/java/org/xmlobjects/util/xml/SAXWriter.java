@@ -37,6 +37,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     private String encoding;
     private CharsetEncoder encoder;
 
+    private final Map<Integer, String> indentStrings = new HashMap<>();
     private boolean escapeCharacters = true;
     private boolean writeEncoding = false;
     private int depth = 0;
@@ -79,27 +80,31 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void setOutput(StreamResult streamResult, String encoding) throws IOException {
-        if (streamResult.getOutputStream() != null)
+        if (streamResult.getOutputStream() != null) {
             setOutput(streamResult.getOutputStream(), encoding);
-        else if (streamResult.getWriter() != null)
+        } else if (streamResult.getWriter() != null) {
             setOutput(streamResult.getWriter());
-        else if (streamResult.getSystemId() != null)
+        } else if (streamResult.getSystemId() != null) {
             setOutput(new FileOutputStream(streamResult.getSystemId()), encoding);
+        }
     }
 
     private void setOutput(Writer writer) {
         if (writer instanceof OutputStreamWriter) {
             this.writer = new BufferedWriter(writer);
             String encoding = ((OutputStreamWriter) writer).getEncoding();
-            if (encoding != null)
+            if (encoding != null) {
                 setEncoding(encoding);
-        } else
+            }
+        } else {
             this.writer = writer;
+        }
     }
 
     private void setOutput(OutputStream outputStream, String encoding) throws IOException {
-        if (encoding == null)
+        if (encoding == null) {
             encoding = System.getProperty("file.encoding", "UTF-8");
+        }
 
         writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoding));
         setEncoding(encoding);
@@ -107,14 +112,17 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     @Override
     public void flush() throws IOException {
-        if (writer != null)
+        if (writer != null) {
             writer.flush();
+        }
     }
 
     @Override
     public void close() throws IOException {
-        if (writer != null)
+        indentStrings.clear();
+        if (writer != null) {
             writer.close();
+        }
     }
 
     public boolean isEscapeCharacters() {
@@ -131,16 +139,18 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         encoding = charset.name();
         writeEncoding = true;
 
-        if (!encoding.equalsIgnoreCase("UTF-8"))
+        if (!encoding.equalsIgnoreCase("UTF-8")) {
             encoder = charset.newEncoder();
+        }
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
         try {
             if (length > 0) {
-                if (lastEvent == XMLEvents.START_ELEMENT)
+                if (lastEvent == XMLEvents.START_ELEMENT) {
                     writer.write('>');
+                }
 
                 writeTextContent(ch, start, length, escapeCharacters);
                 lastEvent = XMLEvents.CHARACTERS;
@@ -155,18 +165,20 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         try {
             depth--;
 
-            if (lastEvent == XMLEvents.START_ELEMENT)
+            if (lastEvent == XMLEvents.START_ELEMENT) {
                 writer.write("/>");
-            else {
-                if (lastEvent == XMLEvents.END_ELEMENT)
+            } else {
+                if (lastEvent == XMLEvents.END_ELEMENT) {
                     writeIndent();
+                }
 
                 writer.write("</");
 
-                if (!localName.isEmpty())
+                if (!localName.isEmpty()) {
                     writeQName(prefixMapping.getPrefix(namespaceURI), localName);
-                else
+                } else {
                     writer.write(qName);
+                }
 
                 writer.write('>');
             }
@@ -182,8 +194,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     public void ignorableWhitespace(char[] ch, int start, int length) throws SAXException {
         try {
             if (lastEvent != XMLEvents.END_ELEMENT) {
-                if (length > 0 && lastEvent == XMLEvents.START_ELEMENT)
+                if (length > 0 && lastEvent == XMLEvents.START_ELEMENT) {
                     writer.write('>');
+                }
 
                 writeTextContent(ch, start, length, escapeCharacters);
                 lastEvent = XMLEvents.CHARACTERS;
@@ -201,14 +214,11 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 writeIndent();
             }
 
-            if (target == null || data == null)
+            if (target == null || data == null) {
                 throw new SAXException("PI target cannot be null.");
+            }
 
-            writer.write("<?");
-            writer.write(target);
-            writer.write(' ');
-            writer.write(data);
-            writer.write("?>");
+            writer.write("<?" + target + " " + data + "?>");
             writeIndent();
 
             lastEvent = XMLEvents.PROCESSING_INSTRUCTION;
@@ -224,27 +234,23 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 if (writeXMLDeclaration) {
                     if (encoding == null && writer instanceof OutputStreamWriter) {
                         encoding = ((OutputStreamWriter) writer).getEncoding();
-                        if (encoding != null)
+                        if (encoding != null) {
                             encoding = Charset.forName(encoding).name();
+                        }
                     }
 
-                    writer.write("<?xml");
-                    writer.write(" version=\"1.0\"");
-
+                    writer.write("<?xml version=\"1.0\"");
                     if (writeEncoding && encoding != null) {
-                        writer.write(" encoding=");
-                        writer.write('"');
-                        writer.write(encoding);
-                        writer.write('"');
+                        writer.write(" encoding=\"" + encoding + "\"");
                     }
 
-                    writer.write(" standalone=\"yes\"");
-                    writer.write("?>");
+                    writer.write(" standalone=\"yes\"?>");
                     writeIndent();
                 }
 
-                if (headerComment != null)
+                if (headerComment != null) {
                     writeHeader(headerComment);
+                }
             }
 
             lastEvent = XMLEvents.START_DOCUMENT;
@@ -259,8 +265,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
             prefixMapping.pushContext();
 
             if (depth > 0) {
-                if (lastEvent == XMLEvents.START_ELEMENT)
+                if (lastEvent == XMLEvents.START_ELEMENT) {
                     writer.write('>');
+                }
 
                 writeIndent();
             }
@@ -275,14 +282,15 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 }
 
                 writeQName(prefix, localName);
-            } else
+            } else {
                 writer.write(qName);
+            }
 
             writeAttributes(atts);
             writeNamespaces(prefixMapping.getCurrentContext());
-
-            if (depth == 0)
+            if (depth == 0) {
                 writeSchemaLocations();
+            }
 
             lastEvent = XMLEvents.START_ELEMENT;
             prefixMapping.requireNextContext();
@@ -311,8 +319,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                     String prefix = null;
 
                     if (namespaceURI != null && !namespaceURI.isEmpty()) {
-                        if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI))
+                        if (namespaceURI.equals(XMLConstants.XMLNS_ATTRIBUTE_NS_URI)) {
                             continue;
+                        }
 
                         prefix = prefixMapping.getPrefix(namespaceURI);
                         if (prefix == null) {
@@ -348,8 +357,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     private void writeQName(String prefix, String localName) throws SAXException {
         try {
             if (prefix != null && !prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                writer.write(prefix);
-                writer.write(':');
+                writer.write(prefix + ":");
             }
 
             writer.write(localName);
@@ -364,12 +372,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 String namespaceURI = entry.getKey();
                 String prefix = entry.getValue();
 
-                writer.write(' ');
-                writer.write(XMLConstants.XMLNS_ATTRIBUTE);
-
+                writer.write(" " + XMLConstants.XMLNS_ATTRIBUTE);
                 if (!prefix.isEmpty()) {
-                    writer.write(':');
-                    writer.write(prefix);
+                    writer.write(":" + prefix);
                 }
 
                 writer.write("=\"");
@@ -396,9 +401,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                     writeAttributeContent(entry.getKey());
                     writer.write(' ');
                     writeAttributeContent(entry.getValue());
-
-                    if (iter.hasNext())
+                    if (iter.hasNext()) {
                         writer.write(' ');
+                    }
                 }
 
                 writer.write('"');
@@ -415,18 +420,16 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 writeIndent();
             }
 
-            if (data == null)
+            if (data == null) {
                 throw new SAXException("Comment target cannot be null.");
+            }
 
             for (String line : data) {
-                if (line == null)
+                if (line == null) {
                     continue;
+                }
 
-                writer.write("<!--");
-                writer.write(' ');
-                writer.write(line);
-                writer.write(' ');
-                writer.write("-->");
+                writer.write("<!-- " + line + " -->");
                 writeIndent();
             }
         } catch (IOException e) {
@@ -435,16 +438,16 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeIndent() throws SAXException {
-        if (indent == null)
+        if (indent == null) {
             return;
+        }
 
-        if (lastEvent == XMLEvents.CHARACTERS)
+        if (lastEvent == XMLEvents.CHARACTERS) {
             return;
+        }
 
         try {
-            writer.write("\n");
-            for (int i = 0; i < depth; i++)
-                writer.write(indent);
+            writer.write("\n" + indentStrings.computeIfAbsent(depth, v -> indent.repeat(v)));
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }
@@ -459,27 +462,19 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
             if (encoder != null && !encoder.canEncode(ch)) {
                 writer.write(content, pos, i - pos);
-
-                writer.write("&#x");
-                writer.write(Integer.toHexString(ch));
-                writer.write(';');
+                writer.write("&#x" + Integer.toHexString(ch) + ";");
                 pos = i + 1;
-            }
-
-            else if (escapeCharacters) {
+            } else if (escapeCharacters) {
                 switch (ch) {
                     case '<':
                         writer.write(content, pos, i - pos);
                         writer.write("&lt;");
                         pos = i + 1;
-
                         break;
-
                     case '&':
                         writer.write(content, pos, i - pos);
                         writer.write("&amp;");
                         pos = i + 1;
-
                         break;
                 }
             }
@@ -497,34 +492,24 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
             if (encoder != null && !encoder.canEncode(ch)) {
                 writer.write(content, pos, i - pos);
-
-                writer.write("&#x");
-                writer.write(Integer.toHexString(ch));
-                writer.write(';');
+                writer.write("&#x" + Integer.toHexString(ch) + ";");
                 pos = i + 1;
-            }
-
-            else {
+            } else {
                 switch (ch) {
                     case '<':
                         writer.write(content, pos, i - pos);
                         writer.write("&lt;");
                         pos = i + 1;
-
                         break;
-
                     case '&':
                         writer.write(content, pos, i - pos);
                         writer.write("&amp;");
                         pos = i + 1;
-
                         break;
-
                     case '"':
                         writer.write(content, pos, i - pos);
                         writer.write("&quot;");
                         pos = i + 1;
-
                         break;
                 }
             }
