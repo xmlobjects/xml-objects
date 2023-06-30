@@ -47,6 +47,7 @@ public class SAXBuffer extends DefaultHandler {
     private final ArrayBuffer<char[]> characters;
 
     private byte lastElement = UNDEFINED;
+    private boolean useAsFragment;
     private boolean assumeMixedContent = true;
 
     public SAXBuffer(int bufferSize) {
@@ -61,6 +62,15 @@ public class SAXBuffer extends DefaultHandler {
 
     public boolean isEmpty() {
         return events.isEmpty();
+    }
+
+    public boolean isUseAsFragment() {
+        return useAsFragment;
+    }
+
+    public SAXBuffer useAsFragment(boolean useAsFragment) {
+        this.useAsFragment = useAsFragment;
+        return this;
     }
 
     public boolean isAssumeMixedContent() {
@@ -93,11 +103,15 @@ public class SAXBuffer extends DefaultHandler {
     }
 
     public void addStartDocument() {
-        events.push(START_DOCUMENT);
+        if (!useAsFragment) {
+            events.push(START_DOCUMENT);
+        }
     }
 
     public void addEndDocument() {
-        events.push(END_DOCUMENT);
+        if (!useAsFragment) {
+            events.push(END_DOCUMENT);
+        }
     }
 
     public void addNamespacePrefixMapping(String prefix, String uri) {
