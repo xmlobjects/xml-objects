@@ -59,7 +59,7 @@ public class XMLReaderFactory {
         return newInstance(xmlObjects, SecureXMLProcessors.newXMLInputFactory());
     }
 
-    public static XMLReaderFactory newDefaultFactory(XMLObjects xmlObjects) throws XMLReadException {
+    public static XMLReaderFactory newDefaultInstance(XMLObjects xmlObjects) throws XMLReadException {
         return newInstance(xmlObjects, SecureXMLProcessors.newDefaultXMLInputFactory());
     }
 
