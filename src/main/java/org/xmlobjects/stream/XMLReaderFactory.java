@@ -59,6 +59,10 @@ public class XMLReaderFactory {
         return newInstance(xmlObjects, SecureXMLProcessors.newXMLInputFactory());
     }
 
+    public static XMLReaderFactory newDefaultFactory(XMLObjects xmlObjects) throws XMLReadException {
+        return newInstance(xmlObjects, SecureXMLProcessors.newDefaultXMLInputFactory());
+    }
+
     public SchemaHandler getSchemaHandler() {
         return schemaHandler;
     }

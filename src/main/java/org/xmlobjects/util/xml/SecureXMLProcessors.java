@@ -43,6 +43,10 @@ public class SecureXMLProcessors {
         return secure(XMLInputFactory.newFactory(factoryClassName, loader));
     }
 
+    public static XMLInputFactory newDefaultXMLInputFactory() {
+        return secure(XMLInputFactory.newDefaultFactory());
+    }
+
     private static XMLInputFactory secure(XMLInputFactory factory) {
         factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
         factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
@@ -55,6 +59,10 @@ public class SecureXMLProcessors {
 
     public static SAXParserFactory newSAXParserFactory(String factoryClassName, ClassLoader loader) throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
         return secure(SAXParserFactory.newInstance(factoryClassName, loader));
+    }
+
+    public static SAXParserFactory newDefaultSAXParserFactory() throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
+        return secure(SAXParserFactory.newDefaultInstance());
     }
 
     private static SAXParserFactory secure(SAXParserFactory factory) throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
@@ -74,6 +82,10 @@ public class SecureXMLProcessors {
         return secure(DocumentBuilderFactory.newInstance(factoryClassName, loader));
     }
 
+    public static DocumentBuilderFactory newDefaultDocumentBuilderFactory() throws ParserConfigurationException {
+        return secure(DocumentBuilderFactory.newDefaultInstance());
+    }
+
     private static DocumentBuilderFactory secure(DocumentBuilderFactory factory) throws ParserConfigurationException {
         factory.setXIncludeAware(false);
         factory.setExpandEntityReferences(false);
@@ -91,6 +103,10 @@ public class SecureXMLProcessors {
 
     public static TransformerFactory newTransformerFactory(String factoryClassName, ClassLoader loader) throws TransformerConfigurationException {
         return secure(TransformerFactory.newInstance(factoryClassName, loader));
+    }
+
+    public static TransformerFactory newDefaultTransformerFactory(String factoryClassName, ClassLoader loader) throws TransformerConfigurationException {
+        return secure(TransformerFactory.newDefaultInstance());
     }
 
     private static TransformerFactory secure(TransformerFactory factory) throws TransformerConfigurationException {
