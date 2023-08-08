@@ -91,6 +91,10 @@ public class XMLReader implements AutoCloseable {
         reader.setSchemaHandler(schemaHandler);
     }
 
+    public String getEncoding() {
+        return reader.getEncoding();
+    }
+
     public boolean isCreateDOMAsFallback() {
         return createDOMAsFallback;
     }
