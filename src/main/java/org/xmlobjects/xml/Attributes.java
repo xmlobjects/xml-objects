@@ -79,4 +79,10 @@ public class Attributes {
     public TextContent getValue(QName name) {
         return getValue(name.getNamespaceURI(), name.getLocalPart());
     }
+
+    public Attributes copy() {
+        Attributes copy = new Attributes();
+        copy.attributes.putAll(attributes);
+        return copy;
+    }
 }
