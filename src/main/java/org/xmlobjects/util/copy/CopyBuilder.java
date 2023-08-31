@@ -96,8 +96,9 @@ public class CopyBuilder {
     public <T> CopyBuilder withClone(T src, Supplier<T> supplier) {
         if (src != null) {
             T clone = supplier.get();
-            if (clone != null && !src.getClass().isAssignableFrom(clone.getClass()) && failOnError)
+            if (failOnError && clone != null && !src.getClass().isInstance(clone)) {
                 throw new CopyException("Type mismatch between object '" + src + "' and clone '" + clone + "'.");
+            }
 
             clones.put(src, clone != null ? clone : NULL);
         }
@@ -106,8 +107,9 @@ public class CopyBuilder {
     }
 
     public CopyBuilder withSelfCopy(Object src) {
-        if (src != null)
+        if (src != null) {
             clones.put(src, src);
+        }
 
         return this;
     }
@@ -119,71 +121,82 @@ public class CopyBuilder {
 
     @SuppressWarnings("unchecked")
     private <T> T copy(T src, T dest, Class<T> template, boolean shallowCopy) {
-        if (src == null || src == dest)
+        if (src == null || src == dest) {
             return dest;
-
-        if (template == null)
-            template = (Class<T>) src.getClass();
+        }
 
         boolean isInitial = !isCloning;
         if (isInitial) {
             isCloning = true;
+        }
 
-            if (src instanceof Child) {
-                // avoid copying the parent of the initial source object
-                Child parent = ((Child) src).getParent();
-                if (parent != null)
-                    clones.put(parent, parent);
+        if (template == null) {
+            template = (Class<T>) src.getClass();
+        }
+
+        // avoid copying parents not belonging to the hierarchy of the initial source object
+        if (src instanceof Child) {
+            Child parent = ((Child) src).getParent();
+            if (parent != null && !clones.containsKey(parent)) {
+                clones.put(parent, parent);
             }
         }
 
         T clone = (T) clones.get(src);
-        if (clone == null) {
-            try {
-                AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(template);
+        try {
+            if (clone == null) {
+                try {
+                    AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(template);
+                    if (cloner != IDENTITY_CLONER && cloner != NULL_CLONER) {
+                        if (dest == null) {
+                            dest = cloner.newInstance(src, shallowCopy);
+                        }
 
-                if (cloner != IDENTITY_CLONER && cloner != NULL_CLONER) {
-                    if (dest == null)
-                        dest = cloner.newInstance(src, shallowCopy);
+                        clones.put(src, dest != null ? dest : NULL);
+                    }
 
-                    clones.put(src, dest != null ? dest : NULL);
+                    clone = cloner.copy(src, dest, shallowCopy);
+                } catch (Throwable e) {
+                    if (failOnError) {
+                        throw e instanceof CopyException ?
+                                (CopyException) e :
+                                new CopyException("Failed to copy " + src + ".", e);
+                    }
                 }
-
-                clone = cloner.copy(src, dest, shallowCopy);
-            } catch (Throwable e) {
-                if (failOnError)
-                    throw e instanceof CopyException ? (CopyException) e : new CopyException("Failed to copy " + src + ".", e);
+            } else if (clone == NULL) {
+                clone = null;
             }
-        } else if (clone == NULL)
-            clone = null;
 
-        if (isInitial) {
-            isCloning = false;
-            clones.clear();
+            return clone;
+        } finally {
+            if (isInitial) {
+                isCloning = false;
+                clones.clear();
 
-            // unset parent on initial source object
-            if (clone instanceof Child)
-                ((Child) clone).setParent(null);
+                // unset parent on initial source object
+                if (clone instanceof Child) {
+                    ((Child) clone).setParent(null);
+                }
+            }
         }
-
-        return clone;
     }
 
     private AbstractCloner<?> findCloner(Class<?> type) {
         AbstractCloner<?> cloner = cloners.get(type);
         if (cloner == null) {
-            if (immutables.contains(type))
+            if (immutables.contains(type)) {
                 return IDENTITY_CLONER;
-            else if (nulls.contains(type))
+            } else if (nulls.contains(type)) {
                 return NULL_CLONER;
-            else if (Enum.class.isAssignableFrom(type))
+            } else if (Enum.class.isAssignableFrom(type)) {
                 return IDENTITY_CLONER;
-            else if (Collection.class.isAssignableFrom(type))
+            } else if (Collection.class.isAssignableFrom(type)) {
                 return COLLECTION_CLONER;
-            else if (Map.class.isAssignableFrom(type))
+            } else if (Map.class.isAssignableFrom(type)) {
                 return MAP_CLONER;
-            else if (type.isArray())
+            } else if (type.isArray()) {
                 return ARRAY_CLONER;
+            }
 
             cloner = new ObjectCloner<>(type, this);
             cloners.put(type, cloner);
