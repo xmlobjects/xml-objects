@@ -5,6 +5,10 @@
 - Added `getEncoding` method to `XMLReader`, which returns the input encoding if known or null if unknown.
 - Added methods to build default factories to `SecureXMLProcessors` and `XMLReaderFactory`.
 
+### Fixed
+- Fixed `CopyBuilder` to avoid deep-copying those parents of `Child` objects that are outside the hierarchy of the
+  object to be copied.
+
 ## [1.0.3] - 2023-04-04
 ### Added
 - Added support for providing an XML factory when creating an instance of `XMLReaderFactory` and `SchemaHandler`.
