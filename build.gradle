@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    api 'org.glassfish.jaxb:xsom:4.0.2'
+    api 'org.glassfish.jaxb:xsom:4.0.3'
     api 'org.xmlobjects:classindex:3.12.0'
     annotationProcessor 'org.xmlobjects:classindex:3.12.0'
 }
