@@ -137,8 +137,8 @@ public class CopyBuilder {
         // avoid copying parents not belonging to the hierarchy of the initial source object
         if (src instanceof Child) {
             Child parent = ((Child) src).getParent();
-            if (parent != null && !clones.containsKey(parent)) {
-                clones.put(parent, parent);
+            if (parent != null) {
+                clones.putIfAbsent(parent, parent);
             }
         }
 
