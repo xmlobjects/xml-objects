@@ -4,6 +4,7 @@
 ### Added
 - Added `getEncoding` method to `XMLReader`, which returns the input encoding if known or null if unknown.
 - Added methods to build default factories to `SecureXMLProcessors` and `XMLReaderFactory`.
+- Added `useAsFragment` method to `SAXBuffer` to enable writing of XML fragments.
 
 ### Fixed
 - Fixed `CopyBuilder` to avoid deep-copying those parents of `Child` objects that are outside the hierarchy of the
