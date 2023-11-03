@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.4] - 2023-11-03
 ### Added
 - Added `getEncoding` method to `XMLReader`, which returns the input encoding if known or null if unknown.
 - Added methods to build default factories to `SecureXMLProcessors` and `XMLReaderFactory`.
@@ -33,7 +35,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.4
 [1.0.3]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.3
 [1.0.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.2
 [1.0.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.1
