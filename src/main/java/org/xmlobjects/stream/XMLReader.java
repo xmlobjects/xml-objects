@@ -281,7 +281,7 @@ public class XMLReader implements AutoCloseable {
 
         try {
             if (transformer == null)
-                transformer = TransformerFactory.newInstance().newTransformer();
+                transformer = TransformerFactory.newDefaultInstance().newTransformer();
 
             DOMResult result = new DOMResult();
             transformer.transform(new StAXSource(reader), result);
