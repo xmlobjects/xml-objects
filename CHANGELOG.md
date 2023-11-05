@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Fixed
+- Unknown XML content is mapped to DOM elements using the default DOM transformer to avoid issues with external
+  XML libraries.
 
 ## [1.0.4] - 2023-11-03
 ### Added
