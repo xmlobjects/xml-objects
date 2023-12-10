@@ -35,8 +35,9 @@ public class ArrayBuffer<T> implements Iterable<T> {
     private transient int modCount;
 
     ArrayBuffer(Class<T> type, int containerSize) {
-        if (containerSize <= 0)
+        if (containerSize <= 0) {
             throw new IllegalArgumentException("Container size must be greater than zero.");
+        }
 
         this.type = type;
         this.containerSize = containerSize;
@@ -45,8 +46,9 @@ public class ArrayBuffer<T> implements Iterable<T> {
 
     void push(T item) {
         modCount++;
-        if (current.index == current.items.length)
+        if (current.index == current.items.length) {
             current = new Container<>(type, containerSize, current);
+        }
 
         current.items[current.index++] = item;
     }
@@ -59,8 +61,9 @@ public class ArrayBuffer<T> implements Iterable<T> {
     T pop() {
         modCount++;
         if (current.index == 0) {
-            if (current.previous == null)
+            if (current.previous == null) {
                 throw new EmptyStackException();
+            }
 
             current = current.previous;
             current.next = null;
@@ -131,33 +134,38 @@ public class ArrayBuffer<T> implements Iterable<T> {
 
             modCount = buffer.modCount;
             current = buffer.current;
-            while (current.previous != null)
+            while (current.previous != null) {
                 current = current.previous;
+            }
 
-            if (release)
+            if (release) {
                 buffer.current = new Container<>(buffer.type, buffer.containerSize);
+            }
         }
 
         @Override
         public boolean hasNext() {
-            if (index < current.index)
+            if (index < current.index) {
                 return true;
-            else if (index == current.items.length)
+            } else if (index == current.items.length) {
                 return current.next != null && current.next.index > 0;
-            else
+            } else {
                 return false;
+            }
         }
 
         T peek() {
-            if (modCount != buffer.modCount)
+            if (modCount != buffer.modCount) {
                 throw new ConcurrentModificationException();
+            }
 
-            if (index < current.index)
+            if (index < current.index) {
                 return current.items[index];
-            else if (index == current.items.length
+            } else if (index == current.items.length
                     && current.next != null
-                    && current.next.index > 0)
+                    && current.next.index > 0) {
                 return current.next.items[0];
+            }
 
             return null;
         }
@@ -169,12 +177,14 @@ public class ArrayBuffer<T> implements Iterable<T> {
             if (index == current.items.length) {
                 current = current.next;
                 index = 0;
-                if (release)
+                if (release) {
                     current.previous = null;
+                }
             }
 
-            if (release)
+            if (release) {
                 current.items[index] = null;
+            }
 
             index++;
             return item;

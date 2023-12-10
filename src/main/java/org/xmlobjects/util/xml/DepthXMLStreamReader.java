@@ -91,8 +91,9 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         state++;
 
         if (event == START_ELEMENT) {
-            for (int i = 0; i < reader.getNamespaceCount(); i++)
+            for (int i = 0; i < reader.getNamespaceCount(); i++) {
                 namespaces.add(reader.getNamespaceURI(i));
+            }
 
             if (schemaHandler != null) {
                 for (int i = 0; i < reader.getAttributeCount(); i++) {
@@ -103,7 +104,8 @@ public class DepthXMLStreamReader implements XMLStreamReader {
                                     String[] schemaLocations = reader.getAttributeValue(i).split("\\s+");
                                     if (schemaLocations.length % 2 == 0) {
                                         for (int j = 0; j < schemaLocations.length; j += 2) {
-                                            URI schemaLocation = baseURI.resolve(schemaLocations[j + 1].replaceAll("\\\\", "/"));
+                                            URI schemaLocation = baseURI.resolve(schemaLocations[j + 1]
+                                                    .replaceAll("\\\\", "/"));
                                             schemaHandler.parseSchema(schemaLocations[j], schemaLocation.toString());
                                         }
                                     }
@@ -120,8 +122,9 @@ public class DepthXMLStreamReader implements XMLStreamReader {
             }
 
             depth++;
-        } else if (event == END_ELEMENT)
+        } else if (event == END_ELEMENT) {
             depth--;
+        }
 
         return event;
     }
@@ -134,8 +137,9 @@ public class DepthXMLStreamReader implements XMLStreamReader {
     @Override
     public String getElementText() throws XMLStreamException {
         String text = reader.getElementText();
-        while (reader.getEventType() != XMLStreamConstants.END_ELEMENT)
+        while (reader.getEventType() != XMLStreamConstants.END_ELEMENT) {
             reader.next();
+        }
 
         depth--;
         return text;
@@ -148,11 +152,13 @@ public class DepthXMLStreamReader implements XMLStreamReader {
                 || (event == XMLStreamConstants.CDATA && isWhiteSpace())
                 || event == XMLStreamConstants.SPACE
                 || event == XMLStreamConstants.PROCESSING_INSTRUCTION
-                || event == XMLStreamConstants.COMMENT)
+                || event == XMLStreamConstants.COMMENT) {
             event = next();
+        }
 
-        if (event != XMLStreamConstants.START_ELEMENT && event != XMLStreamConstants.END_ELEMENT)
+        if (event != XMLStreamConstants.START_ELEMENT && event != XMLStreamConstants.END_ELEMENT) {
             throw new XMLStreamException("Expected start or end tag.", getLocation());
+        }
 
         return event;
     }

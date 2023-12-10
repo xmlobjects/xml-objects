@@ -62,8 +62,9 @@ public class NamespaceSupport {
 
     public void popContext() {
         current = current.previous;
-        if (current == null)
+        if (current == null) {
             throw new EmptyStackException();
+        }
     }
 
     public void declarePrefix(String prefix, String namespaceURI) {
@@ -87,8 +88,9 @@ public class NamespaceSupport {
         Context context = current;
         String prefix = null;
 
-        while (context != null && (prefix = context.prefixes.get(namespaceURI)) == null)
+        while (context != null && (prefix = context.prefixes.get(namespaceURI)) == null) {
             context = context.previous;
+        }
 
         return prefix;
     }
@@ -99,8 +101,9 @@ public class NamespaceSupport {
 
         while (context != null) {
             String prefix = context.prefixes.get(namespaceURI);
-            if (prefix != null)
+            if (prefix != null) {
                 prefixes.add(prefix);
+            }
 
             context = context.previous;
         }
@@ -112,8 +115,9 @@ public class NamespaceSupport {
         Context context = current;
         String namespaceURI = null;
 
-        while (context != null && (namespaceURI = context.namespaceURIs.get(prefix)) == null)
+        while (context != null && (namespaceURI = context.namespaceURIs.get(prefix)) == null) {
             context = context.previous;
+        }
 
         return namespaceURI;
     }
@@ -129,10 +133,11 @@ public class NamespaceSupport {
             if (index != -1) {
                 String candidate = qName.substring(0, index);
                 String previous = getNamespaceURI(candidate);
-                if (previous == null)
+                if (previous == null) {
                     prefix = candidate;
-                else if (previous.equals(namespaceURI))
+                } else if (previous.equals(namespaceURI)) {
                     return candidate;
+                }
             }
         }
 
@@ -141,8 +146,9 @@ public class NamespaceSupport {
 
     public String createPrefix(String namespaceURI) {
         String prefix = prefixes != null ? prefixes.get(namespaceURI) : null;
-        while (prefix == null || getNamespaceURI(prefix) != null)
+        while (prefix == null || getNamespaceURI(prefix) != null) {
             prefix = "ns" + prefixCounter++;
+        }
 
         return prefix;
     }

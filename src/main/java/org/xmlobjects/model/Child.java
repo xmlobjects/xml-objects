@@ -26,8 +26,9 @@ public interface Child {
     default <T extends Child> T getParent(Class<T> type) {
         Child parent = this;
         while ((parent = parent.getParent()) != null) {
-            if (type.isInstance(parent))
+            if (type.isInstance(parent)) {
                 return type.cast(parent);
+            }
         }
 
         return null;

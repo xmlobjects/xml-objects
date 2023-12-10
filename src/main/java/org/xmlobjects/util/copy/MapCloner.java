@@ -32,9 +32,9 @@ public class MapCloner<T extends Map> extends AbstractCloner<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T copy(T src, T dest, boolean shallowCopy) {
-        if (shallowCopy)
+        if (shallowCopy) {
             dest.putAll(src);
-        else {
+        } else {
             for (Object object : src.entrySet()) {
                 Map.Entry entry = (Map.Entry) object;
                 Object key = entry.getKey();

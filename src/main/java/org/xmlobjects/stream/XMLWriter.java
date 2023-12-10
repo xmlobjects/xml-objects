@@ -93,8 +93,9 @@ public class XMLWriter implements AutoCloseable {
     @Override
     public void close() throws XMLWriteException {
         try {
-            if (lastEvent != EventType.END_DOCUMENT)
+            if (lastEvent != EventType.END_DOCUMENT) {
                 finishDocument(prologWritten);
+            }
 
             output.close();
         } catch (Exception e) {
@@ -173,8 +174,9 @@ public class XMLWriter implements AutoCloseable {
     }
 
     private void finishDocument(boolean writeEndDocument) throws XMLWriteException {
-        while (!elements.isEmpty())
+        while (!elements.isEmpty()) {
             writeEndElement();
+        }
 
         if (writeEndDocument) {
             try {
@@ -202,8 +204,9 @@ public class XMLWriter implements AutoCloseable {
     public <T> void writeElement(Element element, T object, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         if (object != null) {
             ObjectSerializer<T> serializer = (ObjectSerializer<T>) xmlObjects.getSerializer(object.getClass(), namespaces);
-            if (serializer != null)
+            if (serializer != null) {
                 writeElementUsingSerializer(element, object, serializer, namespaces);
+            }
         }
     }
 
@@ -213,8 +216,9 @@ public class XMLWriter implements AutoCloseable {
 
     public <T> void writeElementUsingSerializer(Element element, T object, ObjectSerializer<T> serializer, Namespaces namespaces) throws ObjectSerializeException, XMLWriteException {
         if (object != null) {
-            if (element == null)
+            if (element == null) {
                 element = serializer.createElement(object, namespaces);
+            }
 
             if (element != null) {
                 serializer.initializeElement(element, object, namespaces, this);
@@ -223,8 +227,9 @@ public class XMLWriter implements AutoCloseable {
 
             serializer.writeChildElements(object, namespaces, this);
 
-            if (element != null)
+            if (element != null) {
                 writeEndElement();
+            }
         }
     }
 
@@ -234,16 +239,18 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public void writeStartElement(Element element) throws XMLWriteException {
-        if (element == null)
+        if (element == null) {
             throw new XMLWriteException("Illegal to call writeStartElement with a null element.");
+        }
 
         writeStartElement(element.getName(), element.getAttributes());
         if (element.hasContent()) {
             for (ElementContent content : element.getContent()) {
-                if (content.isSetElement())
+                if (content.isSetElement()) {
                     writeElement(content.getElement());
-                else if (content.isSetTextContent() && content.getTextContent().isPresent())
+                } else if (content.isSetTextContent() && content.getTextContent().isPresent()) {
                     writeCharacters(content.getTextContent().get());
+                }
             }
         }
     }
@@ -284,8 +291,9 @@ public class XMLWriter implements AutoCloseable {
             }
 
             return prefix + ":" + localName;
-        } else
+        } else {
             return localName;
+        }
     }
 
     public void writeEndElement() throws XMLWriteException {
@@ -299,8 +307,9 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public void writeEndElements(int count) throws XMLWriteException {
-        while (count-- > 0)
+        while (count-- > 0) {
             writeEndElement();
+        }
     }
 
     public void writeCharacters(String text, int start, int length) throws XMLWriteException {
@@ -317,12 +326,14 @@ public class XMLWriter implements AutoCloseable {
     }
 
     public void writeDOMElement(org.w3c.dom.Element element) throws XMLWriteException {
-        if (element == null)
+        if (element == null) {
             return;
+        }
 
         try {
-            if (transformer == null)
+            if (transformer == null) {
                 transformer = TransformerFactory.newInstance().newTransformer();
+            }
 
             DOMSource source = new DOMSource(element);
             SAXResult result = new SAXResult(new DOMHandler(output));
@@ -332,8 +343,9 @@ public class XMLWriter implements AutoCloseable {
         } catch (TransformerException e) {
             throw new XMLWriteException("Failed to write DOM element as XML content.", e);
         } finally {
-            if (transformer != null)
+            if (transformer != null) {
                 transformer.reset();
+            }
         }
     }
 
@@ -354,8 +366,9 @@ public class XMLWriter implements AutoCloseable {
         } catch (SAXException | IOException e) {
             throw new XMLWriteException("Failed to write mixed content.", e);
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 parser.reset();
+            }
         }
     }
 
@@ -441,14 +454,16 @@ public class XMLWriter implements AutoCloseable {
 
         @Override
         public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws SAXException {
-            if (depth++ > 0)
+            if (depth++ > 0) {
                 super.startElement(uri, localName, qName, attributes);
+            }
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
-            if (--depth > 0)
+            if (--depth > 0) {
                 super.endElement(uri, localName, qName);
+            }
         }
     }
 }

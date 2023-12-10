@@ -90,9 +90,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void setOutput(Writer writer) {
-        if (writer instanceof OutputStreamWriter) {
-            this.writer = new BufferedWriter(writer);
-            String encoding = ((OutputStreamWriter) writer).getEncoding();
+        if (writer instanceof OutputStreamWriter streamWriter) {
+            this.writer = new BufferedWriter(streamWriter);
+            String encoding = streamWriter.getEncoding();
             if (encoding != null) {
                 setEncoding(encoding);
             }
@@ -232,8 +232,8 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         try {
             if (depth == 0 && lastEvent != XMLEvents.START_DOCUMENT) {
                 if (writeXMLDeclaration) {
-                    if (encoding == null && writer instanceof OutputStreamWriter) {
-                        encoding = ((OutputStreamWriter) writer).getEncoding();
+                    if (encoding == null && writer instanceof OutputStreamWriter streamWriter) {
+                        encoding = streamWriter.getEncoding();
                         if (encoding != null) {
                             encoding = Charset.forName(encoding).name();
                         }

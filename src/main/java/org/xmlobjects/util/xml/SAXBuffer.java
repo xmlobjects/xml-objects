@@ -121,8 +121,9 @@ public class SAXBuffer extends DefaultHandler {
     }
 
     public void addStartElement(String uri, String localName, String qName) {
-        if (!assumeMixedContent && lastElement == START_ELEMENT)
+        if (!assumeMixedContent && lastElement == START_ELEMENT) {
             removeTrailingCharacters();
+        }
 
         events.push(START_ELEMENT);
         strings.push(uri);
@@ -198,8 +199,9 @@ public class SAXBuffer extends DefaultHandler {
                 strings.iterator(release),
                 characters.iterator(release));
 
-        if (release)
+        if (release) {
             lastElement = UNDEFINED;
+        }
 
         return reader;
     }
@@ -212,8 +214,9 @@ public class SAXBuffer extends DefaultHandler {
         AttributesImpl attributes = new AttributesImpl();
         ArrayBuffer<String> util = new ArrayBuffer<>(String.class, DEFAULT_BUFFER_SIZE);
 
-        if (release)
+        if (release) {
             lastElement = UNDEFINED;
+        }
 
         while (events.hasNext()) {
             switch (events.next()) {
@@ -244,8 +247,9 @@ public class SAXBuffer extends DefaultHandler {
         String uri = strings.next();
         String localName = strings.next();
         String qName = strings.next();
-        if (qName.isEmpty())
+        if (qName.isEmpty()) {
             qName = localName;
+        }
 
         while (events.hasNext() && events.peek() == ATTRIBUTE) {
             events.next();
@@ -287,8 +291,9 @@ public class SAXBuffer extends DefaultHandler {
     private void sendStartPrefixMapping(ContentHandler handler, ArrayBufferIterator<String> strings, ArrayBuffer<String> util) throws SAXException {
         String prefix = strings.next();
         String uri = strings.next();
-        if (prefix == null)
+        if (prefix == null) {
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
+        }
 
         handler.startPrefixMapping(prefix, uri);
 

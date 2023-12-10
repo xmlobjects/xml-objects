@@ -46,8 +46,9 @@ public class Properties implements Serializable {
         if (properties != null) {
             Object value = properties.get(name);
             return type.isInstance(value) ? type.cast(value) : null;
-        } else
+        } else {
             return null;
+        }
     }
 
     public boolean getAndCompare(String name, Object expectedValue) {
@@ -70,19 +71,22 @@ public class Properties implements Serializable {
     }
 
     public void set(String name, Object value) {
-        if (properties == null)
+        if (properties == null) {
             properties = new HashMap<>();
+        }
 
         properties.put(name, value);
     }
 
     public void remove(String name) {
-        if (properties != null)
+        if (properties != null) {
             properties.remove(name);
+        }
     }
 
     public void clear() {
-        if (properties != null)
+        if (properties != null) {
             properties.clear();
+        }
     }
 }

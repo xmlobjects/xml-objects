@@ -20,7 +20,6 @@
 package org.xmlobjects.serializer;
 
 public class ObjectSerializeException extends Exception {
-    private static final long serialVersionUID = -8749263875833215329L;
 
     public ObjectSerializeException() {
         super();

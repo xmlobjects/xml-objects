@@ -124,7 +124,8 @@ public class SchemaHandler {
             source.setPublicId(namespaceURI);
             parse(source);
         } else {
-            throw new SchemaHandlerException("Failed to resolve the schema location for the target namespace '" + namespaceURI + "'.");
+            throw new SchemaHandlerException("Failed to resolve the schema location for the target namespace '" +
+                    namespaceURI + "'.");
         }
     }
 
@@ -135,26 +136,7 @@ public class SchemaHandler {
             }
         }
 
-        XSOMParser parser = new XSOMParser(getSAXParserFactory());
-        parser.setErrorHandler(errorHandler);
-        parser.setAnnotationParser(annotationParserFactory);
-        parser.setEntityResolver((publicId, systemId) -> {
-            InputSource resolved = null;
-            if (publicId != null) {
-                String schemaLocation = visitedSchemaLocations.get(publicId);
-                if (schemaLocation == null) {
-                    schemaLocation = userSchemaLocations.get(publicId);
-                }
-
-                if (schemaLocation != null) {
-                    resolved = new InputSource(schemaLocation);
-                    resolved.setPublicId(publicId);
-                }
-            }
-
-            return resolved;
-        });
-
+        XSOMParser parser = createXSOMParser();
         XSSchemaSet schemaSet;
         try {
             parser.parse(source);
@@ -182,8 +164,9 @@ public class SchemaHandler {
                     } else {
                         try {
                             URL url = new URL(locator.getSystemId());
-                            if (url.getProtocol().equals("file") || url.getProtocol().equals("jar"))
+                            if (url.getProtocol().equals("file") || url.getProtocol().equals("jar")) {
                                 visitedSchemaLocations.put(schema.getTargetNamespace(), locator.getSystemId());
+                            }
                         } catch (MalformedURLException e) {
                             //
                         }
@@ -215,6 +198,30 @@ public class SchemaHandler {
         errorHandler = other.errorHandler;
         annotationParserFactory = other.annotationParserFactory;
         return this;
+    }
+
+    private XSOMParser createXSOMParser() throws SchemaHandlerException {
+        XSOMParser parser = new XSOMParser(getSAXParserFactory());
+        parser.setErrorHandler(errorHandler);
+        parser.setAnnotationParser(annotationParserFactory);
+        parser.setEntityResolver((publicId, systemId) -> {
+            InputSource resolved = null;
+            if (publicId != null) {
+                String schemaLocation = visitedSchemaLocations.get(publicId);
+                if (schemaLocation == null) {
+                    schemaLocation = userSchemaLocations.get(publicId);
+                }
+
+                if (schemaLocation != null) {
+                    resolved = new InputSource(schemaLocation);
+                    resolved.setPublicId(publicId);
+                }
+            }
+
+            return resolved;
+        });
+
+        return parser;
     }
 
     private SAXParserFactory getSAXParserFactory() throws SchemaHandlerException {

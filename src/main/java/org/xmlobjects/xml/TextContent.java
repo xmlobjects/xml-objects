@@ -319,14 +319,15 @@ public class TextContent {
 
     @SuppressWarnings("unchecked")
     public List<String> getAsList() {
-        if (isListOfType(value, String.class))
+        if (isListOfType(value, String.class)) {
             return (List<String>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             List<String> strings = new ArrayList<>(tokenizedContent.length);
             Collections.addAll(strings, tokenizedContent);
             return setValue(strings);
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isList() {
@@ -335,12 +336,13 @@ public class TextContent {
 
     public void ifList(Consumer<List<String>> action) {
         List<String> value = getAsList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public Boolean getAsBoolean() {
-        return value instanceof Boolean ? (Boolean) value : setValue(toBoolean(trimmedContent()));
+        return value instanceof Boolean bool ? bool : setValue(toBoolean(trimmedContent()));
     }
 
     public boolean isBoolean() {
@@ -349,27 +351,30 @@ public class TextContent {
 
     public void ifBoolean(Consumer<Boolean> action) {
         Boolean value = getAsBoolean();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public List<Boolean> getAsBooleanList() {
-        if (isListOfType(value, Boolean.class))
+        if (isListOfType(value, Boolean.class)) {
             return (List<Boolean>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             List<Boolean> booleans = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 Boolean value = toBoolean(token);
-                if (value != null)
+                if (value != null) {
                     booleans.add(value);
-                else
+                } else {
                     return setValue(null);
+                }
             }
 
             return setValue(booleans);
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isBooleanList() {
@@ -378,21 +383,23 @@ public class TextContent {
 
     public void ifBooleanList(Consumer<List<Boolean>> action) {
         List<Boolean> value = getAsBooleanList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public Double getAsDouble() {
-        if (value instanceof Double)
-            return (Double) value;
-        else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        if (value instanceof Double doubleValue) {
+            return doubleValue;
+        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
                 return setValue(Double.parseDouble(trimmedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isDouble() {
@@ -401,15 +408,16 @@ public class TextContent {
 
     public void ifDouble(Consumer<Double> action) {
         Double value = getAsDouble();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public List<Double> getAsDoubleList() {
-        if (isListOfType(value, Double.class))
+        if (isListOfType(value, Double.class)) {
             return (List<Double>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             List<Double> doubles = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 try {
@@ -420,8 +428,9 @@ public class TextContent {
             }
 
             return setValue(doubles);
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isDoubleList() {
@@ -430,21 +439,23 @@ public class TextContent {
 
     public void ifDoubleList(Consumer<List<Double>> action) {
         List<Double> value = getAsDoubleList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public Integer getAsInteger() {
-        if (value instanceof Integer)
-            return (Integer) value;
-        else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        if (value instanceof Integer integer) {
+            return integer;
+        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
                 return setValue(Integer.parseInt(trimmedContent));
             } catch (NumberFormatException e) {
                 return setValue(null);
             }
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isInteger() {
@@ -453,15 +464,16 @@ public class TextContent {
 
     public void ifInteger(Consumer<Integer> action) {
         Integer value = getAsInteger();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public List<Integer> getAsIntegerList() {
-        if (isListOfType(value, Integer.class))
+        if (isListOfType(value, Integer.class)) {
             return (List<Integer>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             List<Integer> integers = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 try {
@@ -472,8 +484,9 @@ public class TextContent {
             }
 
             return setValue(integers);
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isIntegerList() {
@@ -482,21 +495,23 @@ public class TextContent {
 
     public void ifIntegerList(Consumer<List<Integer>> action) {
         List<Integer> value = getAsIntegerList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public Duration getAsDuration() {
-        if (value instanceof Duration)
-            return (Duration) value;
-        else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        if (value instanceof Duration duration) {
+            return duration;
+        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
                 return setValue(XML_TYPE_FACTORY.newDuration(trimmedContent));
             } catch (Throwable e) {
                 return setValue(null);
             }
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isDuration() {
@@ -505,15 +520,16 @@ public class TextContent {
 
     public void ifDuration(Consumer<Duration> action) {
         Duration value = getAsDuration();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     @SuppressWarnings("unchecked")
     public List<Duration> getAsDurationList() {
-        if (isListOfType(value, Duration.class))
+        if (isListOfType(value, Duration.class)) {
             return (List<Duration>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             List<Duration> durations = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 try {
@@ -524,8 +540,9 @@ public class TextContent {
             }
 
             return setValue(durations);
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     public boolean isDurationList() {
@@ -534,8 +551,9 @@ public class TextContent {
 
     public void ifDurationList(Consumer<List<Duration>> action) {
         List<Duration> value = getAsDurationList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsDateTime() {
@@ -548,8 +566,9 @@ public class TextContent {
 
     public void ifDateTime(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsDateTime();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsDateTimeList() {
@@ -562,8 +581,9 @@ public class TextContent {
 
     public void ifDateTimeList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsDateTimeList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsTime() {
@@ -576,8 +596,9 @@ public class TextContent {
 
     public void ifTime(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsTime();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsTimeList() {
@@ -590,8 +611,9 @@ public class TextContent {
 
     public void ifTimeList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsTimeList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsDate() {
@@ -604,8 +626,9 @@ public class TextContent {
 
     public void ifDate(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsDate();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsDateList() {
@@ -618,8 +641,9 @@ public class TextContent {
 
     public void ifDateList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsDateList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsGYearMonth() {
@@ -632,8 +656,9 @@ public class TextContent {
 
     public void ifGYearMonth(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsGYearMonth();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsGYearMonthList() {
@@ -646,8 +671,9 @@ public class TextContent {
 
     public void ifGYearMonthList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsGYearMonthList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsGMonthDay() {
@@ -660,8 +686,9 @@ public class TextContent {
 
     public void ifGMonthDay(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsGMonthDay();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsGMonthDayList() {
@@ -674,8 +701,9 @@ public class TextContent {
 
     public void ifGMonthDayList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsGMonthDayList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsGDay() {
@@ -688,8 +716,9 @@ public class TextContent {
 
     public void ifGDay(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsGDay();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsGDayList() {
@@ -702,8 +731,9 @@ public class TextContent {
 
     public void ifGDayList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsGDayList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsGMonth() {
@@ -716,8 +746,9 @@ public class TextContent {
 
     public void ifGMonth(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsGMonth();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsGMonthList() {
@@ -730,8 +761,9 @@ public class TextContent {
 
     public void ifGMonthList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsGMonthList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public OffsetDateTime getAsGYear() {
@@ -744,8 +776,9 @@ public class TextContent {
 
     public void ifGYear(Consumer<OffsetDateTime> action) {
         OffsetDateTime value = getAsGYear();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public List<OffsetDateTime> getAsGYearList() {
@@ -758,51 +791,58 @@ public class TextContent {
 
     public void ifGYearList(Consumer<List<OffsetDateTime>> action) {
         List<OffsetDateTime> value = getAsGYearList();
-        if (value != null)
+        if (value != null) {
             action.accept(value);
+        }
     }
 
     public TextContent withZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
-        if (zoneOffsetProvider != null)
+        if (zoneOffsetProvider != null) {
             this.zoneOffsetProvider = zoneOffsetProvider;
+        }
 
         return this;
     }
 
     private OffsetDateTime getAsOffsetDateTime(String localName) {
-        if (value instanceof XMLGregorianCalendar && ((XMLGregorianCalendar) value).getXMLSchemaType().getLocalPart().equals(localName))
+        if (value instanceof XMLGregorianCalendar calendar
+                && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
             return toOffsetDateTime((XMLGregorianCalendar) value);
-        else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
             XMLGregorianCalendar calendar = setValue(toCalendar(trimmedContent(), localName));
             return calendar != null ? toOffsetDateTime(calendar) : null;
-        } else
+        } else {
             return setValue(null);
+        }
     }
 
     @SuppressWarnings("unchecked")
     private List<OffsetDateTime> getAsOffsetDateTimeList(String localName) {
         List<XMLGregorianCalendar> calendars;
-        if (value instanceof List
-                && ((List<?>) value).stream().allMatch(v -> v instanceof XMLGregorianCalendar
-                && ((XMLGregorianCalendar) v).getXMLSchemaType().getLocalPart().equals(localName)))
+        if (value instanceof List<?> list
+                && list.stream().allMatch(v -> v instanceof XMLGregorianCalendar calendar
+                && calendar.getXMLSchemaType().getLocalPart().equals(localName))) {
             calendars = (List<XMLGregorianCalendar>) value;
-        else if (tokenizeContent() != 0) {
+        } else if (tokenizeContent() != 0) {
             calendars = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 XMLGregorianCalendar value = toCalendar(token, localName);
-                if (value != null)
+                if (value != null) {
                     calendars.add(value);
-                else
+                } else {
                     return setValue(null);
+                }
             }
 
             setValue(calendars);
-        } else
+        } else {
             return setValue(null);
+        }
 
         List<OffsetDateTime> result = new ArrayList<>(calendars.size());
-        for (XMLGregorianCalendar calendar : calendars)
+        for (XMLGregorianCalendar calendar : calendars) {
             result.add(toOffsetDateTime(calendar));
+        }
 
         return result;
     }
@@ -813,27 +853,29 @@ public class TextContent {
     }
 
     private boolean isListOfType(Object value, Class<?> type) {
-        return value instanceof List && ((List<?>) value).stream().allMatch(type::isInstance);
+        return value instanceof List<?> list && list.stream().allMatch(type::isInstance);
     }
 
     private Boolean toBoolean(String value) {
-        if (value.isEmpty())
+        if (value.isEmpty()) {
             return null;
-        else if ("true".equals(value)
-                || "1".equals(value))
+        } else if ("true".equals(value)
+                || "1".equals(value)) {
             return Boolean.TRUE;
-        else if ("false".equals(value)
-                || "0".equals(value))
+        } else if ("false".equals(value)
+                || "0".equals(value)) {
             return Boolean.FALSE;
-        else
+        } else {
             return null;
+        }
     }
 
     private XMLGregorianCalendar toCalendar(String value, String localName) {
         try {
             XMLGregorianCalendar calendar = XML_TYPE_FACTORY.newXMLGregorianCalendar(value);
-            if (calendar.getXMLSchemaType().getLocalPart().equals(localName))
+            if (calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
                 return calendar;
+            }
         } catch (Throwable e) {
             //
         }
@@ -878,18 +920,20 @@ public class TextContent {
 
             for (Object object : content) {
                 if (object != null) {
-                    if (!first)
+                    if (!first) {
                         builder.append(" ");
-                    else
+                    } else {
                         first = false;
+                    }
 
-                    builder.append(object.toString());
+                    builder.append(object);
                 }
             }
 
             return new TextContent(builder.toString());
-        } else
+        } else {
             return EMPTY;
+        }
     }
 
     private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<Fields> fields, boolean withOffset) {
@@ -905,18 +949,20 @@ public class TextContent {
             for (OffsetDateTime dateTime : content) {
                 XMLGregorianCalendar calendar = toCalendar(dateTime, fields, withOffset);
                 if (calendar != null) {
-                    if (!first)
+                    if (!first) {
                         builder.append(" ");
-                    else
+                    } else {
                         first = false;
+                    }
 
                     builder.append(calendar.toXMLFormat());
                 }
             }
 
             return new TextContent(builder.toString());
-        } else
+        } else {
             return EMPTY;
+        }
     }
 
     private static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<Fields> fields, boolean withOffset) {
@@ -930,18 +976,22 @@ public class TextContent {
                     fields.contains(Fields.MINUTE) ? dateTime.getMinute() : DatatypeConstants.FIELD_UNDEFINED,
                     fields.contains(Fields.SECOND) ? dateTime.getSecond() : DatatypeConstants.FIELD_UNDEFINED,
                     DatatypeConstants.FIELD_UNDEFINED,
-                    withOffset && fields.contains(Fields.TIMEZONE) ? dateTime.getOffset().getTotalSeconds() / 60 : DatatypeConstants.FIELD_UNDEFINED);
+                    withOffset && fields.contains(Fields.TIMEZONE) ?
+                            dateTime.getOffset().getTotalSeconds() / 60 :
+                            DatatypeConstants.FIELD_UNDEFINED);
 
-            if (fields.contains(Fields.NANO) && dateTime.getNano() != 0)
+            if (fields.contains(Fields.NANO) && dateTime.getNano() != 0) {
                 calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano(), 9).stripTrailingZeros());
+            }
         }
 
         return calendar;
     }
 
     public static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
-        if (zoneOffsetProvider != null)
+        if (zoneOffsetProvider != null) {
             ZONE_OFFSET_PROVIDER = zoneOffsetProvider;
+        }
     }
 
     public static void serializeTimeWithOffset(boolean useTimeOffset) {
@@ -953,8 +1003,9 @@ public class TextContent {
     }
 
     private String trimmedContent() {
-        if (trimmedContent == null)
+        if (trimmedContent == null) {
             trimmedContent = content.trim();
+        }
 
         return trimmedContent;
     }
@@ -969,8 +1020,9 @@ public class TextContent {
 
             do {
                 next = nextWhiteSpace(content, current + 1, length);
-                if (next != current + 1)
+                if (next != current + 1) {
                     tokens[noOfTokens++] = content.substring(current + 1, next);
+                }
 
                 current = next;
             } while (next != length);
@@ -984,8 +1036,9 @@ public class TextContent {
 
     private int nextWhiteSpace(String value, int pos, int length) {
         for (int i = pos; i < length; i++) {
-            if (isWhiteSpace(value.charAt(i)))
+            if (isWhiteSpace(value.charAt(i))) {
                 return i;
+            }
         }
 
         return length;

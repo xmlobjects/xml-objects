@@ -39,8 +39,8 @@ public abstract class AbstractCloner<T> {
 
     @SuppressWarnings("unchecked")
     public final <E> E deepCopy(E value) {
-        return value instanceof Copyable ?
-                (E) ((Copyable) value).deepCopy(builder) :
+        return value instanceof Copyable copyable ?
+                (E) copyable.deepCopy(builder) :
                 builder.deepCopy(value);
     }
 

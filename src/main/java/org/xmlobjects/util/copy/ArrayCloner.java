@@ -29,11 +29,12 @@ public class ArrayCloner extends AbstractCloner<Object[]> {
 
     @Override
     public Object[] copy(Object[] src, Object[] dest, boolean shallowCopy) {
-        if (shallowCopy || src.getClass().getComponentType().isPrimitive())
+        if (shallowCopy || src.getClass().getComponentType().isPrimitive()) {
             System.arraycopy(src, 0, dest, 0, src.length);
-        else {
-            for (int i = 0; i < src.length; i++)
+        } else {
+            for (int i = 0; i < src.length; i++) {
                 dest[i] = deepCopy(src[i]);
+            }
         }
 
         return dest;

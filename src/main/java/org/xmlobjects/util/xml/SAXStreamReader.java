@@ -95,8 +95,9 @@ public class SAXStreamReader implements XMLStreamReader {
     private void processNamespace() {
         String prefix = strings.next();
         String uri = strings.next();
-        if (prefix == null)
+        if (prefix == null) {
             prefix = XMLConstants.DEFAULT_NS_PREFIX;
+        }
 
         namespaces.add(prefix, uri);
         prefixMapping.pushContext();
@@ -146,27 +147,34 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public void require(int type, String namespaceURI, String localName) throws XMLStreamException {
-        if (type != eventType)
-            throw new XMLStreamException("The specified event type " + type + " does not match the current parser event.");
+        if (type != eventType) {
+            throw new XMLStreamException("The specified event type " + type +
+                    " does not match the current parser event.");
+        }
 
-        if (namespaceURI != null && !namespaceURI.equals(getNamespaceURI()))
-            throw new XMLStreamException("The specified namespace URI " + namespaceURI + " does not match the current namespace URI.");
+        if (namespaceURI != null && !namespaceURI.equals(getNamespaceURI())) {
+            throw new XMLStreamException("The specified namespace URI " + namespaceURI +
+                    " does not match the current namespace URI.");
+        }
 
-        if (localName != null && !localName.equals(getLocalName()))
+        if (localName != null && !localName.equals(getLocalName())) {
             throw new XMLStreamException("The local name " + localName + " does not match the current local name.");
+        }
     }
 
     @Override
     public String getElementText() throws XMLStreamException {
-        if (eventType != XMLStreamConstants.START_ELEMENT)
+        if (eventType != XMLStreamConstants.START_ELEMENT) {
             throw new XMLStreamException("Illegal to call getElementText when event is not START_ELEMENT.");
+        }
 
         StringBuilder content = new StringBuilder();
 
         next();
         while (eventType != XMLStreamConstants.END_ELEMENT) {
-            if (eventType != XMLStreamConstants.CHARACTERS)
+            if (eventType != XMLStreamConstants.CHARACTERS) {
                 throw new XMLStreamException("Element is not text-only.");
+            }
 
             content.append(getText());
             next();
@@ -178,11 +186,13 @@ public class SAXStreamReader implements XMLStreamReader {
     @Override
     public int nextTag() throws XMLStreamException {
         next();
-        while (eventType == XMLStreamConstants.CHARACTERS && isWhiteSpace())
+        while (eventType == XMLStreamConstants.CHARACTERS && isWhiteSpace()) {
             next();
+        }
 
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT)
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT) {
             throw new XMLStreamException("Expected START_ELEMENT or END_ELEMENT.");
+        }
 
         return eventType;
     }
@@ -198,8 +208,9 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public String getNamespaceURI(String prefix) {
-        if (prefix == null)
+        if (prefix == null) {
             throw new IllegalArgumentException("Prefix must not be null.");
+        }
 
         return prefixMapping.getNamespaceURI(prefix);
     }
@@ -223,8 +234,9 @@ public class SAXStreamReader implements XMLStreamReader {
     public boolean isWhiteSpace() {
         if (eventType == XMLStreamConstants.CHARACTERS) {
             for (char ch : chars) {
-                if (!Character.isWhitespace(ch))
+                if (!Character.isWhitespace(ch)) {
                     return false;
+                }
             }
 
             return true;
@@ -240,64 +252,80 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public int getAttributeCount() {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeCount when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeCount when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return attributes.getLength();
     }
 
     @Override
     public QName getAttributeName(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeName when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeName when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return new QName(attributes.getURI(index), attributes.getLocalName(index));
     }
 
     @Override
     public String getAttributeNamespace(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeNamespace when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeNamespace when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return attributes.getURI(index);
     }
 
     @Override
     public String getAttributeLocalName(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeLocalName when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeLocalName when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return attributes.getLocalName(index);
     }
 
     @Override
     public String getAttributePrefix(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributePrefix when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributePrefix when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return prefixMapping.getPrefix(attributes.getURI(index));
     }
 
     @Override
     public String getAttributeType(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeType when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeType when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return attributes.getType(index);
     }
 
     @Override
     public String getAttributeValue(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call getAttributeValue when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call getAttributeValue when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return attributes.getValue(index);
     }
 
     @Override
     public boolean isAttributeSpecified(int index) {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE)
-            throw new IllegalStateException("Illegal to call isAttributeSpecified when event is neither START_ELEMENT nor ATTRIBUTE.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.ATTRIBUTE) {
+            throw new IllegalStateException("Illegal to call isAttributeSpecified when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return true;
     }
@@ -306,8 +334,10 @@ public class SAXStreamReader implements XMLStreamReader {
     public int getNamespaceCount() {
         if (eventType != XMLStreamConstants.START_ELEMENT
                 && eventType != XMLStreamConstants.END_ELEMENT
-                && eventType != XMLStreamConstants.NAMESPACE)
-            throw new IllegalStateException("Illegal to call getNamespaceCount when event is neither START_ELEMENT nor ATTRIBUTE.");
+                && eventType != XMLStreamConstants.NAMESPACE) {
+            throw new IllegalStateException("Illegal to call getNamespaceCount when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return namespaces.size();
     }
@@ -316,8 +346,10 @@ public class SAXStreamReader implements XMLStreamReader {
     public String getNamespacePrefix(int index) {
         if (eventType != XMLStreamConstants.START_ELEMENT
                 && eventType != XMLStreamConstants.END_ELEMENT
-                && eventType != XMLStreamConstants.NAMESPACE)
-            throw new IllegalStateException("Illegal to call getNamespacePrefix when event is neither START_ELEMENT nor ATTRIBUTE.");
+                && eventType != XMLStreamConstants.NAMESPACE) {
+            throw new IllegalStateException("Illegal to call getNamespacePrefix when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return namespaces.getPrefix(index);
     }
@@ -326,8 +358,10 @@ public class SAXStreamReader implements XMLStreamReader {
     public String getNamespaceURI(int index) {
         if (eventType != XMLStreamConstants.START_ELEMENT
                 && eventType != XMLStreamConstants.END_ELEMENT
-                && eventType != XMLStreamConstants.NAMESPACE)
-            throw new IllegalStateException("Illegal to call getNamespaceURI when event is neither START_ELEMENT nor ATTRIBUTE.");
+                && eventType != XMLStreamConstants.NAMESPACE) {
+            throw new IllegalStateException("Illegal to call getNamespaceURI when event is neither " +
+                    "START_ELEMENT nor ATTRIBUTE.");
+        }
 
         return namespaces.getNamespaceURI(index);
     }
@@ -343,16 +377,18 @@ public class SAXStreamReader implements XMLStreamReader {
 
             @Override
             public String getPrefix(String namespaceURI) {
-                if (namespaceURI == null)
+                if (namespaceURI == null) {
                     throw new IllegalArgumentException("Namespace URI must not be null.");
+                }
 
                 return prefixMapping.getPrefix(namespaceURI);
             }
 
             @Override
             public Iterator<String> getPrefixes(String namespaceURI) {
-                if (namespaceURI == null)
+                if (namespaceURI == null) {
                     throw new IllegalArgumentException("Namespace URI must not be null.");
+                }
 
                 return prefixMapping.getPrefixes(namespaceURI).iterator();
             }
@@ -366,36 +402,41 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public String getText() {
-        if (eventType != XMLStreamConstants.CHARACTERS)
+        if (eventType != XMLStreamConstants.CHARACTERS) {
             throw new IllegalStateException("Illegal to call getText when event is not CHARACTERS.");
+        }
 
         return String.valueOf(chars);
     }
 
     @Override
     public char[] getTextCharacters() {
-        if (eventType != XMLStreamConstants.CHARACTERS)
+        if (eventType != XMLStreamConstants.CHARACTERS) {
             throw new IllegalStateException("Illegal to call getTextCharacters when event is not CHARACTERS.");
+        }
 
         return chars;
     }
 
     @Override
     public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length) throws XMLStreamException {
-        if (target == null)
+        if (target == null) {
             throw new NullPointerException("Target char array must not be null.");
+        }
 
         if (targetStart < 0 || length < 0 || sourceStart < 0
                 || targetStart >= target.length
-                || (targetStart + length) > target.length)
+                || (targetStart + length) > target.length) {
             throw new IndexOutOfBoundsException();
+        }
 
-        int copied = 0;
         int available = chars.length - sourceStart;
-        if (available < 0)
-            throw new IndexOutOfBoundsException("sourceStart is greater than number of characters associated with this event.");
+        if (available < 0) {
+            throw new IndexOutOfBoundsException("sourceStart is greater than number of characters associated " +
+                    "with this event.");
+        }
 
-        copied = Math.min(available, length);
+        int copied = Math.min(available, length);
         System.arraycopy(chars, sourceStart, target, targetStart, copied);
 
         return copied;
@@ -403,16 +444,18 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public int getTextStart() {
-        if (eventType != XMLStreamConstants.CHARACTERS)
+        if (eventType != XMLStreamConstants.CHARACTERS) {
             throw new IllegalStateException("Illegal to call getTextStart when event is not CHARACTERS.");
+        }
 
         return 0;
     }
 
     @Override
     public int getTextLength() {
-        if (eventType != XMLStreamConstants.CHARACTERS)
+        if (eventType != XMLStreamConstants.CHARACTERS) {
             throw new IllegalStateException("Illegal to call getTextLength when event is not CHARACTERS.");
+        }
 
         return chars.length;
     }
@@ -459,16 +502,20 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public QName getName() {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT)
-            throw new IllegalStateException("Illegal to call getName when event is neither START_ELEMENT nor END_ELEMENT.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT) {
+            throw new IllegalStateException("Illegal to call getName when event is neither " +
+                    "START_ELEMENT nor END_ELEMENT.");
+        }
 
         return new QName(namespaceURI, localName);
     }
 
     @Override
     public String getLocalName() {
-        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT)
-            throw new IllegalStateException("Illegal to call getLocalName when event is neither START_ELEMENT nor END_ELEMENT.");
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT) {
+            throw new IllegalStateException("Illegal to call getLocalName when event is neither " +
+                    "START_ELEMENT nor END_ELEMENT.");
+        }
 
         return localName;
     }
@@ -480,16 +527,18 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public String getNamespaceURI() {
-        if (eventType == XMLStreamConstants.START_ELEMENT || eventType == XMLStreamConstants.END_ELEMENT)
+        if (eventType == XMLStreamConstants.START_ELEMENT || eventType == XMLStreamConstants.END_ELEMENT) {
             return namespaceURI;
+        }
 
         return null;
     }
 
     @Override
     public String getPrefix() {
-        if (eventType == XMLStreamConstants.START_ELEMENT || eventType == XMLStreamConstants.END_ELEMENT)
+        if (eventType == XMLStreamConstants.START_ELEMENT || eventType == XMLStreamConstants.END_ELEMENT) {
             return prefix;
+        }
 
         return null;
     }

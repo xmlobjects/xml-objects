@@ -20,7 +20,6 @@
 package org.xmlobjects.builder;
 
 public class ObjectBuildException extends Exception {
-    private static final long serialVersionUID = 6098471883159637787L;
 
     public ObjectBuildException() {
         super();

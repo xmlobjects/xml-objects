@@ -52,8 +52,9 @@ public class BuildResult<T> {
     }
 
     public void ifObject(Consumer<T> action) {
-        if (isSetObject())
+        if (isSetObject()) {
             action.accept(object);
+        }
     }
 
     public T getObject() {
@@ -65,8 +66,9 @@ public class BuildResult<T> {
     }
 
     public void ifDOMElement(Consumer<Element> action) {
-        if (isSetDOMElement())
+        if (isSetDOMElement()) {
             action.accept(element);
+        }
     }
 
     public Element getDOMElement(){

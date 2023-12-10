@@ -63,13 +63,15 @@ public class StAXStream2SAX {
                 reader.getLocalName(),
                 getQName(reader.getPrefix(), reader.getLocalName()));
 
-        for (int i = 0; i < reader.getNamespaceCount(); i++)
+        for (int i = 0; i < reader.getNamespaceCount(); i++) {
             handler.endPrefixMapping(reader.getNamespacePrefix(i));
+        }
     }
 
     private void handleStartElement(XMLStreamReader reader) throws SAXException {
-        for (int i = 0; i < reader.getNamespaceCount(); i++)
+        for (int i = 0; i < reader.getNamespaceCount(); i++) {
             handler.startPrefixMapping(reader.getNamespacePrefix(i), reader.getNamespaceURI(i));
+        }
 
         handler.startElement(getNamespaceURI(reader.getNamespaceURI()),
                 reader.getLocalName(),

@@ -59,58 +59,76 @@ public abstract class SchemaWalker implements XSVisitor {
 
     @Override
     public void attGroupDecl(XSAttGroupDecl decl) {
-        for (XSAttributeUse use : decl.getAttributeUses())
-            if (shouldWalk && visited.add(use))
+        for (XSAttributeUse use : decl.getAttributeUses()) {
+            if (shouldWalk && visited.add(use)) {
                 attributeUse(use);
+            }
+        }
     }
 
     @Override
     public void attributeDecl(XSAttributeDecl decl) {
-        if (shouldWalk && visited.add(decl.getType()))
+        if (shouldWalk && visited.add(decl.getType())) {
             simpleType(decl.getType());
+        }
     }
 
     @Override
     public void attributeUse(XSAttributeUse use) {
-        if (shouldWalk && visited.add(use.getDecl()))
+        if (shouldWalk && visited.add(use.getDecl())) {
             attributeDecl(use.getDecl());
+        }
     }
 
     @Override
     public void complexType(XSComplexType type) {
         if (shouldWalk && visited.add(type.getContentType())) {
             type.getContentType().visit(this);
-            for (XSAttributeUse use : type.getAttributeUses())
-                if (shouldWalk && visited.add(use))
+            for (XSAttributeUse use : type.getAttributeUses()) {
+                if (shouldWalk && visited.add(use)) {
                     attributeUse(use);
+                }
+            }
         }
     }
 
     @Override
     public void schema(XSSchema schema) {
-        for (XSElementDecl decl : schema.getElementDecls().values())
-            if (shouldWalk && visited.add(decl))
+        for (XSElementDecl decl : schema.getElementDecls().values()) {
+            if (shouldWalk && visited.add(decl)) {
                 elementDecl(decl);
+            }
+        }
 
-        for (XSAttributeDecl decl : schema.getAttributeDecls().values())
-            if (shouldWalk && visited.add(decl))
+        for (XSAttributeDecl decl : schema.getAttributeDecls().values()) {
+            if (shouldWalk && visited.add(decl)) {
                 attributeDecl(decl);
+            }
+        }
 
-        for (XSAttGroupDecl decl : schema.getAttGroupDecls().values())
-            if (shouldWalk && visited.add(decl))
+        for (XSAttGroupDecl decl : schema.getAttGroupDecls().values()) {
+            if (shouldWalk && visited.add(decl)) {
                 attGroupDecl(decl);
+            }
+        }
 
-        for (XSModelGroupDecl decl : schema.getModelGroupDecls().values())
-            if (shouldWalk && visited.add(decl))
+        for (XSModelGroupDecl decl : schema.getModelGroupDecls().values()) {
+            if (shouldWalk && visited.add(decl)) {
                 modelGroupDecl(decl);
+            }
+        }
 
-        for (XSType type : schema.getTypes().values())
-            if (shouldWalk && visited.add(type))
+        for (XSType type : schema.getTypes().values()) {
+            if (shouldWalk && visited.add(type)) {
                 type.visit(this);
+            }
+        }
 
-        for (XSNotation notation : schema.getNotations().values())
-            if (shouldWalk && visited.add(notation))
+        for (XSNotation notation : schema.getNotations().values()) {
+            if (shouldWalk && visited.add(notation)) {
                 notation(notation);
+            }
+        }
     }
 
     @Override
@@ -131,14 +149,16 @@ public abstract class SchemaWalker implements XSVisitor {
 
     @Override
     public void simpleType(XSSimpleType simpleType) {
-        if (shouldWalk && visited.add(simpleType.getBaseType()))
+        if (shouldWalk && visited.add(simpleType.getBaseType())) {
             simpleType.getBaseType().visit(this);
+        }
     }
 
     @Override
     public void particle(XSParticle particle) {
-        if (shouldWalk && visited.add(particle.getTerm()))
+        if (shouldWalk && visited.add(particle.getTerm())) {
             particle.getTerm().visit(this);
+        }
     }
 
     @Override
@@ -151,20 +171,24 @@ public abstract class SchemaWalker implements XSVisitor {
 
     @Override
     public void modelGroupDecl(XSModelGroupDecl decl) {
-        if (shouldWalk && visited.add(decl.getModelGroup()))
+        if (shouldWalk && visited.add(decl.getModelGroup())) {
             modelGroup(decl.getModelGroup());
+        }
     }
 
     @Override
     public void modelGroup(XSModelGroup group) {
-        for (XSParticle particle : group.getChildren())
-            if (shouldWalk && visited.add(particle))
+        for (XSParticle particle : group.getChildren()) {
+            if (shouldWalk && visited.add(particle)) {
                 particle(particle);
+            }
+        }
     }
 
     @Override
     public void elementDecl(XSElementDecl decl) {
-        if (shouldWalk && visited.add(decl.getType()))
+        if (shouldWalk && visited.add(decl.getType())) {
             decl.getType().visit(this);
+        }
     }
 }

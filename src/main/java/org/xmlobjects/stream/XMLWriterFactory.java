@@ -66,7 +66,8 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(File file, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(new FileOutputStream(file), getEncoding(encoding))));
+            return createWriter(new SAXWriter(new OutputStreamWriter(
+                    new FileOutputStream(file), getEncoding(encoding))));
         } catch (UnsupportedEncodingException | FileNotFoundException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -78,7 +79,8 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(Path path, String encoding) throws XMLWriteException {
         try {
-            return createWriter(new SAXWriter(new OutputStreamWriter(Files.newOutputStream(path), getEncoding(encoding))));
+            return createWriter(new SAXWriter(
+                    new OutputStreamWriter(Files.newOutputStream(path), getEncoding(encoding))));
         } catch (IOException e) {
             throw new XMLWriteException("Caused by:", e);
         }
@@ -98,8 +100,9 @@ public class XMLWriterFactory {
 
     public XMLWriter createWriter(DOMResult result) throws XMLWriteException {
         try {
-            if (transformerFactory == null)
+            if (transformerFactory == null) {
                 transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
+            }
 
             TransformerHandler handler = transformerFactory.newTransformerHandler();
             handler.setResult(result);
@@ -129,14 +132,12 @@ public class XMLWriterFactory {
     public XMLWriter createWriter(SAXWriter saxWriter) {
         XMLWriter xmlWriter = new XMLWriter(xmlObjects, saxWriter);
         xmlWriter.setProperties(properties);
-
         return xmlWriter;
     }
     
     public XMLWriter createWriter(ContentHandler contentHandler) {
         XMLWriter xmlWriter = new XMLWriter(xmlObjects, new SAXOutputHandler(contentHandler));
         xmlWriter.setProperties(properties);
-
         return xmlWriter;
     }
 

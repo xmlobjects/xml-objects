@@ -45,8 +45,9 @@ public class SystemIDResolver {
      * @return Resolved absolute URI
      */
     public static String getAbsoluteURIFromRelative(String localPath) {
-        if (localPath == null || localPath.length() == 0)
+        if (localPath == null || localPath.isEmpty()) {
             return "";
+        }
 
         // If the local path is a relative path, then it is resolved against
         // the "user.dir" system property.
@@ -62,10 +63,11 @@ public class SystemIDResolver {
         }
 
         String urlString;
-        if (absolutePath.startsWith(File.separator))
+        if (absolutePath.startsWith(File.separator)) {
             urlString = "file://" + absolutePath;
-        else
+        } else {
             urlString = "file:///" + absolutePath;
+        }
 
         return replaceChars(urlString);
     }
@@ -109,12 +111,15 @@ public class SystemIDResolver {
 
         //finding substring  before '#', '?', and '/'
         int index = systemId.length() - 1;
-        if (fragmentIndex > 0)
+        if (fragmentIndex > 0) {
             index = fragmentIndex;
-        if ((queryIndex > 0) && (queryIndex < index))
+        }
+        if ((queryIndex > 0) && (queryIndex < index)) {
             index = queryIndex;
-        if ((slashIndex > 0) && (slashIndex < index))
+        }
+        if ((slashIndex > 0) && (slashIndex < index)) {
             index = slashIndex;
+        }
         // return true if there is ':' before '#', '?', and '/'
         return ((colonIndex > 0) && (colonIndex < index));
 
@@ -127,11 +132,11 @@ public class SystemIDResolver {
      * @return true if the path is absolute
      */
     public static boolean isAbsolutePath(String systemId) {
-        if (systemId == null)
+        if (systemId == null) {
             return false;
+        }
         final File file = new File(systemId);
         return file.isAbsolute();
-
     }
 
     /**
@@ -141,8 +146,9 @@ public class SystemIDResolver {
      * @return true if the path is a Windows absolute path
      */
     private static boolean isWindowsAbsolutePath(String systemId) {
-        if (!isAbsolutePath(systemId))
+        if (!isAbsolutePath(systemId)) {
             return false;
+        }
         // On Windows, an absolute path starts with "[drive_letter]:\".
         return systemId.length() > 2
                 && systemId.charAt(1) == ':'
@@ -201,9 +207,10 @@ public class SystemIDResolver {
                         if (secondColonIndex > 0) {
                             String localPath = systemId.substring(secondColonIndex - 1);
                             try {
-                                if (!isAbsolutePath(localPath))
+                                if (!isAbsolutePath(localPath)) {
                                     absoluteURI = systemId.substring(0, secondColonIndex - 1) +
                                             getAbsolutePathFromRelativePath(localPath);
+                                }
                             } catch (SecurityException se) {
                                 return systemId;
                             }
@@ -214,10 +221,11 @@ public class SystemIDResolver {
                 }
 
                 return replaceChars(absoluteURI);
-            } else
+            } else {
                 return systemId;
-        } else
+            }
+        } else {
             return getAbsoluteURIFromRelative(systemId);
-
+        }
     }
 }

@@ -51,8 +51,9 @@ public class Element {
 
     public Element addAttribute(String namespaceURI, String localName, TextContent value) {
         if (value != null && value.isPresent()) {
-            if (attributes == null)
+            if (attributes == null) {
                 attributes = new Attributes();
+            }
 
             attributes.add(namespaceURI, localName, value);
         }
@@ -102,8 +103,9 @@ public class Element {
 
     private Element addContent(ElementContent item) {
         if (item != null) {
-            if (content == null)
+            if (content == null) {
                 content = new ArrayList<>();
+            }
 
             content.add(item);
         }

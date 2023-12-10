@@ -135,8 +135,8 @@ public class CopyBuilder {
         }
 
         // avoid copying parents not belonging to the hierarchy of the initial source object
-        if (src instanceof Child) {
-            Child parent = ((Child) src).getParent();
+        if (src instanceof Child child) {
+            Child parent = child.getParent();
             if (parent != null) {
                 clones.putIfAbsent(parent, parent);
             }
@@ -158,8 +158,8 @@ public class CopyBuilder {
                     clone = cloner.copy(src, dest, shallowCopy);
                 } catch (Throwable e) {
                     if (failOnError) {
-                        throw e instanceof CopyException ?
-                                (CopyException) e :
+                        throw e instanceof CopyException copyException ?
+                                copyException :
                                 new CopyException("Failed to copy " + src + ".", e);
                     }
                 }
@@ -174,8 +174,8 @@ public class CopyBuilder {
                 clones.clear();
 
                 // unset parent on initial source object
-                if (clone instanceof Child) {
-                    ((Child) clone).setParent(null);
+                if (clone instanceof Child child) {
+                    child.setParent(null);
                 }
             }
         }

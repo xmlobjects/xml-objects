@@ -34,8 +34,9 @@ public class ObjectCloner<T> extends AbstractCloner<T> {
             Field[] fields = type.getDeclaredFields();
             for (Field field : fields) {
                 int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers))
+                if (Modifier.isStatic(modifiers)) {
                     continue;
+                }
 
                 field.setAccessible(true);
                 this.fields.add(field);
@@ -46,8 +47,9 @@ public class ObjectCloner<T> extends AbstractCloner<T> {
     @Override
     public T copy(T src, T dest, boolean shallowCopy) throws Exception {
         if (shallowCopy) {
-            for (Field field : fields)
+            for (Field field : fields) {
                 field.set(dest, field.get(src));
+            }
         } else {
             for (Field field : fields) {
                 Object value = field.get(src);

@@ -19,7 +19,6 @@
 
 package org.xmlobjects;
 
-import org.atteo.classindex.ClassFilter;
 import org.atteo.classindex.ClassIndex;
 import org.w3c.dom.Element;
 import org.xmlobjects.annotation.XMLElement;
@@ -45,7 +44,6 @@ public class XMLObjects {
     private Set<String> serializableNamespaces;
 
     private XMLObjects() {
-        // just to thwart instantiation
     }
 
     public static XMLObjects newInstance() throws XMLObjectsException {
@@ -56,7 +54,6 @@ public class XMLObjects {
         XMLObjects context = new XMLObjects();
         context.loadBuilders(classLoader, true);
         context.loadSerializers(classLoader, true);
-
         return context;
     }
 
@@ -96,8 +93,9 @@ public class XMLObjects {
     public Class<?> getObjectType(ObjectBuilder<?> builder) {
         for (Map<String, BuilderInfo> infos : builders.values()) {
             for (BuilderInfo info : infos.values()) {
-                if (info.builder == builder)
+                if (info.builder == builder) {
                     return info.objectType;
+                }
             }
         }
 
@@ -106,8 +104,9 @@ public class XMLObjects {
 
     public Class<?> getObjectType(String namespaceURI, ObjectBuilder<?> builder) {
         for (BuilderInfo info : builders.getOrDefault(namespaceURI, Collections.emptyMap()).values()) {
-            if (info.builder == builder)
+            if (info.builder == builder) {
                 return info.objectType;
+            }
         }
 
         return Object.class;
@@ -167,9 +166,9 @@ public class XMLObjects {
             }
 
             if (event == EventType.END_ELEMENT) {
-                if (reader.getDepth() == stopAt)
+                if (reader.getDepth() == stopAt) {
                     return object;
-                else if (reader.getDepth() < stopAt) {
+                } else if (reader.getDepth() < stopAt) {
                     throw new XMLReadException("XML reader is in an illegal state: depth = " + reader.getDepth() +
                             " but expected depth = " + stopAt + ".");
                 }
@@ -199,16 +198,16 @@ public class XMLObjects {
 
     @SuppressWarnings("rawtypes")
     public void loadBuilders(ClassLoader classLoader, boolean failOnDuplicates) throws XMLObjectsException {
-        for (Class<? extends ObjectBuilder> type : ClassFilter.only()
-                .withoutModifiers(Modifier.ABSTRACT)
-                .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
-                .from(ClassIndex.getSubclasses(ObjectBuilder.class, classLoader))) {
-
+        for (Class<? extends ObjectBuilder> type : ClassIndex.getSubclasses(ObjectBuilder.class, classLoader).stream()
+                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .filter(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
+                .toList()) {
             boolean isSetElement = type.isAnnotationPresent(XMLElement.class);
             boolean isSetElements = type.isAnnotationPresent(XMLElements.class);
 
-            if (isSetElement && isSetElements)
+            if (isSetElement && isSetElements) {
                 throw new XMLObjectsException("The builder " + type.getName() + " uses both @XMLElement and @XMLElements.");
+            }
 
             ObjectBuilder<?> builder;
             try {
@@ -222,24 +221,25 @@ public class XMLObjects {
                 registerBuilder(builder, element.namespaceURI(), element.name(), failOnDuplicates);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
-                for (XMLElement element : elements.value())
+                for (XMLElement element : elements.value()) {
                     registerBuilder(builder, element.namespaceURI(), element.name(), failOnDuplicates);
+                }
             }
         }
     }
 
     @SuppressWarnings("rawtypes")
     public void loadSerializers(ClassLoader classLoader, boolean failOnDuplicates) throws XMLObjectsException {
-        for (Class<? extends ObjectSerializer> type : ClassFilter.only()
-                .withoutModifiers(Modifier.ABSTRACT)
-                .satisfying(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
-                .from(ClassIndex.getSubclasses(ObjectSerializer.class, classLoader))) {
-
+        for (Class<? extends ObjectSerializer> type : ClassIndex.getSubclasses(ObjectSerializer.class, classLoader).stream()
+                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
+                .filter(c -> c.isAnnotationPresent(XMLElement.class) || c.isAnnotationPresent(XMLElements.class))
+                .toList()) {
             boolean isSetElement = type.isAnnotationPresent(XMLElement.class);
             boolean isSetElements = type.isAnnotationPresent(XMLElements.class);
 
-            if (isSetElement && isSetElements)
+            if (isSetElement && isSetElements) {
                 throw new XMLObjectsException("The serializer " + type.getName() + " uses both @XMLElement and @XMLElements.");
+            }
 
             ObjectSerializer<?> serializer;
             try {
@@ -254,37 +254,42 @@ public class XMLObjects {
                 registerSerializer(serializer, objectType, element.namespaceURI(), failOnDuplicates);
             } else if (isSetElements) {
                 XMLElements elements = type.getAnnotation(XMLElements.class);
-                for (XMLElement element : elements.value())
+                for (XMLElement element : elements.value()) {
                     registerSerializer(serializer, objectType, element.namespaceURI(), failOnDuplicates);
+                }
             }
         }
     }
 
     public void unloadBuilders(String namespaceURI) {
-        if (namespaceURI != null)
+        if (namespaceURI != null) {
             builders.remove(namespaceURI);
+        }
     }
 
     public void unloadSerializers(String namespaceURI) {
-        if (namespaceURI != null)
+        if (namespaceURI != null) {
             serializers.values().forEach(v -> v.remove(namespaceURI));
+        }
     }
 
     private void registerBuilder(ObjectBuilder<?> builder, String namespaceURI, String localName, boolean failOnDuplicates) throws XMLObjectsException {
         BuilderInfo info = new BuilderInfo(builder, findObjectType(builder));
         BuilderInfo current = builders.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, info);
-        if (current != null && current.builder != builder && failOnDuplicates)
+        if (current != null && current.builder != builder && failOnDuplicates) {
             throw new XMLObjectsException("Two builders are registered for the XML element " +
                     new QName(namespaceURI, localName) + ": " +
                     builder.getClass().getName() + " and " + current.builder.getClass().getName() + ".");
+        }
     }
 
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
         ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new HashMap<>()).put(namespaceURI, serializer);
-        if (current != null && current != serializer && failOnDuplicates)
+        if (current != null && current != serializer && failOnDuplicates) {
             throw new XMLObjectsException("Two serializers are registered for the object type " +
                     objectType.getName() + ": " +
                     serializer.getClass().getName() + " and " + current.getClass().getName() + ".");
+        }
     }
 
     private Class<?> findObjectType(ObjectBuilder<?> builder) throws XMLObjectsException {
@@ -332,10 +337,11 @@ public class XMLObjects {
                 }
 
                 if (candidateType != null) {
-                    if (objectType != null && candidateType != objectType)
+                    if (objectType != null && candidateType != objectType) {
                         throw new XMLObjectsException("The serializer " + clazz.getName() +
                                 " uses different object types: " +
                                 objectType.getName() + " and " + candidateType.getName() + ".");
+                    }
 
                     objectType = candidateType;
                 }

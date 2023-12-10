@@ -112,8 +112,9 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
 
     @SuppressWarnings("unchecked")
     public T withHeaderComment(String... headerMessage) {
-        if (headerMessage != null)
+        if (headerMessage != null) {
             this.headerComment = headerMessage;
+        }
 
         return (T) this;
     }

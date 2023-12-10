@@ -75,8 +75,9 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
                                 .collect(Collectors.joining(" ")));
             }
 
-            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet())
+            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet()) {
                 super.startPrefixMapping(entry.getValue(), entry.getKey());
+            }
         }
 
         super.startElement(uri, localName, qName, atts);
@@ -97,8 +98,9 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
         super.endElement(uri, localName, qName);
 
         if (depth == 0) {
-            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet())
+            for (Map.Entry<String, String> entry : prefixMapping.getCurrentContext().entrySet()) {
                 super.endPrefixMapping(entry.getValue());
+            }
         }
 
         prefixMapping.popContext();

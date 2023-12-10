@@ -31,11 +31,12 @@ public class CollectionCloner<T extends Collection> extends AbstractCloner<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T copy(T src, T dest, boolean shallowCopy) {
-        if (shallowCopy)
+        if (shallowCopy) {
             dest.addAll(src);
-        else {
-            for (Object value : src)
+        } else {
+            for (Object value : src) {
                 dest.add(deepCopy(value));
+            }
         }
 
         return dest;
@@ -50,13 +51,14 @@ public class CollectionCloner<T extends Collection> extends AbstractCloner<T> {
             //
         }
 
-        if (object instanceof List)
+        if (object instanceof List) {
             return (T) new ArrayList<>(object.size());
-        else if (object instanceof Set)
+        } else if (object instanceof Set) {
             return (T) new HashSet<>(object.size());
-        else if (object instanceof Deque)
+        } else if (object instanceof Deque) {
             return (T) new ArrayDeque<>(object.size());
-        else
+        } else {
             throw new CopyException("Failed to create an instance of " + object.getClass() + ".");
+        }
     }
 }

@@ -110,7 +110,8 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(File file) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(new FileInputStream(file))), file.toURI().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(
+                    new FileInputStream(file))), file.toURI().normalize());
         } catch (XMLStreamException | FileNotFoundException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -118,7 +119,8 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(File file, String encoding) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(new FileInputStream(file)), encoding), file.toURI().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(
+                    new FileInputStream(file)), encoding), file.toURI().normalize());
         } catch (XMLStreamException | FileNotFoundException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -126,7 +128,8 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Path path) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(Files.newInputStream(path))), path.toUri().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(
+                    new BufferedInputStream(Files.newInputStream(path))), path.toUri().normalize());
         } catch (XMLStreamException | IOException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -134,7 +137,8 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(Path path, String encoding) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(Files.newInputStream(path)), encoding), path.toUri().normalize());
+            return createReader(xmlInputFactory.createXMLStreamReader(
+                    new BufferedInputStream(Files.newInputStream(path)), encoding), path.toUri().normalize());
         } catch (XMLStreamException | IOException e) {
             throw new XMLReadException("Caused by:", e);
         }
@@ -205,13 +209,13 @@ public class XMLReaderFactory {
         xmlReader.setSchemaHandler(schemaHandler);
         xmlReader.createDOMAsFallback(createDOMAsFallback);
         xmlReader.setProperties(properties);
-
         return xmlReader;
     }
 
     public XMLReader createFilteredReader(XMLReader reader, StreamFilter filter) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createFilteredReader(reader.getStreamReader(), filter), reader.getBaseURI());
+            return createReader(xmlInputFactory.createFilteredReader(reader.getStreamReader(), filter),
+                    reader.getBaseURI());
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
