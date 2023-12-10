@@ -9,13 +9,13 @@ plugins {
 }
 
 group 'org.xmlobjects'
-version '1.0.4'
+version '1.1.0-SNAPSHOT'
 description 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
     withJavadocJar()
     withSourcesJar()
@@ -26,13 +26,16 @@ tasks.named('compileJava') {
 }
 
 repositories {
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
     mavenCentral()
 }
 
 dependencies {
     api 'org.glassfish.jaxb:xsom:4.0.4'
-    api 'org.xmlobjects:classindex:3.12.0'
-    annotationProcessor 'org.xmlobjects:classindex:3.12.0'
+    api 'org.xmlobjects:classindex:3.13.0-SNAPSHOT'
+    annotationProcessor 'org.xmlobjects:classindex:3.13.0-SNAPSHOT'
 }
 
 javadoc {
