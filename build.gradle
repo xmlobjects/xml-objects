@@ -50,6 +50,7 @@ javadoc {
             Claus Nagel &lt;claus.nagel@gmail.com&gt;
             """.replaceAll("[\r|\n]+", "")
         addStringOption('doctitle', project.name + ' - ' + project.description)
+        addStringOption('Xdoclint:none', '-quiet')
     }
 
     doFirst {
