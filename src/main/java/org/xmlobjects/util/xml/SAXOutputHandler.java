@@ -105,4 +105,9 @@ public class SAXOutputHandler extends XMLOutput<SAXOutputHandler> {
 
         prefixMapping.popContext();
     }
+
+    @Override
+    protected SAXOutputHandler self() {
+        return this;
+    }
 }

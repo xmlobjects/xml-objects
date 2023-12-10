@@ -35,6 +35,8 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
     protected boolean writeXMLDeclaration = true;
     protected String[] headerComment;
 
+    protected abstract T self();
+
     public XMLOutput() {
         super(new DefaultHandler());
     }
@@ -57,11 +59,10 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
         return prefixMapping.createPrefix(namespaceURI);
     }
 
-    @SuppressWarnings("unchecked")
     public T withPrefix(String prefix, String namespaceURI) {
         prefixMapping.pushContext();
         prefixMapping.declarePrefix(prefix, namespaceURI);
-        return (T) this;
+        return self();
     }
 
     public String getNamespaceURI(String prefix) {
@@ -76,46 +77,42 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
         return schemaLocations.get(namespaceURI);
     }
 
-    @SuppressWarnings("unchecked")
     public T withSchemaLocation(String namespaceURI, String schemaLocation) {
         if (namespaceURI != null && schemaLocation != null) {
             schemaLocations.put(namespaceURI, schemaLocation);
             withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
         }
 
-        return (T) this;
+        return self();
     }
 
     public String getIndent() {
         return indent;
     }
 
-    @SuppressWarnings("unchecked")
     public T withIndent(String indent) {
         this.indent = indent;
-        return (T) this;
+        return self();
     }
 
     public boolean isWriteXMLDeclaration() {
         return writeXMLDeclaration;
     }
 
-    @SuppressWarnings("unchecked")
     public T writeXMLDeclaration(boolean writeXMLDeclaration) {
         this.writeXMLDeclaration = writeXMLDeclaration;
-        return (T) this;
+        return self();
     }
 
     public String[] getHeaderComment() {
         return headerComment;
     }
 
-    @SuppressWarnings("unchecked")
     public T withHeaderComment(String... headerMessage) {
         if (headerMessage != null) {
             this.headerComment = headerMessage;
         }
 
-        return (T) this;
+        return self();
     }
 }

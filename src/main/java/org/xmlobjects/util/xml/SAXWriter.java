@@ -517,4 +517,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
         writer.write(content, pos, end - pos);
     }
+
+    @Override
+    protected SAXWriter self() {
+        return this;
+    }
 }
