@@ -445,8 +445,8 @@ public class TextContent {
     }
 
     public Integer getAsInteger() {
-        if (value instanceof Integer integer) {
-            return integer;
+        if (value instanceof Integer intValue) {
+            return intValue;
         } else if (!isEmpty() && !trimmedContent().isEmpty()) {
             try {
                 return setValue(Integer.parseInt(trimmedContent));
