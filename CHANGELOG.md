@@ -1,6 +1,9 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- **Breaking:** Java 17 is now the minimum required version for using citygml4j.
+
 ### Fixed
 - Unknown XML content is mapped to DOM elements using the default DOM transformer to avoid issues with external
   XML libraries.
