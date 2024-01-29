@@ -11,7 +11,7 @@ xml-objects is licensed under the [Apache License, Version 2.0](http://www.apach
 See the `LICENSE` file for more details.
 
 ## Latest release
-The latest stable release of xml-objects is 1.0.4.
+The latest stable release of xml-objects is 1.1.0.
 
 Download the latest xml-objects release binaries [here](https://github.com/xmlobjects/xml-objects/releases/latest).
 Previous releases are available from the [releases section](https://github.com/xmlobjects/xml-objects/releases).
@@ -22,7 +22,7 @@ Previous releases are available from the [releases section](https://github.com/x
 * To propose a new feature create a GitHub issue and open a discussion.
 
 ## Building
-xml-objects requires Java 11 or higher. The project uses [Gradle](https://gradle.org/) as build system. To build the
+xml-objects requires Java 17 or higher. The project uses [Gradle](https://gradle.org/) as build system. To build the
 library from source, clone the repository to your local machine and run the following command from the root of the
 repository.
 
@@ -44,7 +44,7 @@ project with Maven, add the following code to your `pom.xml`. You may need to ad
 <dependency>
   <groupId>org.xmlobjects</groupId>
   <artifactId>xml-objects</artifactId>
-  <version>1.0.4</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -56,6 +56,6 @@ repositories {
 }
 
 dependencies {
-  compile 'org.xmlobjects:xml-objects:1.0.4'
+  compile 'org.xmlobjects:xml-objects:1.1.0'
 }
 ```

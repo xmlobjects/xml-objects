@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.1.0] - 2024-01-29
 ### Changed
 - **Breaking:** Java 17 is now the minimum required version for using xml-objects.
 
@@ -41,7 +43,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.0
 [1.0.4]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.4
 [1.0.3]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.3
 [1.0.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.2
