@@ -131,7 +131,7 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     @Override
     public void require(int type, String namespaceURI, String localName) throws XMLStreamException {
-        reader.require(type,namespaceURI,localName);
+        reader.require(type, namespaceURI, localName);
     }
 
     @Override

@@ -21,6 +21,7 @@ package org.xmlobjects.model;
 
 public interface Child {
     Child getParent();
+
     void setParent(Child parent);
 
     default <T extends Child> T getParent(Class<T> type) {

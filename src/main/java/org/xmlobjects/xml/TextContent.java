@@ -37,7 +37,8 @@ public class TextContent {
     private static boolean WITH_TIME_OFFSET = true;
     private static boolean WITH_DATE_OFFSET = false;
 
-    private enum Fields { YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE }
+    private enum Fields {YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE}
+
     private static final EnumSet<Fields> DATE_TIME_FIELDS = EnumSet.allOf(Fields.class);
     private static final EnumSet<Fields> TIME_FIELDS = EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE);
     private static final EnumSet<Fields> DATE_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE);
@@ -557,11 +558,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDateTime() {
-        return getAsOffsetDateTime("dateTime");
+        return toOffsetDateTime(getAsCalender("dateTime"));
     }
 
     public boolean isDateTime() {
-        return getAsDateTime() != null;
+        return getAsCalender("dateTime") != null;
     }
 
     public void ifDateTime(Consumer<OffsetDateTime> action) {
@@ -572,11 +573,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateTimeList() {
-        return getAsOffsetDateTimeList("dateTime");
+        return toOffsetDateTimeList(getAsCalenderList("dateTime"));
     }
 
     public boolean isDateTimeList() {
-        return getAsDateTimeList() != null;
+        return getAsCalenderList("dateTime") != null;
     }
 
     public void ifDateTimeList(Consumer<List<OffsetDateTime>> action) {
@@ -587,11 +588,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsTime() {
-        return getAsOffsetDateTime("time");
+        return toOffsetDateTime(getAsCalender("time"));
     }
 
     public boolean isTime() {
-        return getAsTime() != null;
+        return getAsCalender("time") != null;
     }
 
     public void ifTime(Consumer<OffsetDateTime> action) {
@@ -602,11 +603,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsTimeList() {
-        return getAsOffsetDateTimeList("time");
+        return toOffsetDateTimeList(getAsCalenderList("time"));
     }
 
     public boolean isTimeList() {
-        return getAsTimeList() != null;
+        return getAsCalenderList("time") != null;
     }
 
     public void ifTimeList(Consumer<List<OffsetDateTime>> action) {
@@ -617,11 +618,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDate() {
-        return getAsOffsetDateTime("date");
+        return toOffsetDateTime(getAsCalender("date"));
     }
 
     public boolean isDate() {
-        return getAsDate() != null;
+        return getAsCalender("date") != null;
     }
 
     public void ifDate(Consumer<OffsetDateTime> action) {
@@ -632,11 +633,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateList() {
-        return getAsOffsetDateTimeList("date");
+        return toOffsetDateTimeList(getAsCalenderList("date"));
     }
 
     public boolean isDateList() {
-        return getAsDateList() != null;
+        return getAsCalenderList("date") != null;
     }
 
     public void ifDateList(Consumer<List<OffsetDateTime>> action) {
@@ -647,11 +648,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYearMonth() {
-        return getAsOffsetDateTime("gYearMonth");
+        return toOffsetDateTime(getAsCalender("gYearMonth"));
     }
 
     public boolean isGYearMonth() {
-        return getAsGYearMonth() != null;
+        return getAsCalender("gYearMonth") != null;
     }
 
     public void ifGYearMonth(Consumer<OffsetDateTime> action) {
@@ -662,11 +663,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearMonthList() {
-        return getAsOffsetDateTimeList("gYearMonth");
+        return toOffsetDateTimeList(getAsCalenderList("gYearMonth"));
     }
 
     public boolean isGYearMonthList() {
-        return getAsGYearMonthList() != null;
+        return getAsCalenderList("gYearMonth") != null;
     }
 
     public void ifGYearMonthList(Consumer<List<OffsetDateTime>> action) {
@@ -677,11 +678,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonthDay() {
-        return getAsOffsetDateTime("gMonthDay");
+        return toOffsetDateTime(getAsCalender("gMonthDay"));
     }
 
     public boolean isGMonthDay() {
-        return getAsGMonthDay() != null;
+        return getAsCalender("gMonthDay") != null;
     }
 
     public void ifGMonthDay(Consumer<OffsetDateTime> action) {
@@ -692,11 +693,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthDayList() {
-        return getAsOffsetDateTimeList("gMonthDay");
+        return toOffsetDateTimeList(getAsCalenderList("gMonthDay"));
     }
 
     public boolean isGMonthDayList() {
-        return getAsGMonthDayList() != null;
+        return getAsCalenderList("gMonthDay") != null;
     }
 
     public void ifGMonthDayList(Consumer<List<OffsetDateTime>> action) {
@@ -707,11 +708,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGDay() {
-        return getAsOffsetDateTime("gDay");
+        return toOffsetDateTime(getAsCalender("gDay"));
     }
 
     public boolean isGDay() {
-        return getAsGDay() != null;
+        return getAsCalender("gDay") != null;
     }
 
     public void ifGDay(Consumer<OffsetDateTime> action) {
@@ -722,11 +723,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGDayList() {
-        return getAsOffsetDateTimeList("gDay");
+        return toOffsetDateTimeList(getAsCalenderList("gDay"));
     }
 
     public boolean isGDayList() {
-        return getAsGDayList() != null;
+        return getAsCalenderList("gDay") != null;
     }
 
     public void ifGDayList(Consumer<List<OffsetDateTime>> action) {
@@ -737,11 +738,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonth() {
-        return getAsOffsetDateTime("gMonth");
+        return toOffsetDateTime(getAsCalender("gMonth"));
     }
 
     public boolean isGMonth() {
-        return getAsGMonth() != null;
+        return getAsCalender("gMonth") != null;
     }
 
     public void ifGMonth(Consumer<OffsetDateTime> action) {
@@ -752,11 +753,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthList() {
-        return getAsOffsetDateTimeList("gMonth");
+        return toOffsetDateTimeList(getAsCalenderList("gMonth"));
     }
 
     public boolean isGMonthList() {
-        return getAsGMonthList() != null;
+        return getAsCalenderList("gMonth") != null;
     }
 
     public void ifGMonthList(Consumer<List<OffsetDateTime>> action) {
@@ -767,11 +768,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYear() {
-        return getAsOffsetDateTime("gYear");
+        return toOffsetDateTime(getAsCalender("gYear"));
     }
 
     public boolean isGYear() {
-        return getAsGYear() != null;
+        return getAsCalender("gYear") != null;
     }
 
     public void ifGYear(Consumer<OffsetDateTime> action) {
@@ -782,11 +783,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearList() {
-        return getAsOffsetDateTimeList("gYear");
+        return toOffsetDateTimeList(getAsCalenderList("gYear"));
     }
 
     public boolean isGYearList() {
-        return getAsGYearList() != null;
+        return getAsCalenderList("gYear") != null;
     }
 
     public void ifGYearList(Consumer<List<OffsetDateTime>> action) {
@@ -804,25 +805,29 @@ public class TextContent {
         return this;
     }
 
-    private OffsetDateTime getAsOffsetDateTime(String localName) {
+    private <T> T setValue(T value) {
+        this.value = value;
+        return value;
+    }
+
+    private XMLGregorianCalendar getAsCalender(String localName) {
         if (value instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
-            return toOffsetDateTime((XMLGregorianCalendar) value);
+            return calendar;
         } else if (!isEmpty() && !trimmedContent().isEmpty()) {
-            XMLGregorianCalendar calendar = setValue(toCalendar(trimmedContent(), localName));
-            return calendar != null ? toOffsetDateTime(calendar) : null;
+            return setValue(toCalendar(trimmedContent(), localName));
         } else {
             return setValue(null);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private List<OffsetDateTime> getAsOffsetDateTimeList(String localName) {
+    private List<XMLGregorianCalendar> getAsCalenderList(String localName) {
         List<XMLGregorianCalendar> calendars;
         if (value instanceof List<?> list
                 && list.stream().allMatch(v -> v instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName))) {
-            calendars = (List<XMLGregorianCalendar>) value;
+            return (List<XMLGregorianCalendar>) list;
         } else if (tokenizeContent() != 0) {
             calendars = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
@@ -834,22 +839,10 @@ public class TextContent {
                 }
             }
 
-            setValue(calendars);
+            return setValue(calendars);
         } else {
             return setValue(null);
         }
-
-        List<OffsetDateTime> result = new ArrayList<>(calendars.size());
-        for (XMLGregorianCalendar calendar : calendars) {
-            result.add(toOffsetDateTime(calendar));
-        }
-
-        return result;
-    }
-
-    private <T> T setValue(T value) {
-        this.value = value;
-        return value;
     }
 
     private boolean isListOfType(Object value, Class<?> type) {
@@ -884,29 +877,47 @@ public class TextContent {
     }
 
     private OffsetDateTime toOffsetDateTime(XMLGregorianCalendar calendar) {
-        int day = calendar.getDay();
-        int month = calendar.getMonth();
-        int year = calendar.getYear();
-        int hour = calendar.getHour();
-        int minute = calendar.getMinute();
-        int second = calendar.getSecond();
-        int offset = calendar.getTimezone();
+        if (calendar != null) {
+            int day = calendar.getDay();
+            int month = calendar.getMonth();
+            int year = calendar.getYear();
+            int hour = calendar.getHour();
+            int minute = calendar.getMinute();
+            int second = calendar.getSecond();
+            int offset = calendar.getTimezone();
 
-        BigDecimal fractional = calendar.getFractionalSecond();
-        int nano = fractional != null ? (int) (fractional.doubleValue() * 1e+9) : DatatypeConstants.FIELD_UNDEFINED;
+            BigDecimal fractional = calendar.getFractionalSecond();
+            int nano = fractional != null ?
+                    (int) (fractional.doubleValue() * 1e+9) :
+                    DatatypeConstants.FIELD_UNDEFINED;
 
-        LocalDateTime dateTime = LocalDateTime.of(
-                year != DatatypeConstants.FIELD_UNDEFINED ? year : 0,
-                month != DatatypeConstants.FIELD_UNDEFINED ? month : 1,
-                day != DatatypeConstants.FIELD_UNDEFINED ? day : 1,
-                hour != DatatypeConstants.FIELD_UNDEFINED ? hour : 0,
-                minute != DatatypeConstants.FIELD_UNDEFINED ? minute : 0,
-                second != DatatypeConstants.FIELD_UNDEFINED ? second : 0,
-                nano != DatatypeConstants.FIELD_UNDEFINED ? nano : 0);
+            LocalDateTime dateTime = LocalDateTime.of(
+                    year != DatatypeConstants.FIELD_UNDEFINED ? year : 0,
+                    month != DatatypeConstants.FIELD_UNDEFINED ? month : 1,
+                    day != DatatypeConstants.FIELD_UNDEFINED ? day : 1,
+                    hour != DatatypeConstants.FIELD_UNDEFINED ? hour : 0,
+                    minute != DatatypeConstants.FIELD_UNDEFINED ? minute : 0,
+                    second != DatatypeConstants.FIELD_UNDEFINED ? second : 0,
+                    nano != DatatypeConstants.FIELD_UNDEFINED ? nano : 0);
 
-        return OffsetDateTime.of(dateTime, offset != DatatypeConstants.FIELD_UNDEFINED ?
-                ZoneOffset.ofTotalSeconds(offset * 60) :
-                zoneOffsetProvider.apply(dateTime));
+            return OffsetDateTime.of(dateTime, offset != DatatypeConstants.FIELD_UNDEFINED ?
+                    ZoneOffset.ofTotalSeconds(offset * 60) :
+                    zoneOffsetProvider.apply(dateTime));
+        } else {
+            return null;
+        }
+    }
+
+    private List<OffsetDateTime> toOffsetDateTimeList(List<XMLGregorianCalendar> calenders) {
+        if (calenders != null) {
+            List<OffsetDateTime> dateTimes = new ArrayList<>(calenders.size());
+            calenders.stream()
+                    .map(this::toOffsetDateTime)
+                    .forEach(dateTimes::add);
+            return dateTimes;
+        } else {
+            return null;
+        }
     }
 
     private static TextContent ofObject(Object content) {

@@ -71,7 +71,7 @@ public class BuildResult<T> {
         }
     }
 
-    public Element getDOMElement(){
+    public Element getDOMElement() {
         return element;
     }
 }

@@ -134,7 +134,7 @@ public class XMLWriterFactory {
         xmlWriter.setProperties(properties);
         return xmlWriter;
     }
-    
+
     public XMLWriter createWriter(ContentHandler contentHandler) {
         XMLWriter xmlWriter = new XMLWriter(xmlObjects, new SAXOutputHandler(contentHandler));
         xmlWriter.setProperties(properties);

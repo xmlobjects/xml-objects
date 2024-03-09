@@ -27,5 +27,6 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface XMLElement {
     String name();
+
     String namespaceURI() default XMLConstants.NULL_NS_URI;
 }
