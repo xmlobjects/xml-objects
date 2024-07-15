@@ -1,7 +1,8 @@
 # Changelog
 
 ## [Unreleased]
-### Changed
+## [1.1.1] - 2024-07-05
+### Fixed
 - Avoid unnecessary conversion to `OffsetDateTime` in `TextContent`.
 
 ## [1.1.0] - 2024-01-29
@@ -45,7 +46,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.1
 [1.1.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.0
 [1.0.4]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.4
 [1.0.3]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.3
