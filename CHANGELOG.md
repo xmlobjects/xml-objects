@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Avoid unnecessary conversion to `OffsetDateTime` in `TextContent`.
 
 ## [1.1.0] - 2024-01-29
 ### Changed
