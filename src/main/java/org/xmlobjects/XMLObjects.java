@@ -150,6 +150,18 @@ public class XMLObjects {
         return serializableNamespaces;
     }
 
+    public Map<Class<?>, Set<QName>> getObjectTypes() {
+        Map<Class<?>, Set<QName>> objectTypes = new HashMap<>();
+        for (Map.Entry<String, Map<String, BuilderInfo>> entry : builders.entrySet()) {
+            for (Map.Entry<String, BuilderInfo> info : entry.getValue().entrySet()) {
+                objectTypes.computeIfAbsent(info.getValue().objectType, v -> new HashSet<>())
+                        .add(new QName(entry.getKey(), info.getKey()));
+            }
+        }
+
+        return objectTypes;
+    }
+
     public <T> T fromXML(XMLReader reader, Class<T> objectType) throws ObjectBuildException, XMLReadException {
         T object = null;
         int stopAt = 0;
