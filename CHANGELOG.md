@@ -1,6 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+## [1.1.2] - 2024-12-01
+### Added
+- Added method `getObjectTypes` to `XMLObjects` class to get supported object types with their XML element name
+  mappings.
+
 ## [1.1.1] - 2024-07-05
 ### Fixed
 - Avoid unnecessary conversion to `OffsetDateTime` in `TextContent`.
@@ -46,7 +51,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.1...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.2
 [1.1.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.1
 [1.1.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.0
 [1.0.4]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.0.4
