@@ -8,9 +8,9 @@ plugins {
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
 }
 
-group 'org.xmlobjects'
-version '1.1.2'
-description 'A simple and lightweight XML-to-object mapping library'
+group = 'org.xmlobjects'
+version = '1.1.2'
+description = 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
 java {
@@ -27,7 +27,7 @@ tasks.named('compileJava') {
 
 repositories {
     maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        url = 'https://oss.sonatype.org/content/repositories/snapshots/'
     }
     mavenCentral()
 }
@@ -40,11 +40,11 @@ dependencies {
 
 javadoc {
     options {
-        overview "$projectDir/build/tmp/javadoc/overview.html"
-        header "$project.name $project.version"
+        overview = "$projectDir/build/tmp/javadoc/overview.html"
+        header = "$project.name $project.version"
         bottom """
             <a target="_blank" href="https://github.com/xmlobjects/xml-objects/issues">Report a bug or suggest an enhancement</a><br />
-            $project.name is open source and licensed under the <a target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><br />
+            ${project.name} is open source and licensed under the <a target="_blank" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><br />
             Official website and more information at: <a target="_blank" href="https://github.com/xmlobjects">https://github.com/xmlobjects</a><br />
             Copyright &copy; 2013-${date.format('yyyy')}<br />
             Claus Nagel &lt;claus.nagel@gmail.com&gt;
@@ -58,8 +58,8 @@ javadoc {
             from 'resources/javadoc/overview.html'
             into "$projectDir/build/tmp/javadoc"
             filter(ReplaceTokens, tokens: [
-                    name: project.name,
-                    version: project.version
+                    name: name,
+                    version: version
             ])
         }
     }
