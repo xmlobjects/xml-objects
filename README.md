@@ -11,7 +11,7 @@ xml-objects is licensed under the [Apache License, Version 2.0](http://www.apach
 See the `LICENSE` file for more details.
 
 ## Latest release
-The latest stable release of xml-objects is 1.1.2.
+The latest stable release of xml-objects is 1.1.3.
 
 Download the latest xml-objects release binaries [here](https://github.com/xmlobjects/xml-objects/releases/latest).
 Previous releases are available from the [releases section](https://github.com/xmlobjects/xml-objects/releases).
@@ -44,7 +44,7 @@ project with Maven, add the following code to your `pom.xml`. You may need to ad
 <dependency>
   <groupId>org.xmlobjects</groupId>
   <artifactId>xml-objects</artifactId>
-  <version>1.1.2</version>
+  <version>1.1.3</version>
 </dependency>
 ```
 
@@ -56,6 +56,6 @@ repositories {
 }
 
 dependencies {
-  compile 'org.xmlobjects:xml-objects:1.1.2'
+  compile 'org.xmlobjects:xml-objects:1.1.3'
 }
 ```
