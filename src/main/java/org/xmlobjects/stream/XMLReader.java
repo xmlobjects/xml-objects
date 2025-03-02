@@ -46,7 +46,6 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.lang.ref.WeakReference;
 import java.net.URI;
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class XMLReader implements AutoCloseable {
     private final DepthXMLStreamReader reader;
 
     private final Map<Class<?>, ObjectBuilder<?>> builderCache = new IdentityHashMap<>();
-    private WeakReference<?> parent = new WeakReference<>(null);
+    private Object parent;
     private boolean createDOMAsFallback;
     private Properties properties;
     private Transformer transformer;
@@ -126,8 +125,8 @@ public class XMLReader implements AutoCloseable {
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         } finally {
-            parent.clear();
             builderCache.clear();
+            parent = null;
         }
     }
 
@@ -187,7 +186,7 @@ public class XMLReader implements AutoCloseable {
         QName name = reader.getName();
         ObjectBuilder<T> builder = xmlObjects.getBuilder(name, type);
         if (builder != null) {
-            T object = builder.createObject(name, parent.get());
+            T object = builder.createObject(name, parent);
             if (object == null) {
                 throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
             }
@@ -208,7 +207,7 @@ public class XMLReader implements AutoCloseable {
         }
 
         QName name = reader.getName();
-        T object = builder.createObject(name, parent.get());
+        T object = builder.createObject(name, parent);
         if (object == null) {
             throw new ObjectBuildException("The builder " + builder.getClass().getName() + " created a null value.");
         }
@@ -248,9 +247,9 @@ public class XMLReader implements AutoCloseable {
     }
 
     private <T> T processObject(T object, QName name, ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
-        WeakReference<?> previous = parent;
+        Object previous = parent;
         try {
-            parent = new WeakReference<>(object);
+            parent = object;
             int stopAt = reader.getDepth() - 1;
             int childLevel = reader.getDepth() + 1;
 
