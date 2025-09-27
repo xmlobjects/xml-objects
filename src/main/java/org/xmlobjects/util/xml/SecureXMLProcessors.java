@@ -105,7 +105,7 @@ public class SecureXMLProcessors {
         return secure(TransformerFactory.newInstance(factoryClassName, loader));
     }
 
-    public static TransformerFactory newDefaultTransformerFactory(String factoryClassName, ClassLoader loader) throws TransformerConfigurationException {
+    public static TransformerFactory newDefaultTransformerFactory() throws TransformerConfigurationException {
         return secure(TransformerFactory.newDefaultInstance());
     }
 

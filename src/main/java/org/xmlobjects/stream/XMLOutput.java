@@ -80,10 +80,10 @@ public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implem
     public T withSchemaLocation(String namespaceURI, String schemaLocation) {
         if (namespaceURI != null && schemaLocation != null) {
             schemaLocations.put(namespaceURI, schemaLocation);
-            withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+            return withPrefix("xsi", XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI);
+        } else {
+            return self();
         }
-
-        return self();
     }
 
     public String getIndent() {

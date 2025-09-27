@@ -185,10 +185,9 @@ public class SAXStreamReader implements XMLStreamReader {
 
     @Override
     public int nextTag() throws XMLStreamException {
-        next();
-        while (eventType == XMLStreamConstants.CHARACTERS && isWhiteSpace()) {
+        do {
             next();
-        }
+        } while (eventType == XMLStreamConstants.CHARACTERS && isWhiteSpace());
 
         if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT) {
             throw new XMLStreamException("Expected START_ELEMENT or END_ELEMENT.");

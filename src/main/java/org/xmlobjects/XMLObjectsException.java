@@ -20,7 +20,6 @@
 package org.xmlobjects;
 
 public class XMLObjectsException extends Exception {
-    private static final long serialVersionUID = 8533413316860346255L;
 
     public XMLObjectsException() {
         super();
