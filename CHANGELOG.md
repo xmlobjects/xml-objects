@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [1.1.6] - 2025-09-27
+### Changed
+- Updated xsom to 4.0.6.
+
 ## [1.1.5] - 2025-03-02
 ### Fixed
 - Removed unnecessary use of `WeakReference` in `XMLReader`.
@@ -61,7 +65,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.5...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.1.6...HEAD
+[1.1.6]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.6
 [1.1.5]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.5
 [1.1.4]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.4
 [1.1.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.2
