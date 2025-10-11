@@ -269,10 +269,8 @@ public class TextContent {
             char ch = 0;
             int i = 0;
 
-            for (; i < length; i++) {
-                ch = content.charAt(i);
-                if (!isWhiteSpace(ch))
-                    break;
+            while (i < length && isWhiteSpace(content.charAt(i))) {
+                i++;
             }
 
             if (i != length) {
@@ -850,17 +848,11 @@ public class TextContent {
     }
 
     private Boolean toBoolean(String value) {
-        if (value.isEmpty()) {
-            return null;
-        } else if ("true".equals(value)
-                || "1".equals(value)) {
-            return Boolean.TRUE;
-        } else if ("false".equals(value)
-                || "0".equals(value)) {
-            return Boolean.FALSE;
-        } else {
-            return null;
-        }
+        return switch (value) {
+            case "true", "1" -> Boolean.TRUE;
+            case "false", "0" -> Boolean.FALSE;
+            default -> null;
+        };
     }
 
     private XMLGregorianCalendar toCalendar(String value, String localName) {
