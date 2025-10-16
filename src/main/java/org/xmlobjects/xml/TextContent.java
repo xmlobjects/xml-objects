@@ -249,12 +249,18 @@ public class TextContent {
     }
 
     public TextContent normalize() {
-        content = TextHelper.normalize(content);
+        if (!isEmpty()) {
+            content = TextHelper.normalize(content);
+        }
+
         return this;
     }
 
     public TextContent collapse() {
-        content = trimmedContent = TextHelper.collapse(content);
+        if (!isEmpty()) {
+            content = trimmedContent = TextHelper.collapse(content);
+        }
+
         return this;
     }
 
@@ -350,7 +356,7 @@ public class TextContent {
     public Double getAsDouble() {
         if (value instanceof Double doubleValue) {
             return doubleValue;
-        } else if (!isEmpty() && !trimContent().isEmpty()) {
+        } else if (!trimContent().isEmpty()) {
             try {
                 return setValue(Double.parseDouble(trimmedContent));
             } catch (NumberFormatException e) {
@@ -406,7 +412,7 @@ public class TextContent {
     public Integer getAsInteger() {
         if (value instanceof Integer intValue) {
             return intValue;
-        } else if (!isEmpty() && !trimContent().isEmpty()) {
+        } else if (!trimContent().isEmpty()) {
             try {
                 return setValue(Integer.parseInt(trimmedContent));
             } catch (NumberFormatException e) {
@@ -462,7 +468,7 @@ public class TextContent {
     public Duration getAsDuration() {
         if (value instanceof Duration duration) {
             return duration;
-        } else if (!isEmpty() && !trimContent().isEmpty()) {
+        } else if (!trimContent().isEmpty()) {
             try {
                 return setValue(XML_TYPE_FACTORY.newDuration(trimmedContent));
             } catch (Throwable e) {
@@ -767,7 +773,7 @@ public class TextContent {
         if (value instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
             return calendar;
-        } else if (!isEmpty() && !trimContent().isEmpty()) {
+        } else if (!trimContent().isEmpty()) {
             return setValue(toCalendar(trimmedContent, localName));
         } else {
             return setValue(null);
@@ -970,7 +976,7 @@ public class TextContent {
 
     private String trimContent() {
         if (trimmedContent == null) {
-            trimmedContent = content.trim();
+            trimmedContent = isEmpty() ? "" : content.trim();
         }
 
         return trimmedContent;
@@ -978,7 +984,7 @@ public class TextContent {
 
     private int tokenizeContent() {
         if (tokenizedContent == null) {
-            tokenizedContent = TextHelper.tokenizeContent(content);
+            tokenizedContent = isEmpty() ? new String[0] : TextHelper.tokenizeContent(content);
         }
 
         return tokenizedContent.length;
