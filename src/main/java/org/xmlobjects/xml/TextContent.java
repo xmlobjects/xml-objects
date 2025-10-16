@@ -259,7 +259,6 @@ public class TextContent {
             }
 
             content = new String(chars);
-            trimmedContent = null;
         }
 
         return this;
