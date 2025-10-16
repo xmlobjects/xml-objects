@@ -925,7 +925,7 @@ public class TextContent {
 
     private static TextContent ofObjectList(List<?> content) {
         if (content != null && !content.isEmpty()) {
-            StringBuilder builder = new StringBuilder(content.size());
+            StringBuilder builder = new StringBuilder();
             boolean first = true;
 
             for (Object object : content) {
@@ -1045,13 +1045,11 @@ public class TextContent {
     }
 
     private int nextWhiteSpace(String value, int pos, int length) {
-        for (int i = pos; i < length; i++) {
-            if (Character.isWhitespace(value.charAt(i))) {
-                return i;
-            }
+        while (pos < length && !Character.isWhitespace(value.charAt(pos))) {
+            pos++;
         }
 
-        return length;
+        return pos;
     }
 
     @Override
