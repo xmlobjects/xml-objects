@@ -244,60 +244,17 @@ public class TextContent {
     }
 
     public TextContent trim() {
-        content = trimmedContent();
+        content = trimContent();
         return this;
     }
 
     public TextContent normalize() {
-        int length = content.length();
-        if (length != 0) {
-            char[] chars = content.toCharArray();
-            for (int i = 0; i < length; i++) {
-                if (Character.isWhitespace(chars[i])) {
-                    chars[i] = ' ';
-                }
-            }
-
-            content = new String(chars);
-        }
-
+        content = TextHelper.normalize(content);
         return this;
     }
 
     public TextContent collapse() {
-        int length = content.length();
-        if (length != 0) {
-            int i = 0;
-            while (i < length && Character.isWhitespace(content.charAt(i))) {
-                i++;
-            }
-
-            if (i != length) {
-                StringBuilder collapsed = new StringBuilder(length - i);
-                char ch = content.charAt(i);
-                collapsed.append(ch);
-
-                boolean isWhiteSpace = false;
-                for (i += 1; i < length; i++) {
-                    ch = content.charAt(i);
-                    if (Character.isWhitespace(ch)) {
-                        isWhiteSpace = true;
-                    } else {
-                        if (isWhiteSpace) {
-                            collapsed.append(' ');
-                            isWhiteSpace = false;
-                        }
-
-                        collapsed.append(ch);
-                    }
-                }
-
-                content = trimmedContent = collapsed.toString();
-            } else {
-                content = trimmedContent = "";
-            }
-        }
-
+        content = trimmedContent = TextHelper.collapse(content);
         return this;
     }
 
@@ -344,7 +301,7 @@ public class TextContent {
     }
 
     public Boolean getAsBoolean() {
-        return value instanceof Boolean bool ? bool : setValue(toBoolean(trimmedContent()));
+        return value instanceof Boolean bool ? bool : setValue(toBoolean(trimContent()));
     }
 
     public boolean isBoolean() {
@@ -393,7 +350,7 @@ public class TextContent {
     public Double getAsDouble() {
         if (value instanceof Double doubleValue) {
             return doubleValue;
-        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        } else if (!isEmpty() && !trimContent().isEmpty()) {
             try {
                 return setValue(Double.parseDouble(trimmedContent));
             } catch (NumberFormatException e) {
@@ -449,7 +406,7 @@ public class TextContent {
     public Integer getAsInteger() {
         if (value instanceof Integer intValue) {
             return intValue;
-        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        } else if (!isEmpty() && !trimContent().isEmpty()) {
             try {
                 return setValue(Integer.parseInt(trimmedContent));
             } catch (NumberFormatException e) {
@@ -505,7 +462,7 @@ public class TextContent {
     public Duration getAsDuration() {
         if (value instanceof Duration duration) {
             return duration;
-        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
+        } else if (!isEmpty() && !trimContent().isEmpty()) {
             try {
                 return setValue(XML_TYPE_FACTORY.newDuration(trimmedContent));
             } catch (Throwable e) {
@@ -810,8 +767,8 @@ public class TextContent {
         if (value instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
             return calendar;
-        } else if (!isEmpty() && !trimmedContent().isEmpty()) {
-            return setValue(toCalendar(trimmedContent(), localName));
+        } else if (!isEmpty() && !trimContent().isEmpty()) {
+            return setValue(toCalendar(trimmedContent, localName));
         } else {
             return setValue(null);
         }
@@ -1011,7 +968,7 @@ public class TextContent {
         WITH_DATE_OFFSET = useDateOffset;
     }
 
-    private String trimmedContent() {
+    private String trimContent() {
         if (trimmedContent == null) {
             trimmedContent = content.trim();
         }
@@ -1021,34 +978,10 @@ public class TextContent {
 
     private int tokenizeContent() {
         if (tokenizedContent == null) {
-            int length = content.length();
-            String[] tokens = new String[(length / 2) + 1];
-            int noOfTokens = 0;
-            int current = -1;
-            int next;
-
-            do {
-                next = nextWhiteSpace(content, current + 1, length);
-                if (next != current + 1) {
-                    tokens[noOfTokens++] = content.substring(current + 1, next);
-                }
-
-                current = next;
-            } while (next != length);
-
-            tokenizedContent = new String[noOfTokens];
-            System.arraycopy(tokens, 0, tokenizedContent, 0, noOfTokens);
+            tokenizedContent = TextHelper.tokenizeContent(content);
         }
 
         return tokenizedContent.length;
-    }
-
-    private int nextWhiteSpace(String value, int pos, int length) {
-        while (pos < length && !Character.isWhitespace(value.charAt(pos))) {
-            pos++;
-        }
-
-        return pos;
     }
 
     @Override
