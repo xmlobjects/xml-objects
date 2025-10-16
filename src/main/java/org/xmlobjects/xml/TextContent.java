@@ -268,7 +268,6 @@ public class TextContent {
     public TextContent collapse() {
         int length = content.length();
         if (length != 0) {
-            char ch = 0;
             int i = 0;
 
             while (i < length && Character.isWhitespace(content.charAt(i))) {
@@ -276,9 +275,11 @@ public class TextContent {
             }
 
             if (i != length) {
-                StringBuilder collapsed = new StringBuilder(length - i).append(ch);
-                boolean isWhiteSpace = false;
+                StringBuilder collapsed = new StringBuilder(length - i);
+                char ch = content.charAt(i);
+                collapsed.append(ch);
 
+                boolean isWhiteSpace = false;
                 for (i += 1; i < length; i++) {
                     ch = content.charAt(i);
                     if (Character.isWhitespace(ch)) {
