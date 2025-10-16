@@ -251,13 +251,15 @@ public class TextContent {
     public TextContent normalize() {
         int length = content.length();
         if (length != 0) {
-            StringBuilder normalized = new StringBuilder(length);
+            char[] chars = content.toCharArray();
             for (int i = 0; i < length; i++) {
-                char ch = content.charAt(i);
-                normalized.append(isWhiteSpace(ch) ? ' ' : ch);
+                if (Character.isWhitespace(chars[i])) {
+                    chars[i] = ' ';
+                }
             }
 
-            content = normalized.toString();
+            content = new String(chars);
+            trimmedContent = null;
         }
 
         return this;
@@ -269,7 +271,7 @@ public class TextContent {
             char ch = 0;
             int i = 0;
 
-            while (i < length && isWhiteSpace(content.charAt(i))) {
+            while (i < length && Character.isWhitespace(content.charAt(i))) {
                 i++;
             }
 
@@ -279,7 +281,7 @@ public class TextContent {
 
                 for (i += 1; i < length; i++) {
                     ch = content.charAt(i);
-                    if (isWhiteSpace(ch)) {
+                    if (Character.isWhitespace(ch)) {
                         isWhiteSpace = true;
                     } else {
                         if (isWhiteSpace) {
@@ -1043,16 +1045,12 @@ public class TextContent {
 
     private int nextWhiteSpace(String value, int pos, int length) {
         for (int i = pos; i < length; i++) {
-            if (isWhiteSpace(value.charAt(i))) {
+            if (Character.isWhitespace(value.charAt(i))) {
                 return i;
             }
         }
 
         return length;
-    }
-
-    private boolean isWhiteSpace(char ch) {
-        return ch == ' ' || ch == '\n' || Character.isWhitespace(ch);
     }
 
     @Override
