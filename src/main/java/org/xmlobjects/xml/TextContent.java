@@ -269,7 +269,6 @@ public class TextContent {
         int length = content.length();
         if (length != 0) {
             int i = 0;
-
             while (i < length && Character.isWhitespace(content.charAt(i))) {
                 i++;
             }
@@ -561,11 +560,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDateTime() {
-        return toOffsetDateTime(getAsCalender("dateTime"));
+        return toOffsetDateTime(getAsCalendar("dateTime"));
     }
 
     public boolean isDateTime() {
-        return getAsCalender("dateTime") != null;
+        return getAsCalendar("dateTime") != null;
     }
 
     public void ifDateTime(Consumer<OffsetDateTime> action) {
@@ -576,11 +575,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateTimeList() {
-        return toOffsetDateTimeList(getAsCalenderList("dateTime"));
+        return toOffsetDateTimeList(getAsCalendarList("dateTime"));
     }
 
     public boolean isDateTimeList() {
-        return getAsCalenderList("dateTime") != null;
+        return getAsCalendarList("dateTime") != null;
     }
 
     public void ifDateTimeList(Consumer<List<OffsetDateTime>> action) {
@@ -591,11 +590,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsTime() {
-        return toOffsetDateTime(getAsCalender("time"));
+        return toOffsetDateTime(getAsCalendar("time"));
     }
 
     public boolean isTime() {
-        return getAsCalender("time") != null;
+        return getAsCalendar("time") != null;
     }
 
     public void ifTime(Consumer<OffsetDateTime> action) {
@@ -606,11 +605,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsTimeList() {
-        return toOffsetDateTimeList(getAsCalenderList("time"));
+        return toOffsetDateTimeList(getAsCalendarList("time"));
     }
 
     public boolean isTimeList() {
-        return getAsCalenderList("time") != null;
+        return getAsCalendarList("time") != null;
     }
 
     public void ifTimeList(Consumer<List<OffsetDateTime>> action) {
@@ -621,11 +620,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDate() {
-        return toOffsetDateTime(getAsCalender("date"));
+        return toOffsetDateTime(getAsCalendar("date"));
     }
 
     public boolean isDate() {
-        return getAsCalender("date") != null;
+        return getAsCalendar("date") != null;
     }
 
     public void ifDate(Consumer<OffsetDateTime> action) {
@@ -636,11 +635,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateList() {
-        return toOffsetDateTimeList(getAsCalenderList("date"));
+        return toOffsetDateTimeList(getAsCalendarList("date"));
     }
 
     public boolean isDateList() {
-        return getAsCalenderList("date") != null;
+        return getAsCalendarList("date") != null;
     }
 
     public void ifDateList(Consumer<List<OffsetDateTime>> action) {
@@ -651,11 +650,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYearMonth() {
-        return toOffsetDateTime(getAsCalender("gYearMonth"));
+        return toOffsetDateTime(getAsCalendar("gYearMonth"));
     }
 
     public boolean isGYearMonth() {
-        return getAsCalender("gYearMonth") != null;
+        return getAsCalendar("gYearMonth") != null;
     }
 
     public void ifGYearMonth(Consumer<OffsetDateTime> action) {
@@ -666,11 +665,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearMonthList() {
-        return toOffsetDateTimeList(getAsCalenderList("gYearMonth"));
+        return toOffsetDateTimeList(getAsCalendarList("gYearMonth"));
     }
 
     public boolean isGYearMonthList() {
-        return getAsCalenderList("gYearMonth") != null;
+        return getAsCalendarList("gYearMonth") != null;
     }
 
     public void ifGYearMonthList(Consumer<List<OffsetDateTime>> action) {
@@ -681,11 +680,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonthDay() {
-        return toOffsetDateTime(getAsCalender("gMonthDay"));
+        return toOffsetDateTime(getAsCalendar("gMonthDay"));
     }
 
     public boolean isGMonthDay() {
-        return getAsCalender("gMonthDay") != null;
+        return getAsCalendar("gMonthDay") != null;
     }
 
     public void ifGMonthDay(Consumer<OffsetDateTime> action) {
@@ -696,11 +695,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthDayList() {
-        return toOffsetDateTimeList(getAsCalenderList("gMonthDay"));
+        return toOffsetDateTimeList(getAsCalendarList("gMonthDay"));
     }
 
     public boolean isGMonthDayList() {
-        return getAsCalenderList("gMonthDay") != null;
+        return getAsCalendarList("gMonthDay") != null;
     }
 
     public void ifGMonthDayList(Consumer<List<OffsetDateTime>> action) {
@@ -711,11 +710,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGDay() {
-        return toOffsetDateTime(getAsCalender("gDay"));
+        return toOffsetDateTime(getAsCalendar("gDay"));
     }
 
     public boolean isGDay() {
-        return getAsCalender("gDay") != null;
+        return getAsCalendar("gDay") != null;
     }
 
     public void ifGDay(Consumer<OffsetDateTime> action) {
@@ -726,11 +725,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGDayList() {
-        return toOffsetDateTimeList(getAsCalenderList("gDay"));
+        return toOffsetDateTimeList(getAsCalendarList("gDay"));
     }
 
     public boolean isGDayList() {
-        return getAsCalenderList("gDay") != null;
+        return getAsCalendarList("gDay") != null;
     }
 
     public void ifGDayList(Consumer<List<OffsetDateTime>> action) {
@@ -741,11 +740,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonth() {
-        return toOffsetDateTime(getAsCalender("gMonth"));
+        return toOffsetDateTime(getAsCalendar("gMonth"));
     }
 
     public boolean isGMonth() {
-        return getAsCalender("gMonth") != null;
+        return getAsCalendar("gMonth") != null;
     }
 
     public void ifGMonth(Consumer<OffsetDateTime> action) {
@@ -756,11 +755,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthList() {
-        return toOffsetDateTimeList(getAsCalenderList("gMonth"));
+        return toOffsetDateTimeList(getAsCalendarList("gMonth"));
     }
 
     public boolean isGMonthList() {
-        return getAsCalenderList("gMonth") != null;
+        return getAsCalendarList("gMonth") != null;
     }
 
     public void ifGMonthList(Consumer<List<OffsetDateTime>> action) {
@@ -771,11 +770,11 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYear() {
-        return toOffsetDateTime(getAsCalender("gYear"));
+        return toOffsetDateTime(getAsCalendar("gYear"));
     }
 
     public boolean isGYear() {
-        return getAsCalender("gYear") != null;
+        return getAsCalendar("gYear") != null;
     }
 
     public void ifGYear(Consumer<OffsetDateTime> action) {
@@ -786,11 +785,11 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearList() {
-        return toOffsetDateTimeList(getAsCalenderList("gYear"));
+        return toOffsetDateTimeList(getAsCalendarList("gYear"));
     }
 
     public boolean isGYearList() {
-        return getAsCalenderList("gYear") != null;
+        return getAsCalendarList("gYear") != null;
     }
 
     public void ifGYearList(Consumer<List<OffsetDateTime>> action) {
@@ -808,7 +807,7 @@ public class TextContent {
         return this;
     }
 
-    private XMLGregorianCalendar getAsCalender(String localName) {
+    private XMLGregorianCalendar getAsCalendar(String localName) {
         if (value instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
             return calendar;
@@ -819,7 +818,7 @@ public class TextContent {
         }
     }
 
-    private List<XMLGregorianCalendar> getAsCalenderList(String localName) {
+    private List<XMLGregorianCalendar> getAsCalendarList(String localName) {
         List<XMLGregorianCalendar> list = getAsList(XMLGregorianCalendar.class);
         if (list != null && list.get(0).getXMLSchemaType().getLocalPart().equals(localName)) {
             return list;
@@ -907,12 +906,13 @@ public class TextContent {
         }
     }
 
-    private List<OffsetDateTime> toOffsetDateTimeList(List<XMLGregorianCalendar> calenders) {
-        if (calenders != null) {
-            List<OffsetDateTime> dateTimes = new ArrayList<>(calenders.size());
-            calenders.stream()
-                    .map(this::toOffsetDateTime)
-                    .forEach(dateTimes::add);
+    private List<OffsetDateTime> toOffsetDateTimeList(List<XMLGregorianCalendar> calendars) {
+        if (calendars != null) {
+            List<OffsetDateTime> dateTimes = new ArrayList<>(calendars.size());
+            for (XMLGregorianCalendar calendar : calendars) {
+                dateTimes.add(toOffsetDateTime(calendar));
+            }
+
             return dateTimes;
         } else {
             return null;
