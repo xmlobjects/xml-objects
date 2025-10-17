@@ -19,56 +19,31 @@
 
 package org.xmlobjects.xml;
 
-import javax.xml.datatype.*;
-import java.math.BigDecimal;
+import javax.xml.datatype.Duration;
+import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class TextContent {
-    private static final DatatypeFactory XML_TYPE_FACTORY;
-    private static final TextContent EMPTY = new TextContent("");
-
-    private static Function<LocalDateTime, ZoneOffset> ZONE_OFFSET_PROVIDER = dateTime -> ZoneOffset.systemDefault().getRules().getOffset(dateTime);
+    private static final TextContent ABSENT = new TextContent("");
     private static boolean WITH_TIME_OFFSET = true;
     private static boolean WITH_DATE_OFFSET = false;
-
-    private enum Fields {YEAR, MONTH, DAY, HOUR, MINUTE, SECOND, NANO, TIMEZONE}
-
-    private static final EnumSet<Fields> DATE_TIME_FIELDS = EnumSet.allOf(Fields.class);
-    private static final EnumSet<Fields> TIME_FIELDS = EnumSet.of(Fields.HOUR, Fields.MINUTE, Fields.SECOND, Fields.NANO, Fields.TIMEZONE);
-    private static final EnumSet<Fields> DATE_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.DAY, Fields.TIMEZONE);
-    private static final EnumSet<Fields> GYEAR_MONTH_FIELDS = EnumSet.of(Fields.YEAR, Fields.MONTH, Fields.TIMEZONE);
-    private static final EnumSet<Fields> GMONTH_DAY_FIELDS = EnumSet.of(Fields.MONTH, Fields.DAY, Fields.TIMEZONE);
-    private static final EnumSet<Fields> GDAY_FIELDS = EnumSet.of(Fields.DAY, Fields.TIMEZONE);
-    private static final EnumSet<Fields> GMONTH_FIELDS = EnumSet.of(Fields.MONTH, Fields.TIMEZONE);
-    private static final EnumSet<Fields> GYEAR_FIELDS = EnumSet.of(Fields.YEAR, Fields.TIMEZONE);
-
-    static {
-        try {
-            XML_TYPE_FACTORY = DatatypeFactory.newInstance();
-        } catch (DatatypeConfigurationException e) {
-            throw new RuntimeException("Failed to initialize datatype factory.", e);
-        }
-    }
 
     private String content;
     private String trimmedContent;
     private String[] tokenizedContent;
     private Object value;
 
-    private Function<LocalDateTime, ZoneOffset> zoneOffsetProvider = ZONE_OFFSET_PROVIDER;
-
     private TextContent(String content) {
         this.content = Objects.requireNonNull(content, "Content must not be null.");
     }
 
-    public static TextContent empty() {
-        return EMPTY;
+    public static TextContent absent() {
+        return ABSENT;
     }
 
     public static TextContent of(String content) {
@@ -112,135 +87,131 @@ public class TextContent {
     }
 
     public static TextContent ofDateTime(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, DATE_TIME_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.DATE_TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofDateTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, DATE_TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofDateTimeList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, DATE_TIME_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.DATE_TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofDateTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, DATE_TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofTime(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, TIME_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofTimeList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, TIME_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofDate(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, DATE_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.DATE_FIELDS, withOffset);
     }
 
     public static TextContent ofDate(OffsetDateTime content) {
-        return ofOffsetDateTime(content, DATE_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.DATE_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofDateList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, DATE_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.DATE_FIELDS, withOffset);
     }
 
     public static TextContent ofDateList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, DATE_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.DATE_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearMonth(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, GYEAR_MONTH_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.GYEAR_MONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearMonthList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, GYEAR_MONTH_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_MONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthDay(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, GMONTH_DAY_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.GMONTH_DAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthDayList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, GMONTH_DAY_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_DAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGDay(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, GDAY_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.GDAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, GDAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.GDAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGDayList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, GDAY_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.GDAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, GDAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.GDAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonth(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, GMONTH_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.GMONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, GMONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.GMONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, GMONTH_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, GMONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYear(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, GYEAR_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarFields.GYEAR_FIELDS, withOffset);
     }
 
     public static TextContent ofGYear(OffsetDateTime content) {
-        return ofOffsetDateTime(content, GYEAR_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarFields.GYEAR_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, GYEAR_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, GYEAR_FIELDS, WITH_DATE_OFFSET);
-    }
-
-    public boolean isEmpty() {
-        return this == EMPTY;
+        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_FIELDS, WITH_DATE_OFFSET);
     }
 
     public TextContent trim() {
@@ -249,7 +220,7 @@ public class TextContent {
     }
 
     public TextContent normalize() {
-        if (!isEmpty()) {
+        if (isPresent()) {
             content = TextHelper.normalize(content);
         }
 
@@ -257,15 +228,11 @@ public class TextContent {
     }
 
     public TextContent collapse() {
-        if (!isEmpty()) {
+        if (isPresent()) {
             content = trimmedContent = TextHelper.collapse(content);
         }
 
         return this;
-    }
-
-    public TextContent filter(Predicate<TextContent> predicate) {
-        return predicate.test(this) ? this : EMPTY;
     }
 
     public String get() {
@@ -273,7 +240,7 @@ public class TextContent {
     }
 
     public boolean isPresent() {
-        return this != EMPTY;
+        return this != ABSENT;
     }
 
     public void ifPresent(Consumer<String> action) {
@@ -307,7 +274,9 @@ public class TextContent {
     }
 
     public Boolean getAsBoolean() {
-        return value instanceof Boolean bool ? bool : setValue(toBoolean(trimContent()));
+        return value instanceof Boolean bool ?
+                bool :
+                setValue(TextHelper.toBoolean(trimContent()));
     }
 
     public boolean isBoolean() {
@@ -328,7 +297,7 @@ public class TextContent {
         } else if (tokenizeContent() != 0) {
             list = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
-                Boolean value = toBoolean(token);
+                Boolean value = TextHelper.toBoolean(token);
                 if (value != null) {
                     list.add(value);
                 } else {
@@ -470,7 +439,7 @@ public class TextContent {
             return duration;
         } else if (!trimContent().isEmpty()) {
             try {
-                return setValue(XML_TYPE_FACTORY.newDuration(trimmedContent));
+                return setValue(TextHelper.toDuration(trimmedContent));
             } catch (Throwable e) {
                 return setValue(null);
             }
@@ -498,7 +467,7 @@ public class TextContent {
             list = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
                 try {
-                    list.add(XML_TYPE_FACTORY.newDuration(token));
+                    list.add(TextHelper.toDuration(token));
                 } catch (Throwable e) {
                     return setValue(null);
                 }
@@ -522,7 +491,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDateTime() {
-        return toOffsetDateTime(getAsCalendar("dateTime"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("dateTime"));
     }
 
     public boolean isDateTime() {
@@ -537,7 +506,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateTimeList() {
-        return toOffsetDateTimeList(getAsCalendarList("dateTime"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("dateTime"));
     }
 
     public boolean isDateTimeList() {
@@ -552,7 +521,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsTime() {
-        return toOffsetDateTime(getAsCalendar("time"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("time"));
     }
 
     public boolean isTime() {
@@ -567,7 +536,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsTimeList() {
-        return toOffsetDateTimeList(getAsCalendarList("time"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("time"));
     }
 
     public boolean isTimeList() {
@@ -582,7 +551,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsDate() {
-        return toOffsetDateTime(getAsCalendar("date"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("date"));
     }
 
     public boolean isDate() {
@@ -597,7 +566,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsDateList() {
-        return toOffsetDateTimeList(getAsCalendarList("date"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("date"));
     }
 
     public boolean isDateList() {
@@ -612,7 +581,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYearMonth() {
-        return toOffsetDateTime(getAsCalendar("gYearMonth"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("gYearMonth"));
     }
 
     public boolean isGYearMonth() {
@@ -627,7 +596,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearMonthList() {
-        return toOffsetDateTimeList(getAsCalendarList("gYearMonth"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("gYearMonth"));
     }
 
     public boolean isGYearMonthList() {
@@ -642,7 +611,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonthDay() {
-        return toOffsetDateTime(getAsCalendar("gMonthDay"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("gMonthDay"));
     }
 
     public boolean isGMonthDay() {
@@ -657,7 +626,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthDayList() {
-        return toOffsetDateTimeList(getAsCalendarList("gMonthDay"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("gMonthDay"));
     }
 
     public boolean isGMonthDayList() {
@@ -672,7 +641,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGDay() {
-        return toOffsetDateTime(getAsCalendar("gDay"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("gDay"));
     }
 
     public boolean isGDay() {
@@ -687,7 +656,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGDayList() {
-        return toOffsetDateTimeList(getAsCalendarList("gDay"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("gDay"));
     }
 
     public boolean isGDayList() {
@@ -702,7 +671,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGMonth() {
-        return toOffsetDateTime(getAsCalendar("gMonth"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("gMonth"));
     }
 
     public boolean isGMonth() {
@@ -717,7 +686,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGMonthList() {
-        return toOffsetDateTimeList(getAsCalendarList("gMonth"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("gMonth"));
     }
 
     public boolean isGMonthList() {
@@ -732,7 +701,7 @@ public class TextContent {
     }
 
     public OffsetDateTime getAsGYear() {
-        return toOffsetDateTime(getAsCalendar("gYear"));
+        return TextHelper.toOffsetDateTime(getAsCalendar("gYear"));
     }
 
     public boolean isGYear() {
@@ -747,7 +716,7 @@ public class TextContent {
     }
 
     public List<OffsetDateTime> getAsGYearList() {
-        return toOffsetDateTimeList(getAsCalendarList("gYear"));
+        return TextHelper.toOffsetDateTimeList(getAsCalendarList("gYear"));
     }
 
     public boolean isGYearList() {
@@ -761,20 +730,12 @@ public class TextContent {
         }
     }
 
-    public TextContent withZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
-        if (zoneOffsetProvider != null) {
-            this.zoneOffsetProvider = zoneOffsetProvider;
-        }
-
-        return this;
-    }
-
     private XMLGregorianCalendar getAsCalendar(String localName) {
         if (value instanceof XMLGregorianCalendar calendar
                 && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
             return calendar;
         } else if (!trimContent().isEmpty()) {
-            return setValue(toCalendar(trimmedContent, localName));
+            return setValue(TextHelper.toCalendar(trimmedContent, localName));
         } else {
             return setValue(null);
         }
@@ -787,7 +748,7 @@ public class TextContent {
         } else if (tokenizeContent() != 0) {
             list = new ArrayList<>(tokenizedContent.length);
             for (String token : tokenizedContent) {
-                XMLGregorianCalendar value = toCalendar(token, localName);
+                XMLGregorianCalendar value = TextHelper.toCalendar(token, localName);
                 if (value != null) {
                     list.add(value);
                 } else {
@@ -815,74 +776,8 @@ public class TextContent {
                 null;
     }
 
-    private Boolean toBoolean(String value) {
-        return switch (value) {
-            case "true", "1" -> Boolean.TRUE;
-            case "false", "0" -> Boolean.FALSE;
-            default -> null;
-        };
-    }
-
-    private XMLGregorianCalendar toCalendar(String value, String localName) {
-        try {
-            XMLGregorianCalendar calendar = XML_TYPE_FACTORY.newXMLGregorianCalendar(value);
-            if (calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
-                return calendar;
-            }
-        } catch (Throwable e) {
-            //
-        }
-
-        return null;
-    }
-
-    private OffsetDateTime toOffsetDateTime(XMLGregorianCalendar calendar) {
-        if (calendar != null) {
-            int day = calendar.getDay();
-            int month = calendar.getMonth();
-            int year = calendar.getYear();
-            int hour = calendar.getHour();
-            int minute = calendar.getMinute();
-            int second = calendar.getSecond();
-            int offset = calendar.getTimezone();
-
-            BigDecimal fractional = calendar.getFractionalSecond();
-            int nano = fractional != null ?
-                    (int) (fractional.doubleValue() * 1e+9) :
-                    DatatypeConstants.FIELD_UNDEFINED;
-
-            LocalDateTime dateTime = LocalDateTime.of(
-                    year != DatatypeConstants.FIELD_UNDEFINED ? year : 0,
-                    month != DatatypeConstants.FIELD_UNDEFINED ? month : 1,
-                    day != DatatypeConstants.FIELD_UNDEFINED ? day : 1,
-                    hour != DatatypeConstants.FIELD_UNDEFINED ? hour : 0,
-                    minute != DatatypeConstants.FIELD_UNDEFINED ? minute : 0,
-                    second != DatatypeConstants.FIELD_UNDEFINED ? second : 0,
-                    nano != DatatypeConstants.FIELD_UNDEFINED ? nano : 0);
-
-            return OffsetDateTime.of(dateTime, offset != DatatypeConstants.FIELD_UNDEFINED ?
-                    ZoneOffset.ofTotalSeconds(offset * 60) :
-                    zoneOffsetProvider.apply(dateTime));
-        } else {
-            return null;
-        }
-    }
-
-    private List<OffsetDateTime> toOffsetDateTimeList(List<XMLGregorianCalendar> calendars) {
-        if (calendars != null) {
-            List<OffsetDateTime> dateTimes = new ArrayList<>(calendars.size());
-            for (XMLGregorianCalendar calendar : calendars) {
-                dateTimes.add(toOffsetDateTime(calendar));
-            }
-
-            return dateTimes;
-        } else {
-            return null;
-        }
-    }
-
     private static TextContent ofObject(Object content) {
-        return content != null ? new TextContent(content.toString()) : EMPTY;
+        return content != null ? new TextContent(content.toString()) : ABSENT;
     }
 
     private static TextContent ofObjectList(List<?> content) {
@@ -904,22 +799,22 @@ public class TextContent {
 
             return new TextContent(builder.toString());
         } else {
-            return EMPTY;
+            return ABSENT;
         }
     }
 
-    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<Fields> fields, boolean withOffset) {
-        XMLGregorianCalendar calendar = toCalendar(content, fields, withOffset);
-        return calendar != null ? new TextContent(calendar.toXMLFormat()) : EMPTY;
+    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<CalendarFields> fields, boolean withOffset) {
+        XMLGregorianCalendar calendar = TextHelper.toCalendar(content, fields, withOffset);
+        return calendar != null ? new TextContent(calendar.toXMLFormat()) : ABSENT;
     }
 
-    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<Fields> fields, boolean withOffset) {
+    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<CalendarFields> fields, boolean withOffset) {
         if (content != null && !content.isEmpty()) {
             StringBuilder builder = new StringBuilder(content.size());
             boolean first = true;
 
             for (OffsetDateTime dateTime : content) {
-                XMLGregorianCalendar calendar = toCalendar(dateTime, fields, withOffset);
+                XMLGregorianCalendar calendar = TextHelper.toCalendar(dateTime, fields, withOffset);
                 if (calendar != null) {
                     if (!first) {
                         builder.append(" ");
@@ -933,37 +828,12 @@ public class TextContent {
 
             return new TextContent(builder.toString());
         } else {
-            return EMPTY;
+            return ABSENT;
         }
-    }
-
-    private static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<Fields> fields, boolean withOffset) {
-        XMLGregorianCalendar calendar = null;
-        if (dateTime != null) {
-            calendar = XML_TYPE_FACTORY.newXMLGregorianCalendar(
-                    fields.contains(Fields.YEAR) ? dateTime.getYear() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(Fields.MONTH) ? dateTime.getMonthValue() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(Fields.DAY) ? dateTime.getDayOfMonth() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(Fields.HOUR) ? dateTime.getHour() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(Fields.MINUTE) ? dateTime.getMinute() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(Fields.SECOND) ? dateTime.getSecond() : DatatypeConstants.FIELD_UNDEFINED,
-                    DatatypeConstants.FIELD_UNDEFINED,
-                    withOffset && fields.contains(Fields.TIMEZONE) ?
-                            dateTime.getOffset().getTotalSeconds() / 60 :
-                            DatatypeConstants.FIELD_UNDEFINED);
-
-            if (fields.contains(Fields.NANO) && dateTime.getNano() != 0) {
-                calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano(), 9).stripTrailingZeros());
-            }
-        }
-
-        return calendar;
     }
 
     public static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
-        if (zoneOffsetProvider != null) {
-            ZONE_OFFSET_PROVIDER = zoneOffsetProvider;
-        }
+        TextHelper.setZoneOffsetProvider(zoneOffsetProvider);
     }
 
     public static void serializeTimeWithOffset(boolean useTimeOffset) {
@@ -976,7 +846,7 @@ public class TextContent {
 
     private String trimContent() {
         if (trimmedContent == null) {
-            trimmedContent = isEmpty() ? "" : content.trim();
+            trimmedContent = isPresent() ? content.trim() : "";
         }
 
         return trimmedContent;
@@ -984,7 +854,7 @@ public class TextContent {
 
     private int tokenizeContent() {
         if (tokenizedContent == null) {
-            tokenizedContent = isEmpty() ? new String[0] : TextHelper.tokenizeContent(content);
+            tokenizedContent = isPresent() ? TextHelper.tokenize(content) : new String[0];
         }
 
         return tokenizedContent.length;

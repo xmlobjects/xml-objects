@@ -73,7 +73,7 @@ public class Attributes {
     }
 
     public TextContent getValue(String namespaceURI, String localName) {
-        return get(namespaceURI).getOrDefault(localName, TextContent.empty());
+        return get(namespaceURI).getOrDefault(localName, TextContent.absent());
     }
 
     public TextContent getValue(QName name) {

@@ -352,7 +352,7 @@ public class XMLReader implements AutoCloseable {
 
     public TextContent getTextContent() throws XMLReadException {
         if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            return TextContent.empty();
+            return TextContent.absent();
         }
 
         try {
