@@ -27,6 +27,7 @@ import java.time.ZoneOffset;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class TextContent {
     private static final TextContent ABSENT = new TextContent("");
@@ -87,131 +88,131 @@ public class TextContent {
     }
 
     public static TextContent ofDateTime(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.DATE_TIME_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.DATE_TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofDateTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofDateTimeList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.DATE_TIME_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.DATE_TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofDateTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.DATE_TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofTime(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.TIME_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofTime(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofTimeList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.TIME_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.TIME_FIELDS, withOffset);
     }
 
     public static TextContent ofTimeList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.TIME_FIELDS, WITH_TIME_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.TIME_FIELDS, WITH_TIME_OFFSET);
     }
 
     public static TextContent ofDate(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.DATE_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.DATE_FIELDS, withOffset);
     }
 
     public static TextContent ofDate(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.DATE_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.DATE_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofDateList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.DATE_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.DATE_FIELDS, withOffset);
     }
 
     public static TextContent ofDateList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.DATE_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.DATE_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearMonth(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.GYEAR_MONTH_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.GYEAR_MONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearMonthList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_MONTH_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.GYEAR_MONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.GYEAR_MONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthDay(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.GMONTH_DAY_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.GMONTH_DAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthDayList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_DAY_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.GMONTH_DAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.GMONTH_DAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGDay(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.GDAY_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.GDAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGDay(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.GDAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.GDAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGDayList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.GDAY_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.GDAY_FIELDS, withOffset);
     }
 
     public static TextContent ofGDayList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.GDAY_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.GDAY_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonth(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.GMONTH_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.GMONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonth(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.GMONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.GMONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGMonthList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.GMONTH_FIELDS, withOffset);
     }
 
     public static TextContent ofGMonthList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.GMONTH_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.GMONTH_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYear(OffsetDateTime content, boolean withOffset) {
-        return ofOffsetDateTime(content, CalendarFields.GYEAR_FIELDS, withOffset);
+        return ofOffsetDateTime(content, CalendarField.GYEAR_FIELDS, withOffset);
     }
 
     public static TextContent ofGYear(OffsetDateTime content) {
-        return ofOffsetDateTime(content, CalendarFields.GYEAR_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTime(content, CalendarField.GYEAR_FIELDS, WITH_DATE_OFFSET);
     }
 
     public static TextContent ofGYearList(List<OffsetDateTime> content, boolean withOffset) {
-        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_FIELDS, withOffset);
+        return ofOffsetDateTimeList(content, CalendarField.GYEAR_FIELDS, withOffset);
     }
 
     public static TextContent ofGYearList(List<OffsetDateTime> content) {
-        return ofOffsetDateTimeList(content, CalendarFields.GYEAR_FIELDS, WITH_DATE_OFFSET);
+        return ofOffsetDateTimeList(content, CalendarField.GYEAR_FIELDS, WITH_DATE_OFFSET);
     }
 
     public TextContent trim() {
@@ -249,6 +250,14 @@ public class TextContent {
         return isPresent() ? content : null;
     }
 
+    public String getOrElse(String defaultValue) {
+        return getOrElse(get(), defaultValue);
+    }
+
+    public String getOrElseGet(Supplier<String> defaultValue) {
+        return getOrElseGet(get(), defaultValue);
+    }
+
     public List<String> getAsList() {
         List<String> list = getAsList(String.class);
         if (list != null) {
@@ -262,6 +271,14 @@ public class TextContent {
         list = new ArrayList<>(tokenizedContent.length);
         Collections.addAll(list, tokenizedContent);
         return setValue(list);
+    }
+
+    public List<String> getAsListOrElse(List<String> defaultValue) {
+        return getOrElse(getAsList(), defaultValue);
+    }
+
+    public List<String> getAsListOrElseGet(Supplier<List<String>> defaultValue) {
+        return getOrElseGet(getAsList(), defaultValue);
     }
 
     public boolean isList() {
@@ -279,6 +296,14 @@ public class TextContent {
         return parseValue(TextHelper::toBoolean, Boolean.class);
     }
 
+    public Boolean getAsBooleanOrElse(Boolean defaultValue) {
+        return getOrElse(getAsBoolean(), defaultValue);
+    }
+
+    public Boolean getAsBooleanOrElseGet(Supplier<Boolean> defaultValue) {
+        return getOrElseGet(getAsBoolean(), defaultValue);
+    }
+
     public boolean isBoolean() {
         return getAsBoolean() != null;
     }
@@ -292,6 +317,14 @@ public class TextContent {
 
     public List<Boolean> getAsBooleanList() {
         return parseValueList(TextHelper::toBoolean, Boolean.class);
+    }
+
+    public List<Boolean> getAsBooleanListOrElse(List<Boolean> defaultValue) {
+        return getOrElse(getAsBooleanList(), defaultValue);
+    }
+
+    public List<Boolean> getAsBooleanListOrElseGet(Supplier<List<Boolean>> defaultValue) {
+        return getOrElseGet(getAsBooleanList(), defaultValue);
     }
 
     public boolean isBooleanList() {
@@ -309,6 +342,14 @@ public class TextContent {
         return parseValue(Double::parseDouble, Double.class);
     }
 
+    public Double getAsDoubleOrElse(Double defaultValue) {
+        return getOrElse(getAsDouble(), defaultValue);
+    }
+
+    public Double getAsDoubleOrElseGet(Supplier<Double> defaultValue) {
+        return getOrElseGet(getAsDouble(), defaultValue);
+    }
+
     public boolean isDouble() {
         return getAsDouble() != null;
     }
@@ -322,6 +363,14 @@ public class TextContent {
 
     public List<Double> getAsDoubleList() {
         return parseValueList(Double::parseDouble, Double.class);
+    }
+
+    public List<Double> getAsDoubleListOrElse(List<Double> defaultValue) {
+        return getOrElse(getAsDoubleList(), defaultValue);
+    }
+
+    public List<Double> getAsDoubleListOrElseGet(Supplier<List<Double>> defaultValue) {
+        return getOrElseGet(getAsDoubleList(), defaultValue);
     }
 
     public boolean isDoubleList() {
@@ -339,6 +388,14 @@ public class TextContent {
         return parseValue(Integer::parseInt, Integer.class);
     }
 
+    public Integer getAsIntegerOrElse(Integer defaultValue) {
+        return getOrElse(getAsInteger(), defaultValue);
+    }
+
+    public Integer getAsIntegerOrElseGet(Supplier<Integer> defaultValue) {
+        return getOrElseGet(getAsInteger(), defaultValue);
+    }
+
     public boolean isInteger() {
         return getAsInteger() != null;
     }
@@ -352,6 +409,14 @@ public class TextContent {
 
     public List<Integer> getAsIntegerList() {
         return parseValueList(Integer::parseInt, Integer.class);
+    }
+
+    public List<Integer> getAsIntegerListOrElse(List<Integer> defaultValue) {
+        return getOrElse(getAsIntegerList(), defaultValue);
+    }
+
+    public List<Integer> getAsIntegerListOrElseGet(Supplier<List<Integer>> defaultValue) {
+        return getOrElseGet(getAsIntegerList(), defaultValue);
     }
 
     public boolean isIntegerList() {
@@ -369,6 +434,14 @@ public class TextContent {
         return parseValue(TextHelper::toDuration, Duration.class);
     }
 
+    public Duration getAsDurationOrElse(Duration defaultValue) {
+        return getOrElse(getAsDuration(), defaultValue);
+    }
+
+    public Duration getAsDurationOrElseGet(Supplier<Duration> defaultValue) {
+        return getOrElseGet(getAsDuration(), defaultValue);
+    }
+
     public boolean isDuration() {
         return getAsDuration() != null;
     }
@@ -382,6 +455,14 @@ public class TextContent {
 
     public List<Duration> getAsDurationList() {
         return parseValueList(TextHelper::toDuration, Duration.class);
+    }
+
+    public List<Duration> getAsDurationListOrElse(List<Duration> defaultValue) {
+        return getOrElse(getAsDurationList(), defaultValue);
+    }
+
+    public List<Duration> getAsDurationListOrElseGet(Supplier<List<Duration>> defaultValue) {
+        return getOrElseGet(getAsDurationList(), defaultValue);
     }
 
     public boolean isDurationList() {
@@ -399,6 +480,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("dateTime"));
     }
 
+    public OffsetDateTime getAsDateTimeOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsDateTime(), defaultValue);
+    }
+
+    public OffsetDateTime getAsDateTimeOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsDateTime(), defaultValue);
+    }
+
     public boolean isDateTime() {
         return getAsCalendar("dateTime") != null;
     }
@@ -412,6 +501,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsDateTimeList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("dateTime"));
+    }
+
+    public List<OffsetDateTime> getAsDateTimeListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsDateTimeList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsDateTimeListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsDateTimeList(), defaultValue);
     }
 
     public boolean isDateTimeList() {
@@ -429,6 +526,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("time"));
     }
 
+    public OffsetDateTime getAsTimeOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsTime(), defaultValue);
+    }
+
+    public OffsetDateTime getAsTimeOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsTime(), defaultValue);
+    }
+
     public boolean isTime() {
         return getAsCalendar("time") != null;
     }
@@ -442,6 +547,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsTimeList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("time"));
+    }
+
+    public List<OffsetDateTime> getAsTimeListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsTimeList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsTimeListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsTimeList(), defaultValue);
     }
 
     public boolean isTimeList() {
@@ -459,6 +572,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("date"));
     }
 
+    public OffsetDateTime getAsDateOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsDate(), defaultValue);
+    }
+
+    public OffsetDateTime getAsDateOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsDate(), defaultValue);
+    }
+
     public boolean isDate() {
         return getAsCalendar("date") != null;
     }
@@ -472,6 +593,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsDateList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("date"));
+    }
+
+    public List<OffsetDateTime> getAsDateListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsDateList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsDateListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsDateList(), defaultValue);
     }
 
     public boolean isDateList() {
@@ -489,6 +618,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("gYearMonth"));
     }
 
+    public OffsetDateTime getAsGYearMonthOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsGYearMonth(), defaultValue);
+    }
+
+    public OffsetDateTime getAsGYearMonthOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsGYearMonth(), defaultValue);
+    }
+
     public boolean isGYearMonth() {
         return getAsCalendar("gYearMonth") != null;
     }
@@ -502,6 +639,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsGYearMonthList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("gYearMonth"));
+    }
+
+    public List<OffsetDateTime> getAsGYearMonthListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsGYearMonthList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsGYearMonthListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsGYearMonthList(), defaultValue);
     }
 
     public boolean isGYearMonthList() {
@@ -519,6 +664,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("gMonthDay"));
     }
 
+    public OffsetDateTime getAsGMonthDayOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsGMonthDay(), defaultValue);
+    }
+
+    public OffsetDateTime getAsGMonthDayOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsGMonthDay(), defaultValue);
+    }
+
     public boolean isGMonthDay() {
         return getAsCalendar("gMonthDay") != null;
     }
@@ -532,6 +685,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsGMonthDayList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("gMonthDay"));
+    }
+
+    public List<OffsetDateTime> getAsGMonthDayListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsGMonthDayList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsGMonthDayListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsGMonthDayList(), defaultValue);
     }
 
     public boolean isGMonthDayList() {
@@ -549,6 +710,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("gDay"));
     }
 
+    public OffsetDateTime getAsGDayOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsGDay(), defaultValue);
+    }
+
+    public OffsetDateTime getAsGDayOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsGDay(), defaultValue);
+    }
+
     public boolean isGDay() {
         return getAsCalendar("gDay") != null;
     }
@@ -562,6 +731,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsGDayList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("gDay"));
+    }
+
+    public List<OffsetDateTime> getAsGDayListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsGDayList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsGDayListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsGDayList(), defaultValue);
     }
 
     public boolean isGDayList() {
@@ -579,6 +756,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("gMonth"));
     }
 
+    public OffsetDateTime getAsGMonthOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsGMonth(), defaultValue);
+    }
+
+    public OffsetDateTime getAsGMonthOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsGMonth(), defaultValue);
+    }
+
     public boolean isGMonth() {
         return getAsCalendar("gMonth") != null;
     }
@@ -592,6 +777,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsGMonthList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("gMonth"));
+    }
+
+    public List<OffsetDateTime> getAsGMonthListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsGMonthList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsGMonthListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsGMonthList(), defaultValue);
     }
 
     public boolean isGMonthList() {
@@ -609,6 +802,14 @@ public class TextContent {
         return TextHelper.toOffsetDateTime(getAsCalendar("gYear"));
     }
 
+    public OffsetDateTime getAsGYearOrElse(OffsetDateTime defaultValue) {
+        return getOrElse(getAsGYear(), defaultValue);
+    }
+
+    public OffsetDateTime getAsGYearOrElseGet(Supplier<OffsetDateTime> defaultValue) {
+        return getOrElseGet(getAsGYear(), defaultValue);
+    }
+
     public boolean isGYear() {
         return getAsCalendar("gYear") != null;
     }
@@ -622,6 +823,14 @@ public class TextContent {
 
     public List<OffsetDateTime> getAsGYearList() {
         return TextHelper.toOffsetDateTimeList(getAsCalendarList("gYear"));
+    }
+
+    public List<OffsetDateTime> getAsGYearListOrElse(List<OffsetDateTime> defaultValue) {
+        return getOrElse(getAsGYearList(), defaultValue);
+    }
+
+    public List<OffsetDateTime> getAsGYearListOrElseGet(Supplier<List<OffsetDateTime>> defaultValue) {
+        return getOrElseGet(getAsGYearList(), defaultValue);
     }
 
     public boolean isGYearList() {
@@ -722,6 +931,14 @@ public class TextContent {
         return setValue(list);
     }
 
+    private <T> T getOrElse(T value, T defaultValue) {
+        return value != null ? value : defaultValue;
+    }
+
+    private <T> T getOrElseGet(T value, Supplier<T> defaultValue) {
+        return value != null ? value : defaultValue.get();
+    }
+
     @SuppressWarnings("unchecked")
     private <T> List<T> getAsList(Class<T> type) {
         return value instanceof List<?> list
@@ -758,12 +975,12 @@ public class TextContent {
         }
     }
 
-    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<CalendarFields> fields, boolean withOffset) {
+    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<CalendarField> fields, boolean withOffset) {
         XMLGregorianCalendar calendar = TextHelper.toCalendar(content, fields, withOffset);
         return calendar != null ? new TextContent(calendar.toXMLFormat()) : ABSENT;
     }
 
-    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<CalendarFields> fields, boolean withOffset) {
+    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<CalendarField> fields, boolean withOffset) {
         if (content != null && !content.isEmpty()) {
             StringBuilder builder = new StringBuilder(content.size());
             boolean first = true;

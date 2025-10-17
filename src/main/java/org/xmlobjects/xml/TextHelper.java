@@ -76,22 +76,22 @@ public class TextHelper {
         return null;
     }
 
-    static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<CalendarFields> fields, boolean withOffset) {
+    static XMLGregorianCalendar toCalendar(OffsetDateTime dateTime, EnumSet<CalendarField> fields, boolean withOffset) {
         XMLGregorianCalendar calendar = null;
         if (dateTime != null) {
             calendar = TextHelper.XML_TYPE_FACTORY.newXMLGregorianCalendar(
-                    fields.contains(CalendarFields.YEAR) ? dateTime.getYear() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(CalendarFields.MONTH) ? dateTime.getMonthValue() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(CalendarFields.DAY) ? dateTime.getDayOfMonth() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(CalendarFields.HOUR) ? dateTime.getHour() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(CalendarFields.MINUTE) ? dateTime.getMinute() : DatatypeConstants.FIELD_UNDEFINED,
-                    fields.contains(CalendarFields.SECOND) ? dateTime.getSecond() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.YEAR) ? dateTime.getYear() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.MONTH) ? dateTime.getMonthValue() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.DAY) ? dateTime.getDayOfMonth() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.HOUR) ? dateTime.getHour() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.MINUTE) ? dateTime.getMinute() : DatatypeConstants.FIELD_UNDEFINED,
+                    fields.contains(CalendarField.SECOND) ? dateTime.getSecond() : DatatypeConstants.FIELD_UNDEFINED,
                     DatatypeConstants.FIELD_UNDEFINED,
-                    withOffset && fields.contains(CalendarFields.TIMEZONE) ?
+                    withOffset && fields.contains(CalendarField.TIMEZONE) ?
                             dateTime.getOffset().getTotalSeconds() / 60 :
                             DatatypeConstants.FIELD_UNDEFINED);
 
-            if (fields.contains(CalendarFields.NANO) && dateTime.getNano() != 0) {
+            if (fields.contains(CalendarField.NANO) && dateTime.getNano() != 0) {
                 calendar.setFractionalSecond(BigDecimal.valueOf(dateTime.getNano(), 9).stripTrailingZeros());
             }
         }
