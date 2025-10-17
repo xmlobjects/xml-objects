@@ -235,10 +235,6 @@ public class TextContent {
         return this;
     }
 
-    public String get() {
-        return isPresent() ? content : null;
-    }
-
     public boolean isPresent() {
         return this != ABSENT;
     }
@@ -249,17 +245,23 @@ public class TextContent {
         }
     }
 
+    public String get() {
+        return isPresent() ? content : null;
+    }
+
     public List<String> getAsList() {
         List<String> list = getAsList(String.class);
         if (list != null) {
             return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            Collections.addAll(list, tokenizedContent);
-            return setValue(list);
-        } else {
-            return setValue(null);
         }
+
+        if (tokenizeContent() == 0) {
+            return null;
+        }
+
+        list = new ArrayList<>(tokenizedContent.length);
+        Collections.addAll(list, tokenizedContent);
+        return setValue(list);
     }
 
     public boolean isList() {
@@ -274,9 +276,7 @@ public class TextContent {
     }
 
     public Boolean getAsBoolean() {
-        return value instanceof Boolean bool ?
-                bool :
-                setValue(TextHelper.toBoolean(trimContent()));
+        return parseValue(TextHelper::toBoolean, Boolean.class);
     }
 
     public boolean isBoolean() {
@@ -291,24 +291,7 @@ public class TextContent {
     }
 
     public List<Boolean> getAsBooleanList() {
-        List<Boolean> list = getAsList(Boolean.class);
-        if (list != null) {
-            return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            for (String token : tokenizedContent) {
-                Boolean value = TextHelper.toBoolean(token);
-                if (value != null) {
-                    list.add(value);
-                } else {
-                    return setValue(null);
-                }
-            }
-
-            return setValue(list);
-        } else {
-            return setValue(null);
-        }
+        return parseValueList(TextHelper::toBoolean, Boolean.class);
     }
 
     public boolean isBooleanList() {
@@ -323,17 +306,7 @@ public class TextContent {
     }
 
     public Double getAsDouble() {
-        if (value instanceof Double doubleValue) {
-            return doubleValue;
-        } else if (!trimContent().isEmpty()) {
-            try {
-                return setValue(Double.parseDouble(trimmedContent));
-            } catch (NumberFormatException e) {
-                return setValue(null);
-            }
-        } else {
-            return setValue(null);
-        }
+        return parseValue(Double::parseDouble, Double.class);
     }
 
     public boolean isDouble() {
@@ -348,23 +321,7 @@ public class TextContent {
     }
 
     public List<Double> getAsDoubleList() {
-        List<Double> list = getAsList(Double.class);
-        if (list != null) {
-            return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            for (String token : tokenizedContent) {
-                try {
-                    list.add(Double.parseDouble(token));
-                } catch (NumberFormatException e) {
-                    return setValue(null);
-                }
-            }
-
-            return setValue(list);
-        } else {
-            return setValue(null);
-        }
+        return parseValueList(Double::parseDouble, Double.class);
     }
 
     public boolean isDoubleList() {
@@ -379,17 +336,7 @@ public class TextContent {
     }
 
     public Integer getAsInteger() {
-        if (value instanceof Integer intValue) {
-            return intValue;
-        } else if (!trimContent().isEmpty()) {
-            try {
-                return setValue(Integer.parseInt(trimmedContent));
-            } catch (NumberFormatException e) {
-                return setValue(null);
-            }
-        } else {
-            return setValue(null);
-        }
+        return parseValue(Integer::parseInt, Integer.class);
     }
 
     public boolean isInteger() {
@@ -404,23 +351,7 @@ public class TextContent {
     }
 
     public List<Integer> getAsIntegerList() {
-        List<Integer> list = getAsList(Integer.class);
-        if (list != null) {
-            return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            for (String token : tokenizedContent) {
-                try {
-                    list.add(Integer.parseInt(token));
-                } catch (NumberFormatException e) {
-                    return setValue(null);
-                }
-            }
-
-            return setValue(list);
-        } else {
-            return setValue(null);
-        }
+        return parseValueList(Integer::parseInt, Integer.class);
     }
 
     public boolean isIntegerList() {
@@ -435,17 +366,7 @@ public class TextContent {
     }
 
     public Duration getAsDuration() {
-        if (value instanceof Duration duration) {
-            return duration;
-        } else if (!trimContent().isEmpty()) {
-            try {
-                return setValue(TextHelper.toDuration(trimmedContent));
-            } catch (Throwable e) {
-                return setValue(null);
-            }
-        } else {
-            return setValue(null);
-        }
+        return parseValue(TextHelper::toDuration, Duration.class);
     }
 
     public boolean isDuration() {
@@ -460,23 +381,7 @@ public class TextContent {
     }
 
     public List<Duration> getAsDurationList() {
-        List<Duration> list = getAsList(Duration.class);
-        if (list != null) {
-            return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            for (String token : tokenizedContent) {
-                try {
-                    list.add(TextHelper.toDuration(token));
-                } catch (Throwable e) {
-                    return setValue(null);
-                }
-            }
-
-            return setValue(list);
-        } else {
-            return setValue(null);
-        }
+        return parseValueList(TextHelper::toDuration, Duration.class);
     }
 
     public boolean isDurationList() {
@@ -731,40 +636,90 @@ public class TextContent {
     }
 
     private XMLGregorianCalendar getAsCalendar(String localName) {
-        if (value instanceof XMLGregorianCalendar calendar
-                && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
-            return calendar;
-        } else if (!trimContent().isEmpty()) {
-            return setValue(TextHelper.toCalendar(trimmedContent, localName));
-        } else {
-            return setValue(null);
+        Object v = value;
+        if (v instanceof XMLGregorianCalendar calendar) {
+            return calendar.getXMLSchemaType().getLocalPart().equals(localName) ? calendar : null;
         }
+
+        if (trimContent().isEmpty()) {
+            return null;
+        }
+
+        XMLGregorianCalendar calendar = TextHelper.toCalendar(trimmedContent, localName);
+        return calendar != null ? setValue(calendar) : null;
     }
 
     private List<XMLGregorianCalendar> getAsCalendarList(String localName) {
         List<XMLGregorianCalendar> list = getAsList(XMLGregorianCalendar.class);
-        if (list != null && list.get(0).getXMLSchemaType().getLocalPart().equals(localName)) {
-            return list;
-        } else if (tokenizeContent() != 0) {
-            list = new ArrayList<>(tokenizedContent.length);
-            for (String token : tokenizedContent) {
-                XMLGregorianCalendar value = TextHelper.toCalendar(token, localName);
-                if (value != null) {
-                    list.add(value);
-                } else {
-                    return setValue(null);
-                }
+        if (list != null) {
+            return list.get(0).getXMLSchemaType().getLocalPart().equals(localName) ? list : null;
+        }
+
+        if (tokenizeContent() == 0) {
+            return null;
+        }
+
+        list = new ArrayList<>(tokenizedContent.length);
+        for (String token : tokenizedContent) {
+            XMLGregorianCalendar parsed = TextHelper.toCalendar(token, localName);
+            if (parsed == null) {
+                return null;
             }
 
-            return setValue(list);
-        } else {
-            return setValue(null);
+            list.add(parsed);
         }
+
+        return setValue(list);
     }
 
     private <T> T setValue(T value) {
         this.value = value;
         return value;
+    }
+
+    private <T> T parseValue(Function<String, T> parser, Class<T> type) {
+        Object v = value;
+        if (type.isInstance(v)) {
+            return type.cast(v);
+        }
+
+        if (trimContent().isEmpty()) {
+            return null;
+        }
+
+        try {
+            T parsed = parser.apply(trimmedContent);
+            return parsed != null ? setValue(parsed) : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private <T> List<T> parseValueList(Function<String, T> parser, Class<T> type) {
+        List<T> list = getAsList(type);
+        if (list != null) {
+            return list;
+        }
+
+        if (tokenizeContent() == 0) {
+            return null;
+        }
+
+        list = new ArrayList<>(tokenizedContent.length);
+        for (String token : tokenizedContent) {
+            try {
+                T parsed = parser.apply(token);
+                if (parsed == null) {
+                    return null;
+                }
+
+                list.add(parsed);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+
+        return setValue(list);
     }
 
     @SuppressWarnings("unchecked")
