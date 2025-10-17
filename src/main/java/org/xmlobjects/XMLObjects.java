@@ -43,6 +43,9 @@ public class XMLObjects {
     private final Map<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
     private Set<String> serializableNamespaces;
 
+    private record BuilderInfo(ObjectBuilder<?> builder, Class<?> objectType) {
+    }
+
     private XMLObjects() {
     }
 
@@ -365,16 +368,6 @@ public class XMLObjects {
         } else {
             throw new XMLObjectsException("The serializer " + clazz.getName() + " must implement " +
                     "at least one of the methods createElement, initializeElement, and writeChildElements.");
-        }
-    }
-
-    private static class BuilderInfo {
-        final ObjectBuilder<?> builder;
-        final Class<?> objectType;
-
-        BuilderInfo(ObjectBuilder<?> builder, Class<?> objectType) {
-            this.builder = builder;
-            this.objectType = objectType;
         }
     }
 }
