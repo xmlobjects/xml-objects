@@ -636,9 +636,9 @@ public class TextContent {
     }
 
     private XMLGregorianCalendar getAsCalendar(String localName) {
-        Object v = value;
-        if (v instanceof XMLGregorianCalendar calendar) {
-            return calendar.getXMLSchemaType().getLocalPart().equals(localName) ? calendar : null;
+        if (value instanceof XMLGregorianCalendar calendar
+                && calendar.getXMLSchemaType().getLocalPart().equals(localName)) {
+            return calendar;
         }
 
         if (trimContent().isEmpty()) {
@@ -651,8 +651,8 @@ public class TextContent {
 
     private List<XMLGregorianCalendar> getAsCalendarList(String localName) {
         List<XMLGregorianCalendar> list = getAsList(XMLGregorianCalendar.class);
-        if (list != null) {
-            return list.get(0).getXMLSchemaType().getLocalPart().equals(localName) ? list : null;
+        if (list != null && list.get(0).getXMLSchemaType().getLocalPart().equals(localName)) {
+            return list;
         }
 
         if (tokenizeContent() == 0) {
