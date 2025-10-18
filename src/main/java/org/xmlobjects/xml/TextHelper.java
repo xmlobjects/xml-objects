@@ -144,6 +144,37 @@ public class TextHelper {
         }
     }
 
+    static String toContent(List<?> values) {
+        StringBuilder builder = new StringBuilder();
+        for (Object value : values) {
+            if (value == null) {
+                continue;
+            } else if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+
+            builder.append(value);
+        }
+
+        return builder.toString();
+    }
+
+    static String toContent(List<OffsetDateTime> dateTimes, EnumSet<CalendarField> fields, boolean withOffset) {
+        StringBuilder builder = new StringBuilder();
+        for (OffsetDateTime dateTime : dateTimes) {
+            XMLGregorianCalendar calendar = TextHelper.toCalendar(dateTime, fields, withOffset);
+            if (calendar == null) {
+                continue;
+            } else if (!builder.isEmpty()) {
+                builder.append(' ');
+            }
+
+            builder.append(calendar.toXMLFormat());
+        }
+
+        return builder.toString();
+    }
+
     static String normalize(String value) {
         int length = value.length();
         if (length != 0) {

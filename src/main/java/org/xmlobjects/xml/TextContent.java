@@ -948,60 +948,23 @@ public class TextContent {
                 null;
     }
 
-    private static TextContent ofObject(Object content) {
-        return content != null ? new TextContent(content.toString()) : ABSENT;
+    private static TextContent ofObject(Object value) {
+        return value != null ? new TextContent(value.toString()) : ABSENT;
     }
 
-    private static TextContent ofObjectList(List<?> content) {
-        if (content != null && !content.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            boolean first = true;
-
-            for (Object object : content) {
-                if (object != null) {
-                    if (!first) {
-                        builder.append(" ");
-                    } else {
-                        first = false;
-                    }
-
-                    builder.append(object);
-                }
-            }
-
-            return new TextContent(builder.toString());
-        } else {
-            return ABSENT;
-        }
+    private static TextContent ofObjectList(List<?> values) {
+        return values != null && !values.isEmpty() ? new TextContent(TextHelper.toContent(values)) : ABSENT;
     }
 
-    private static TextContent ofOffsetDateTime(OffsetDateTime content, EnumSet<CalendarField> fields, boolean withOffset) {
-        XMLGregorianCalendar calendar = TextHelper.toCalendar(content, fields, withOffset);
+    private static TextContent ofOffsetDateTime(OffsetDateTime dateTime, EnumSet<CalendarField> fields, boolean withOffset) {
+        XMLGregorianCalendar calendar = TextHelper.toCalendar(dateTime, fields, withOffset);
         return calendar != null ? new TextContent(calendar.toXMLFormat()) : ABSENT;
     }
 
-    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> content, EnumSet<CalendarField> fields, boolean withOffset) {
-        if (content != null && !content.isEmpty()) {
-            StringBuilder builder = new StringBuilder(content.size());
-            boolean first = true;
-
-            for (OffsetDateTime dateTime : content) {
-                XMLGregorianCalendar calendar = TextHelper.toCalendar(dateTime, fields, withOffset);
-                if (calendar != null) {
-                    if (!first) {
-                        builder.append(" ");
-                    } else {
-                        first = false;
-                    }
-
-                    builder.append(calendar.toXMLFormat());
-                }
-            }
-
-            return new TextContent(builder.toString());
-        } else {
-            return ABSENT;
-        }
+    private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> dateTimes, EnumSet<CalendarField> fields, boolean withOffset) {
+        return dateTimes != null && !dateTimes.isEmpty() ?
+                new TextContent(TextHelper.toContent(dateTimes, fields, withOffset)) :
+                ABSENT;
     }
 
     public static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
