@@ -1,6 +1,20 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Introduced `TextContent.ABSENT` sentinel to represent missing content, replacing the previous `TextContent.EMPTY`.
+  New API methods:
+  - `TextContent absent()` — returns an absent instance (ignored during serialization).
+  - `boolean isAbsent()` — `true` if content is absent.
+  - `boolean isPresent()` — `true` if content exists.
+  - `boolean isEmpty()` — `true` if content exists but is an empty string.
+- Added `getAsXOrElse` and `getAsXOrElseGet` methods to `TextContent` to provide a default value when parsing into
+  the expected type fails: `OrElse` takes a direct value, `OrElseGet` takes a `Supplier` for lazy evaluation.
+
+### Fixed
+- Fixed `XMLReader.getTextContent()` to return `TextContent.ABSENT` if the reader is not at a start element.
+- Fixed `TextContent.collapse()` to no longer produce strings starting with `'\0'`.
+- Corrected typo in `getAsCalendar` and `getAsCalendarList` methods of `TextContent`.
 
 ## [1.1.6] - 2025-09-27
 ### Changed
