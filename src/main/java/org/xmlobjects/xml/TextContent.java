@@ -219,6 +219,10 @@ public class TextContent {
         return this == ABSENT;
     }
 
+    public boolean isEmpty() {
+        return this != ABSENT && content.isEmpty();
+    }
+
     public TextContent trim() {
         if (isPresent()) {
             content = trimContent();
