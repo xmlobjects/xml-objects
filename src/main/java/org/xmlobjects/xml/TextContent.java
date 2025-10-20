@@ -215,8 +215,15 @@ public class TextContent {
         return ofOffsetDateTimeList(content, CalendarField.GYEAR_FIELDS, WITH_DATE_OFFSET);
     }
 
+    public boolean isAbsent() {
+        return this == ABSENT;
+    }
+
     public TextContent trim() {
-        content = trimContent();
+        if (isPresent()) {
+            content = trimContent();
+        }
+
         return this;
     }
 
@@ -236,16 +243,6 @@ public class TextContent {
         return this;
     }
 
-    public boolean isPresent() {
-        return this != ABSENT;
-    }
-
-    public void ifPresent(Consumer<String> action) {
-        if (isPresent()) {
-            action.accept(content);
-        }
-    }
-
     public String get() {
         return isPresent() ? content : null;
     }
@@ -256,6 +253,16 @@ public class TextContent {
 
     public String getOrElseGet(Supplier<String> defaultValue) {
         return getOrElseGet(get(), defaultValue);
+    }
+
+    public boolean isPresent() {
+        return this != ABSENT;
+    }
+
+    public void ifPresent(Consumer<String> action) {
+        if (isPresent()) {
+            action.accept(content);
+        }
     }
 
     public List<String> getAsList() {
@@ -953,7 +960,7 @@ public class TextContent {
     }
 
     private static TextContent ofObjectList(List<?> values) {
-        return values != null ? new TextContent(TextHelper.toContent(values)) : ABSENT;
+        return values != null && !values.isEmpty() ? new TextContent(TextHelper.toContent(values)) : ABSENT;
     }
 
     private static TextContent ofOffsetDateTime(OffsetDateTime dateTime, EnumSet<CalendarField> fields, boolean withOffset) {
@@ -962,7 +969,9 @@ public class TextContent {
     }
 
     private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> dateTimes, EnumSet<CalendarField> fields, boolean withOffset) {
-        return dateTimes != null ? new TextContent(TextHelper.toContent(dateTimes, fields, withOffset)) : ABSENT;
+        return dateTimes != null && !dateTimes.isEmpty() ?
+                new TextContent(TextHelper.toContent(dateTimes, fields, withOffset)) :
+                ABSENT;
     }
 
     public static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
