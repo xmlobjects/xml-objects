@@ -130,14 +130,6 @@ public class CopyBuilder {
             isCloning = true;
         }
 
-        // avoid copying parents not belonging to the hierarchy of the initial source object
-        if (src instanceof Child child) {
-            Child parent = child.getParent();
-            if (parent != null) {
-                clones.putIfAbsent(parent, parent);
-            }
-        }
-
         T clone = (T) clones.get(src);
         try {
             if (clone == null) {
@@ -149,6 +141,14 @@ public class CopyBuilder {
                 } else {
                     if (template == null) {
                         template = (Class<T>) src.getClass();
+                    }
+
+                    // avoid copying parents not belonging to the hierarchy of the initial source object
+                    if (src instanceof Child child) {
+                        Child parent = child.getParent();
+                        if (parent != null) {
+                            clones.putIfAbsent(parent, parent);
+                        }
                     }
 
                     AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(template);
