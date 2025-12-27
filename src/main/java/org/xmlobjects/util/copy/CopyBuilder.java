@@ -130,10 +130,6 @@ public class CopyBuilder {
             isCloning = true;
         }
 
-        if (template == null) {
-            template = (Class<T>) src.getClass();
-        }
-
         // avoid copying parents not belonging to the hierarchy of the initial source object
         if (src instanceof Child child) {
             Child parent = child.getParent();
@@ -145,7 +141,16 @@ public class CopyBuilder {
         T clone = (T) clones.get(src);
         try {
             if (clone == null) {
-                try {
+                if (shallowCopy
+                        && isInitial
+                        && dest == null
+                        && src instanceof Copyable copyable) {
+                    clone = (T) copyable.shallowCopy(this);
+                } else {
+                    if (template == null) {
+                        template = (Class<T>) src.getClass();
+                    }
+
                     AbstractCloner<T> cloner = (AbstractCloner<T>) findCloner(template);
                     if (cloner != IDENTITY_CLONER && cloner != NULL_CLONER) {
                         if (dest == null) {
@@ -156,18 +161,16 @@ public class CopyBuilder {
                     }
 
                     clone = cloner.copy(src, dest, shallowCopy);
-                } catch (Throwable e) {
-                    if (failOnError) {
-                        throw e instanceof CopyException copyException ?
-                                copyException :
-                                new CopyException("Failed to copy " + src + ".", e);
-                    }
                 }
             } else if (clone == NULL) {
                 clone = null;
             }
-
-            return clone;
+        } catch (Throwable e) {
+            if (failOnError) {
+                throw e instanceof CopyException copyException ?
+                        copyException :
+                        new CopyException("Failed to copy " + src + ".", e);
+            }
         } finally {
             if (isInitial) {
                 isCloning = false;
@@ -179,6 +182,8 @@ public class CopyBuilder {
                 }
             }
         }
+
+        return clone;
     }
 
     private AbstractCloner<?> findCloner(Class<?> type) {
