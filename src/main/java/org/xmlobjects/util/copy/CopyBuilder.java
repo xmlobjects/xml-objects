@@ -28,24 +28,28 @@ import java.net.URI;
 import java.net.URL;
 import java.time.*;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class CopyBuilder {
-    private final Map<Class<?>, AbstractCloner<?>> cloners = new IdentityHashMap<>();
-    private final Map<Object, Object> clones = new IdentityHashMap<>();
-    private final Set<Class<?>> immutables = Collections.newSetFromMap(new IdentityHashMap<>());
-    private final Set<Class<?>> nulls = Collections.newSetFromMap(new IdentityHashMap<>());
+    private static final ThreadLocal<CopyContext> contexts = ThreadLocal.withInitial(CopyContext::new);
+    private static final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
+    private static final AbstractCloner<Object> NULL_CLONER = new NullCloner();
+    private static final Object NULL = new Object();
 
-    private final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
-    private final AbstractCloner<Object> NULL_CLONER = new NullCloner();
+    private final Map<Class<?>, AbstractCloner<?>> cloners = new ConcurrentHashMap<>();
+    private final Set<Class<?>> immutables = ConcurrentHashMap.newKeySet();
+    private final Set<Class<?>> nulls = ConcurrentHashMap.newKeySet();
     private final AbstractCloner<Collection<?>> COLLECTION_CLONER = new CollectionCloner<>(this);
     private final AbstractCloner<Map<?, ?>> MAP_CLONER = new MapCloner<>(this);
     private final AbstractCloner<Object[]> ARRAY_CLONER = new ArrayCloner(this);
-    private final Object NULL = new Object();
 
-    private boolean isCloning;
-    private boolean failOnError;
+    private volatile boolean failOnError;
+
+    private static class CopyContext {
+        private final Map<Object, Object> clones = new IdentityHashMap<>();
+        private boolean isCopying;
+    }
 
     public CopyBuilder() {
         registerKnownCloners();
@@ -93,27 +97,6 @@ public class CopyBuilder {
         return this;
     }
 
-    public <T> CopyBuilder withClone(T src, Supplier<T> supplier) {
-        if (src != null) {
-            T clone = supplier.get();
-            if (failOnError && clone != null && !src.getClass().isInstance(clone)) {
-                throw new CopyException("Type mismatch between object '" + src + "' and clone '" + clone + "'.");
-            }
-
-            clones.put(src, clone != null ? clone : NULL);
-        }
-
-        return this;
-    }
-
-    public CopyBuilder withSelfCopy(Object src) {
-        if (src != null) {
-            clones.put(src, src);
-        }
-
-        return this;
-    }
-
     public CopyBuilder failOnError(boolean failOnError) {
         this.failOnError = failOnError;
         return this;
@@ -125,12 +108,13 @@ public class CopyBuilder {
             return dest;
         }
 
-        boolean isInitial = !isCloning;
+        CopyContext context = contexts.get();
+        boolean isInitial = !context.isCopying;
         if (isInitial) {
-            isCloning = true;
+            context.isCopying = true;
         }
 
-        T clone = (T) clones.get(src);
+        T clone = (T) context.clones.get(src);
         try {
             if (clone == null) {
                 if (shallowCopy
@@ -147,7 +131,7 @@ public class CopyBuilder {
                     if (src instanceof Child child) {
                         Child parent = child.getParent();
                         if (parent != null) {
-                            clones.putIfAbsent(parent, parent);
+                            context.clones.putIfAbsent(parent, parent);
                         }
                     }
 
@@ -157,7 +141,7 @@ public class CopyBuilder {
                             dest = cloner.newInstance(src, shallowCopy);
                         }
 
-                        clones.put(src, dest != null ? dest : NULL);
+                        context.clones.put(src, dest != null ? dest : NULL);
                     }
 
                     clone = cloner.copy(src, dest, shallowCopy);
@@ -173,8 +157,9 @@ public class CopyBuilder {
             }
         } finally {
             if (isInitial) {
-                isCloning = false;
-                clones.clear();
+                context.isCopying = false;
+                context.clones.clear();
+                contexts.remove();
 
                 // unset parent on initial source object
                 if (clone instanceof Child child) {
