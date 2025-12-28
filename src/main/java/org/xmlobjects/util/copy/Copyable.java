@@ -19,9 +19,7 @@
 
 package org.xmlobjects.util.copy;
 
-import java.io.Serializable;
-
-public interface Copyable extends Serializable {
+public interface Copyable {
     default Copyable shallowCopy(CopyBuilder builder) {
         return builder.shallowCopy(this);
     }
