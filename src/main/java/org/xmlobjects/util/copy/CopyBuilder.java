@@ -35,7 +35,6 @@ public class CopyBuilder {
     private static final ThreadLocal<CopyContext> contexts = ThreadLocal.withInitial(CopyContext::new);
     private static final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
     private static final AbstractCloner<Object> NULL_CLONER = new NullCloner();
-    private static final Object NULL = new Object();
 
     private final Map<Class<?>, AbstractCloner<?>> cloners = new ConcurrentHashMap<>();
     private final Set<Class<?>> immutables = ConcurrentHashMap.newKeySet();
@@ -45,11 +44,6 @@ public class CopyBuilder {
     private final AbstractCloner<Object[]> ARRAY_CLONER = new ArrayCloner(this);
 
     private volatile boolean failOnError;
-
-    private static class CopyContext {
-        private final Map<Object, Object> clones = new IdentityHashMap<>();
-        private boolean isCopying;
-    }
 
     public CopyBuilder() {
         registerKnownCloners();
@@ -102,6 +96,10 @@ public class CopyBuilder {
         return this;
     }
 
+    CopyContext getContext() {
+        return contexts.get();
+    }
+
     @SuppressWarnings("unchecked")
     private <T> T copy(T src, T dest, Class<T> template, boolean shallowCopy) {
         if (src == null || src == dest) {
@@ -109,19 +107,16 @@ public class CopyBuilder {
         }
 
         CopyContext context = contexts.get();
-        boolean isInitial = !context.isCopying;
-        if (isInitial) {
-            context.isCopying = true;
-        }
+        boolean isInitial = context.isInitial();
 
-        T clone = (T) context.clones.get(src);
+        T clone = (T) context.getClone(src);
         try {
             if (clone == null) {
                 if (shallowCopy
                         && isInitial
                         && dest == null
                         && src instanceof Copyable copyable) {
-                    clone = (T) copyable.shallowCopy(this);
+                    clone = (T) copyable.shallowCopy(this, context);
                 } else {
                     if (template == null) {
                         template = (Class<T>) src.getClass();
@@ -131,7 +126,7 @@ public class CopyBuilder {
                     if (src instanceof Child child) {
                         Child parent = child.getParent();
                         if (parent != null) {
-                            context.clones.putIfAbsent(parent, parent);
+                            context.addCloneIfAbsent(parent, parent);
                         }
                     }
 
@@ -141,12 +136,12 @@ public class CopyBuilder {
                             dest = cloner.newInstance(src, shallowCopy);
                         }
 
-                        context.clones.put(src, dest != null ? dest : NULL);
+                        context.addClone(src, dest);
                     }
 
                     clone = cloner.copy(src, dest, shallowCopy);
                 }
-            } else if (clone == NULL) {
+            } else if (context.isNullClone(clone)) {
                 clone = null;
             }
         } catch (Throwable e) {
@@ -157,8 +152,7 @@ public class CopyBuilder {
             }
         } finally {
             if (isInitial) {
-                context.isCopying = false;
-                context.clones.clear();
+                context.clear();
                 contexts.remove();
 
                 // unset parent on initial source object

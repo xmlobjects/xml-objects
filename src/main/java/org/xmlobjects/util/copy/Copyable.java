@@ -20,11 +20,11 @@
 package org.xmlobjects.util.copy;
 
 public interface Copyable {
-    default Copyable shallowCopy(CopyBuilder builder) {
+    default Copyable shallowCopy(CopyBuilder builder, CopyContext context) {
         return builder.shallowCopy(this);
     }
 
-    default Copyable deepCopy(CopyBuilder builder) {
+    default Copyable deepCopy(CopyBuilder builder, CopyContext context) {
         return builder.deepCopy(this);
     }
 }
