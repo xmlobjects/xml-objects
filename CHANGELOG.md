@@ -1,6 +1,15 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Made `CopyBuilder` thread-safe for concurrent use.
+- Removed `Serializable` from `Copyable`. Implementations must declare serialization explicitly now.
+- Removed `withClone` and `withSelfCopy` from `CopyBuilder`.
+- Updated `Copyable.shallowCopy` and `Copyable.deepCopy` to accept a `CopyContext`, which now provides the former
+  `withClone` and `withSelfCopy` functionality.
+
+### Fixed
+- `CopyBuilder` now correctly invokes `Copyable.shallowCopy` for the initial object being copied, when provided.
 
 ## [1.2.0] - 2025-11-20
 ### Changed
