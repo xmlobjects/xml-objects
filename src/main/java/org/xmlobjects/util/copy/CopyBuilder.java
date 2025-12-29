@@ -33,15 +33,15 @@ import java.util.regex.Pattern;
 
 public class CopyBuilder {
     private static final ThreadLocal<CopyContext> contexts = ThreadLocal.withInitial(CopyContext::new);
-    private static final AbstractCloner<Object> IDENTITY_CLONER = new IdentityCloner();
-    private static final AbstractCloner<Object> NULL_CLONER = new NullCloner();
+    private static final AbstractCloner<?> IDENTITY_CLONER = new IdentityCloner();
+    private static final AbstractCloner<?> NULL_CLONER = new NullCloner();
 
     private final Map<Class<?>, AbstractCloner<?>> cloners = new ConcurrentHashMap<>();
     private final Set<Class<?>> immutables = ConcurrentHashMap.newKeySet();
     private final Set<Class<?>> nulls = ConcurrentHashMap.newKeySet();
-    private final AbstractCloner<Collection<?>> COLLECTION_CLONER = new CollectionCloner<>(this);
-    private final AbstractCloner<Map<?, ?>> MAP_CLONER = new MapCloner<>(this);
-    private final AbstractCloner<Object[]> ARRAY_CLONER = new ArrayCloner(this);
+    private final AbstractCloner<?> COLLECTION_CLONER = new CollectionCloner<>(this);
+    private final AbstractCloner<?> MAP_CLONER = new MapCloner<>(this);
+    private final AbstractCloner<?> ARRAY_CLONER = new ArrayCloner(this);
 
     private volatile boolean failOnError;
 
