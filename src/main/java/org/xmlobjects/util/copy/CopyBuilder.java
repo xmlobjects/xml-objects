@@ -43,7 +43,7 @@ public class CopyBuilder {
     private final AbstractCloner<?> MAP_CLONER = new MapCloner<>(this);
     private final AbstractCloner<?> ARRAY_CLONER = new ArrayCloner(this);
 
-    private volatile boolean failOnError;
+    private volatile boolean failOnError = true;
 
     public CopyBuilder() {
         registerKnownCloners();
@@ -89,6 +89,10 @@ public class CopyBuilder {
     public CopyBuilder registerNullCopy(Class<?>... types) {
         Collections.addAll(nulls, types);
         return this;
+    }
+
+    public boolean isFailOnError() {
+        return failOnError;
     }
 
     public CopyBuilder failOnError(boolean failOnError) {

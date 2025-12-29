@@ -7,9 +7,10 @@
 - Removed `withClone` and `withSelfCopy` from `CopyBuilder`.
 - Updated `Copyable.shallowCopy` and `Copyable.deepCopy` to accept a `CopyContext`, which now provides the former
   `withClone` and `withSelfCopy` functionality.
+- Changed `CopyBuilder.failOnError` to be true by default.
 
 ### Fixed
-- `CopyBuilder` now correctly invokes `Copyable.shallowCopy` for the initial object being copied, when provided.
+- `CopyBuilder` now invokes `Copyable.shallowCopy` for the initial object being copied, when provided.
 
 ## [1.2.0] - 2025-11-20
 ### Changed
