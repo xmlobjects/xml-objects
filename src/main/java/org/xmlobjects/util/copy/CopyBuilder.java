@@ -37,11 +37,9 @@ public class CopyBuilder {
     private static final AbstractCloner<?> NULL_CLONER = new NullCloner();
 
     private final Map<Class<?>, AbstractCloner<?>> cloners = new ConcurrentHashMap<>();
-    private final Set<Class<?>> immutables = ConcurrentHashMap.newKeySet();
-    private final Set<Class<?>> nulls = ConcurrentHashMap.newKeySet();
-    private final AbstractCloner<?> COLLECTION_CLONER = new CollectionCloner<>(this);
-    private final AbstractCloner<?> MAP_CLONER = new MapCloner<>(this);
-    private final AbstractCloner<?> ARRAY_CLONER = new ArrayCloner(this);
+    private final AbstractCloner<?> collectionCloner = new CollectionCloner<>(this);
+    private final AbstractCloner<?> mapCloner = new MapCloner<>(this);
+    private final AbstractCloner<?> arrayCloner = new ArrayCloner(this);
 
     private volatile boolean failOnError = true;
 
@@ -82,12 +80,18 @@ public class CopyBuilder {
     }
 
     public CopyBuilder registerSelfCopy(Class<?>... types) {
-        Collections.addAll(immutables, types);
+        for (Class<?> type : types) {
+            cloners.put(type, IDENTITY_CLONER);
+        }
+
         return this;
     }
 
     public CopyBuilder registerNullCopy(Class<?>... types) {
-        Collections.addAll(nulls, types);
+        for (Class<?> type : types) {
+            cloners.put(type, NULL_CLONER);
+        }
+
         return this;
     }
 
@@ -148,7 +152,7 @@ public class CopyBuilder {
             } else if (context.isNullClone(clone)) {
                 clone = null;
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (failOnError) {
                 throw e instanceof CopyException copyException ?
                         copyException :
@@ -159,7 +163,7 @@ public class CopyBuilder {
                 context.clear();
                 contexts.remove();
 
-                // unset parent on initial source object
+                // unset parent on clone
                 if (clone instanceof Child child) {
                     child.setParent(null);
                 }
@@ -170,27 +174,21 @@ public class CopyBuilder {
     }
 
     private AbstractCloner<?> findCloner(Class<?> type) {
-        AbstractCloner<?> cloner = cloners.get(type);
-        if (cloner == null) {
-            if (immutables.contains(type)) {
-                return IDENTITY_CLONER;
-            } else if (nulls.contains(type)) {
-                return NULL_CLONER;
-            } else if (Enum.class.isAssignableFrom(type)) {
-                return IDENTITY_CLONER;
-            } else if (Collection.class.isAssignableFrom(type)) {
-                return COLLECTION_CLONER;
-            } else if (Map.class.isAssignableFrom(type)) {
-                return MAP_CLONER;
-            } else if (type.isArray()) {
-                return ARRAY_CLONER;
-            }
+        return cloners.computeIfAbsent(type, this::createCloner);
+    }
 
-            cloner = new ObjectCloner<>(type, this);
-            cloners.put(type, cloner);
+    private AbstractCloner<?> createCloner(Class<?> type) {
+        if (Enum.class.isAssignableFrom(type)) {
+            return IDENTITY_CLONER;
+        } else if (Collection.class.isAssignableFrom(type)) {
+            return collectionCloner;
+        } else if (Map.class.isAssignableFrom(type)) {
+            return mapCloner;
+        } else if (type.isArray()) {
+            return arrayCloner;
         }
 
-        return cloner;
+        return new ObjectCloner<>(type, this);
     }
 
     private void registerKnownCloners() {
