@@ -21,6 +21,8 @@ package org.xmlobjects.util.copy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 @SuppressWarnings("rawtypes")
 public class MapCloner<T extends Map> extends AbstractCloner<T> {
@@ -49,9 +51,13 @@ public class MapCloner<T extends Map> extends AbstractCloner<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T newInstance(T object, boolean shallowCopy) {
+        if (object instanceof SortedMap sortedMap) {
+            return (T) new TreeMap<>(sortedMap.comparator());
+        }
+
         try {
             return super.newInstance(object, shallowCopy);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return (T) new HashMap<>();
         }
     }
