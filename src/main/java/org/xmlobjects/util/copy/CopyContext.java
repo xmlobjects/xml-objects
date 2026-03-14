@@ -21,19 +21,20 @@ package org.xmlobjects.util.copy;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 public class CopyContext {
     private static final Object NULL_CLONE = new Object();
     private final Map<Object, Object> clones = new IdentityHashMap<>();
-    private final AtomicBoolean initial = new AtomicBoolean(true);
+    private boolean initial = true;
 
     CopyContext() {
     }
 
     boolean isInitial() {
-        return initial.getAndSet(false);
+        boolean result = initial;
+        initial = false;
+        return result;
     }
 
     Object getClone(Object src) {
@@ -70,6 +71,6 @@ public class CopyContext {
 
     void clear() {
         clones.clear();
-        initial.set(true);
+        initial = true;
     }
 }
