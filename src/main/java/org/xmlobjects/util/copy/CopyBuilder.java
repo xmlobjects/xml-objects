@@ -126,7 +126,7 @@ public class CopyBuilder {
                         && src instanceof Copyable copyable) {
                     clone = (T) copyable.shallowCopy(this, context);
                 } else {
-                    if (template == null) {
+                    if (template == null || src.getClass().isArray()) {
                         template = (Class<T>) src.getClass();
                     }
 
