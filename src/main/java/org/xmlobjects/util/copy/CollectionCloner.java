@@ -45,9 +45,13 @@ public class CollectionCloner<T extends Collection> extends AbstractCloner<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T newInstance(T object, boolean shallowCopy) {
+        if (object instanceof SortedSet<?> sortedSet) {
+            return (T) new TreeSet<>(sortedSet.comparator());
+        }
+
         try {
             return super.newInstance(object, shallowCopy);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             //
         }
 
