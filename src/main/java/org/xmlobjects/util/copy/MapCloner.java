@@ -13,7 +13,7 @@ import java.util.TreeMap;
 @SuppressWarnings("rawtypes")
 public class MapCloner<T extends Map> extends AbstractCloner<T> {
 
-    MapCloner(CopyBuilder builder) {
+    protected MapCloner(CopyBuilder builder) {
         super(builder);
     }
 
