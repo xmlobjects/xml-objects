@@ -1,6 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- `CopyBuilder` now supports copying primitive arrays.
+
+### Fixed
+- `CopyBuilder` now considers sorted maps and sets.
 
 ## [1.3.0] - 2025-12-29
 ### Changed
