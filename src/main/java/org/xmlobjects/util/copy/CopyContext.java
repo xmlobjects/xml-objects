@@ -7,7 +7,6 @@ package org.xmlobjects.util.copy;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class CopyContext {
     private static final Object NULL_CLONE = new Object();
@@ -39,9 +38,9 @@ public class CopyContext {
         return src == null || src == NULL_CLONE;
     }
 
-    public <T> CopyContext withClone(T src, Supplier<T> supplier) {
+    public <T> CopyContext withClone(T src, T dest) {
         if (src != null) {
-            addClone(src, supplier.get());
+            addClone(src, dest);
         }
 
         return this;
