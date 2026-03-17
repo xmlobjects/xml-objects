@@ -24,8 +24,9 @@ public class ObjectCloner<T> extends AbstractCloner<T> {
                     continue;
                 }
 
-                field.setAccessible(true);
-                this.fields.add(field);
+                if (field.trySetAccessible()) {
+                    this.fields.add(field);
+                }
             }
         } while ((type = type.getSuperclass()) != Object.class && type != null);
     }

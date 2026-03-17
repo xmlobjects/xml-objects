@@ -9,7 +9,10 @@ import java.lang.reflect.Array;
 
 public class ArrayCloner extends AbstractCloner<Object> {
 
-    protected ArrayCloner(CopyBuilder builder) {
+    protected ArrayCloner() {
+    }
+
+    ArrayCloner(CopyBuilder builder) {
         super(builder);
     }
 

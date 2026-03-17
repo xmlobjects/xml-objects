@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public class CopyBuilder {
-    private static final ThreadLocal<CopyContext> contexts = ThreadLocal.withInitial(CopyContext::new);
+    private static final ThreadLocal<CopyContext> CONTEXTS = ThreadLocal.withInitial(CopyContext::new);
     private static final AbstractCloner<?> IDENTITY_CLONER = new IdentityCloner();
     private static final AbstractCloner<?> NULL_CLONER = new NullCloner();
 
@@ -91,7 +91,7 @@ public class CopyBuilder {
     }
 
     CopyContext getContext() {
-        return contexts.get();
+        return CONTEXTS.get();
     }
 
     @SuppressWarnings("unchecked")
@@ -100,7 +100,7 @@ public class CopyBuilder {
             return dest;
         }
 
-        CopyContext context = contexts.get();
+        CopyContext context = CONTEXTS.get();
         boolean isInitial = context.isInitial();
 
         T clone = (T) context.getClone(src);
@@ -147,7 +147,7 @@ public class CopyBuilder {
         } finally {
             if (isInitial) {
                 context.clear();
-                contexts.remove();
+                CONTEXTS.remove();
 
                 // unset parent on clone
                 if (clone instanceof Child child) {

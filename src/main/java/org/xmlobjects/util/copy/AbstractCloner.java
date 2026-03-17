@@ -10,30 +10,33 @@ import java.lang.reflect.Constructor;
 public abstract class AbstractCloner<T> {
     private CopyBuilder builder;
 
-    public AbstractCloner() {
+    protected AbstractCloner() {
     }
 
     AbstractCloner(CopyBuilder builder) {
         this.builder = builder;
     }
 
-    public abstract T copy(T src, T dest, boolean shallowCopy) throws Exception;
+    protected abstract T copy(T src, T dest, boolean shallowCopy) throws Exception;
 
     final void setCopyBuilder(CopyBuilder builder) {
         this.builder = builder;
     }
 
     @SuppressWarnings("unchecked")
-    public final <E> E deepCopy(E value) {
+    protected final <E> E deepCopy(E value) {
         return value instanceof Copyable copyable ?
                 (E) copyable.deepCopy(builder, builder.getContext()) :
                 builder.deepCopy(value);
     }
 
     @SuppressWarnings("unchecked")
-    public T newInstance(T object, boolean shallowCopy) throws Exception {
+    protected T newInstance(T object, boolean shallowCopy) throws Exception {
         Constructor<?> constructor = object.getClass().getDeclaredConstructor();
-        constructor.setAccessible(true);
-        return (T) constructor.newInstance();
+        if (constructor.trySetAccessible()) {
+            return (T) constructor.newInstance();
+        }
+
+        throw new CopyException("Cannot access the default constructor of " + object.getClass() + ".");
     }
 }

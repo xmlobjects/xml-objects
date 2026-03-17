@@ -10,7 +10,10 @@ import java.util.*;
 @SuppressWarnings("rawtypes")
 public class CollectionCloner<T extends Collection> extends AbstractCloner<T> {
 
-    protected CollectionCloner(CopyBuilder builder) {
+    protected CollectionCloner() {
+    }
+
+    CollectionCloner(CopyBuilder builder) {
         super(builder);
     }
 
