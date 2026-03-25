@@ -1,4 +1,5 @@
 module org.xmlobjects {
+    requires transitive org.xmlobjects.copy;
     requires transitive java.xml;
     requires transitive com.sun.xml.xsom;
     requires transitive org.xmlobjects.classindex;
@@ -12,7 +13,6 @@ module org.xmlobjects {
     exports org.xmlobjects.stream;
     exports org.xmlobjects.util;
     exports org.xmlobjects.util.composite;
-    exports org.xmlobjects.util.copy;
     exports org.xmlobjects.util.xml;
     exports org.xmlobjects.xml;
 }

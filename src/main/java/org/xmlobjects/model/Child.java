@@ -5,7 +5,11 @@
 
 package org.xmlobjects.model;
 
-public interface Child {
+import org.xmlobjects.copy.CopyCallback;
+import org.xmlobjects.copy.CopyContext;
+import org.xmlobjects.copy.CopyMode;
+
+public interface Child extends CopyCallback {
     Child getParent();
 
     void setParent(Child parent);
@@ -19,5 +23,20 @@ public interface Child {
         }
 
         return null;
+    }
+
+    @Override
+    default void preCopy(CopyContext context, CopyMode mode, boolean isRoot) {
+        Child parent = getParent();
+        if (parent != null) {
+            context.withCloneIfAbsent(parent, parent);
+        }
+    }
+
+    @Override
+    default void postCopy(CopyContext context, CopyMode mode, boolean isRoot) {
+        if (isRoot) {
+            setParent(null);
+        }
     }
 }

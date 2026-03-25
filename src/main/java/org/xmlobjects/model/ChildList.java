@@ -5,11 +5,15 @@
 
 package org.xmlobjects.model;
 
+import org.xmlobjects.copy.CopyContext;
+import org.xmlobjects.copy.CopyMode;
+import org.xmlobjects.copy.Copyable;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.UnaryOperator;
 
-public class ChildList<T extends Child> extends ArrayList<T> {
+public class ChildList<T extends Child> extends ArrayList<T> implements Copyable<ChildList<T>> {
     private Child parent;
 
     public ChildList(Child parent) {
@@ -83,6 +87,26 @@ public class ChildList<T extends Child> extends ArrayList<T> {
             if (child != null) {
                 child.setParent(parent);
             }
+        }
+    }
+
+    @Override
+    public ChildList<T> newInstance(CopyMode mode, CopyContext context) {
+        return new ChildList<>(size(), switch (mode) {
+            case SHALLOW -> getParent();
+            case DEEP -> context.deepCopy(getParent());
+        });
+    }
+
+    @Override
+    public void shallowCopyTo(ChildList<T> dest, CopyContext context) {
+        dest.addAll(this);
+    }
+
+    @Override
+    public void deepCopyTo(ChildList<T> dest, CopyContext context) {
+        for (T element : this) {
+            dest.add(context.deepCopy(element));
         }
     }
 }
