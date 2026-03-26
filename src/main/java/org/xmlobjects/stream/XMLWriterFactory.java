@@ -11,7 +11,6 @@ import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXOutputHandler;
 import org.xmlobjects.util.xml.SAXWriter;
 
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -87,14 +86,14 @@ public class XMLWriterFactory {
     public XMLWriter createWriter(DOMResult result) throws XMLWriteException {
         try {
             if (transformerFactory == null) {
-                transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
+                transformerFactory = (SAXTransformerFactory) TransformerFactory.newDefaultInstance();
             }
 
             TransformerHandler handler = transformerFactory.newTransformerHandler();
             handler.setResult(result);
 
             return createWriter(handler);
-        } catch (TransformerConfigurationException e) {
+        } catch (Exception e) {
             throw new XMLWriteException("Caused by:", e);
         }
     }

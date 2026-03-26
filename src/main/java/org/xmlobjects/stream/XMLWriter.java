@@ -360,7 +360,7 @@ public class XMLWriter implements AutoCloseable {
 
     public <T> ObjectSerializer<T> getOrCreateSerializer(Class<? extends ObjectSerializer<T>> type) throws ObjectSerializeException {
         ObjectSerializer<?> cachedSerializer = serializerCache.get(type);
-        if (cachedSerializer != null && type.isAssignableFrom(cachedSerializer.getClass())) {
+        if (cachedSerializer != null) {
             return type.cast(cachedSerializer);
         } else {
             try {

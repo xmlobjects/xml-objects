@@ -176,7 +176,7 @@ public class SchemaHandler {
         return schemas.keySet();
     }
 
-    public SchemaHandler copy(SchemaHandler other) {
+    public SchemaHandler copyFrom(SchemaHandler other) {
         schemas.putAll(other.schemas);
         visitedSchemaLocations.putAll(other.visitedSchemaLocations);
         userSchemaLocations.putAll(other.userSchemaLocations);
