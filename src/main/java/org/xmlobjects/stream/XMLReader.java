@@ -328,8 +328,13 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getAttributes when event is not START_ELEMENT.");
         }
 
+        int count = reader.getAttributeCount();
+        if (count == 0) {
+            return Attributes.empty();
+        }
+
         Attributes attributes = new Attributes();
-        for (int i = 0; i < reader.getAttributeCount(); i++) {
+        for (int i = 0; i < count; i++) {
             attributes.add(reader.getAttributeName(i), reader.getAttributeValue(i));
         }
 
@@ -389,7 +394,7 @@ public class XMLReader implements AutoCloseable {
 
     public <T> ObjectBuilder<T> getOrCreateBuilder(Class<? extends ObjectBuilder<T>> type) throws ObjectBuildException {
         ObjectBuilder<?> cachedBuilder = builderCache.get(type);
-        if (cachedBuilder != null && type.isAssignableFrom(cachedBuilder.getClass())) {
+        if (cachedBuilder != null) {
             return type.cast(cachedBuilder);
         } else {
             try {

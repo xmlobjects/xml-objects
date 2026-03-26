@@ -12,7 +12,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Attributes {
-    private final Map<String, Map<String, TextContent>> attributes = new HashMap<>();
+    private static final Attributes EMPTY = new Attributes(Map.of()) {
+        @Override
+        public void add(String namespaceURI, String localName, TextContent value) {
+            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
+        }
+
+        @Override
+        public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
+            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
+        }
+
+        @Override
+        public boolean isImmutable() {
+            return true;
+        }
+    };
+
+    private final Map<String, Map<String, TextContent>> attributes;
+
+    public static Attributes empty() {
+        return EMPTY;
+    }
+
+    public Attributes() {
+        this(new HashMap<>());
+    }
+
+    private Attributes(Map<String, Map<String, TextContent>> attributes) {
+        this.attributes = attributes;
+    }
 
     public void add(String namespaceURI, String localName, TextContent value) {
         attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
@@ -78,9 +107,7 @@ public class Attributes {
         return attributes.isEmpty();
     }
 
-    public Attributes copy() {
-        Attributes copy = new Attributes();
-        copy.attributes.putAll(attributes);
-        return copy;
+    public boolean isImmutable() {
+        return false;
     }
 }
