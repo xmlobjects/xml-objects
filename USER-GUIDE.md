@@ -1,4 +1,4 @@
-# xml-objects – Framework Guide
+# xml-objects – User Guide
 
 A deep-dive into the design philosophy, core concepts, and key advantages of the **xml-objects** framework.
 
@@ -133,7 +133,7 @@ public class AddressBuilder implements ObjectBuilder<Address> {
 }
 ```
 
-The `BuildingBuilder` reads its own attributes in `initializeObject`, then delegates each child element to the registry via `reader.getObject()` in `buildChildObject`:
+The `BuildingBuilder` reads its own attributes in `initializeObject`, then delegates each child element to the registry via `reader.getObjectUsingBuilder()` in `buildChildObject`:
 
 ```java
 @XMLElement(name = "Building", namespaceURI = "https://example.org/building/1.0")
@@ -162,6 +162,7 @@ public class BuildingBuilder implements ObjectBuilder<Building> {
             // QName already verified above — use getObjectUsingBuilder to skip the registry lookup
             object.setAddress(reader.getObjectUsingBuilder(AddressBuilder.class));
         }
+        // any other child elements are silently ignored
     }
 }
 ```
@@ -227,12 +228,12 @@ public class BuildingSerializer implements ObjectSerializer<Building> {
 XMLObjects xmlObjects = XMLObjects.newInstance();  // auto-registers all annotated builders/serializers
 
 // Reading
-try (XMLReader reader = XMLReaderFactory.newInstance().createReader(xmlObjects, inputStream)) {
+try (XMLReader reader = XMLReaderFactory.newInstance(xmlObjects).createReader(inputStream)) {
     Building building = xmlObjects.fromXML(reader, Building.class);
 }
 
 // Writing
-try (XMLWriter writer = XMLWriterFactory.newInstance().createWriter(xmlObjects, outputStream)) {
+try (XMLWriter writer = XMLWriterFactory.newInstance(xmlObjects).createWriter(outputStream)) {
     xmlObjects.toXML(writer, building,
         "https://example.org/building/1.0",
         "https://example.org/address/1.0");
@@ -406,8 +407,9 @@ public void buildChildObject(Building object, QName name, Attributes attributes,
         // QName already confirmed — go directly to the builder
         object.setAddress(reader.getObjectUsingBuilder(AddressBuilder.class));
     } else {
-        // Unknown element — let the registry decide, or ignore
-        // reader.getObject(Object.class);
+        // Element name not yet verified — let the registry resolve it by (namespaceURI, localName)
+        Object child = reader.getObject(Object.class);
+        // handle or ignore child ...
     }
 }
 ```
@@ -465,12 +467,17 @@ xml-objects uses [ClassIndex](https://github.com/atteo/classindex) to build a co
 public class RoadBuilder implements ObjectBuilder<Road> { ... }
 ```
 
-Rules:
-- `namespaceURI` is **optional** and defaults to `XMLConstants.NULL_NS_URI` (`""`). Use the default to handle XML elements that are not associated with any namespace:
-  ```java
-  @XMLElement(name = "Building")   // matches <Building> with no namespace
-  public class BuildingBuilder implements ObjectBuilder<Building> { ... }
-  ```
+### The `namespaceURI` attribute is optional
+
+`namespaceURI` defaults to `XMLConstants.NULL_NS_URI` (`""`). Use the default to handle XML elements that carry no namespace at all — common in legacy or simple XML documents that do not declare a namespace:
+
+```java
+@XMLElement(name = "Building")   // matches <Building> with no namespace
+public class BuildingBuilder implements ObjectBuilder<Building> { ... }
+```
+
+### Auto-registration rules
+
 - Abstract classes are excluded from auto-registration.
 - A class must have a **public no-argument constructor** — the framework instantiates it via reflection.
 - If both `@XMLElement` and `@XMLElements` are present on the same class, an `XMLObjectsException` is thrown.
@@ -572,7 +579,7 @@ Element.of("https://example.org/building/1.0", "Building")
 Typical usage pattern:
 
 ```java
-try (XMLReader reader = XMLReaderFactory.newInstance().createReader(xmlObjects, inputStream)) {
+try (XMLReader reader = XMLReaderFactory.newInstance(xmlObjects).createReader(inputStream)) {
     MyObject result = xmlObjects.fromXML(reader, MyObject.class);
 }
 ```
@@ -588,7 +595,7 @@ try (XMLReader reader = XMLReaderFactory.newInstance().createReader(xmlObjects, 
 Typical usage pattern:
 
 ```java
-try (XMLWriter writer = XMLWriterFactory.newInstance().createWriter(xmlObjects, outputStream)) {
+try (XMLWriter writer = XMLWriterFactory.newInstance(xmlObjects).createWriter(outputStream)) {
     xmlObjects.toXML(writer, myObject, "https://example.org/1.0");
 }
 ```
@@ -653,7 +660,8 @@ public void buildChildObject(Building object, QName name, Attributes attributes,
         throws ObjectBuildException, XMLReadException {
     if ("https://example.org/address/1.0".equals(name.getNamespaceURI())
             && "Address".equals(name.getLocalPart())) {
-        object.setAddress(reader.getObject(Address.class));
+        // QName already verified — use getObjectUsingBuilder to skip the registry lookup
+        object.setAddress(reader.getObjectUsingBuilder(AddressBuilder.class));
     } else {
         // Preserve unrecognised elements as DOM for later processing
         reader.getObjectOrDOMElement(Object.class)
@@ -666,8 +674,8 @@ public void buildChildObject(Building object, QName name, Attributes attributes,
 
 ```java
 BuildResult<Address> result = reader.getObjectOrDOMElement(Address.class);
-result.ifObject(object::setAddress);          // known element — typed object
-result.ifDOMElement(object::addGenericElement); // unknown element — DOM node
+result.ifObject(object::setAddress);            // registry resolved a typed object
+result.ifDOMElement(object::addGenericElement); // no builder registered — DOM fallback
 ```
 
 DOM fallback must be enabled on the factory:
@@ -742,8 +750,8 @@ xml-objects is designed for a different set of requirements: multi-namespace XML
 | Auto-registration without XML config | **Yes** (compile-time index) | No |
 | Mixed-content support | **Yes** (`getMixedContent()`) | Limited |
 | DOM fallback for unknown elements | **Yes** (`createDOMAsFallback`) | No |
-| **Startup time** | **Fast** — annotation index built at compile time; no runtime scanning | Slow — `JAXBContext` scans classes and generates accessor bytecode at startup |
-| **Runtime throughput** | **No reflection** — builders/serializers are plain classes; session-local cache avoids repeated registry lookups | No reflection after warm-up — modern implementations generate bytecode accessors; comparable once warmed |
+| Startup time | **Fast** — annotation index built at compile time; no runtime scanning | Slow — `JAXBContext` scans classes and generates accessor bytecode at startup |
+| Runtime throughput | **No reflection** — builders/serializers are plain classes; session-local cache avoids repeated registry lookups | No reflection after warm-up — modern implementations generate bytecode accessors; comparable once warmed |
 
 ### The fundamental difference
 
