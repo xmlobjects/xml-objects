@@ -109,7 +109,11 @@ public class Address {
 
 ### Builders (reading XML)
 
-An `ObjectBuilder` is responsible for creating and populating a domain object from XML. First, the simpler `AddressBuilder`:
+An `ObjectBuilder` is responsible for creating and populating a domain object from XML.
+
+The `@XMLElement` annotation on each builder (and serializer) tells the framework which XML element — identified by local name and namespace URI — the class handles. `XMLObjects.newInstance()` reads these annotations at startup and populates the registry automatically. The `namespaceURI` attribute is optional and defaults to `XMLConstants.NULL_NS_URI` (`""`), which matches XML elements that carry no namespace at all. Full details are in [Section 9](#9-auto-registration-via-annotations).
+
+First, the simpler `AddressBuilder`:
 
 ```java
 @XMLElement(name = "Address", namespaceURI = "https://example.org/address/1.0")
@@ -462,6 +466,11 @@ public class RoadBuilder implements ObjectBuilder<Road> { ... }
 ```
 
 Rules:
+- `namespaceURI` is **optional** and defaults to `XMLConstants.NULL_NS_URI` (`""`). Use the default to handle XML elements that are not associated with any namespace:
+  ```java
+  @XMLElement(name = "Building")   // matches <Building> with no namespace
+  public class BuildingBuilder implements ObjectBuilder<Building> { ... }
+  ```
 - Abstract classes are excluded from auto-registration.
 - A class must have a **public no-argument constructor** — the framework instantiates it via reflection.
 - If both `@XMLElement` and `@XMLElements` are present on the same class, an `XMLObjectsException` is thrown.
