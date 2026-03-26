@@ -271,6 +271,7 @@ public class XMLObjects {
     public void unloadSerializers(String namespaceURI) {
         if (namespaceURI != null) {
             serializers.values().forEach(v -> v.remove(namespaceURI));
+            serializableNamespaces = null;
         }
     }
 
