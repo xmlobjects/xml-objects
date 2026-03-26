@@ -1,11 +1,26 @@
 # Changelog
 
 ## [Unreleased]
-### Changed
-- `CopyBuilder` now supports copying primitive arrays.
 
-### Fixed
-- `CopyBuilder` now considers sorted maps and sets.
+### Added
+- Added a dependency on the new standalone [object-copier](https://github.com/xmlobjects/object-copier) library
+  (`org.xmlobjects:object-copier:1.0.0`), which supersedes the built-in copy infrastructure that was previously
+  part of xml-objects.
+
+### Changed
+- **Breaking:** The `CopyBuilder` class and the entire `util.copy` package have been removed. The
+  [object-copier](https://github.com/xmlobjects/object-copier) library is the designated replacement, providing a
+  significantly more powerful and flexible copy framework.
+  - The central entry point is now the `Copier` class (package `org.xmlobjects.copy`), which is created via
+    `CopierBuilder` using `CopierBuilder.newCopier()` for a default instance or `CopierBuilder.newInstance()`
+    for a customized one.
+  - `Copyable`, `CopyContext`, and `TypeCloner` have been moved to the `org.xmlobjects.copy` package of the
+    object-copier library. The semantics of `Copyable` have changed: `shallowCopy`/`deepCopy` are replaced by
+    `shallowCopyTo`/`deepCopyTo` (accepting a `CopyContext`) and `newInstance`.
+  - `failOnError` has been removed. Errors are always propagated as `CopyException` (unchecked).
+  - See the object-copier [documentation](https://github.com/xmlobjects/object-copier) for details on the new
+    capabilities. In particular, the `CopierSession` feature now enables maintaining object identity across multiple
+    copy operations.
 
 ## [1.3.0] - 2025-12-29
 ### Changed
