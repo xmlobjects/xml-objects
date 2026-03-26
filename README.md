@@ -7,9 +7,8 @@
 xml-objects is a simple and lightweight XML-to-object mapping library.
 
 ## Documentation
-A framework guide covering core concepts, examples, the builder/serializer pattern,
-multi-namespace support, and a comparison with JAXB is available in
-[FRAMEWORK-GUIDE.md](USER-GUIDE.md).
+A user guide covering core concepts, examples, the builder/serializer pattern, multi-namespace support, and a
+comparison with JAXB is available in [USER-GUIDE.md](USER-GUIDE.md).
 
 ## License
 xml-objects is licensed under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
