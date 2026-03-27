@@ -5,9 +5,8 @@
 ### Added
 - Added a comprehensive [User Guide](https://github.com/xmlobjects/xml-objects/blob/master/USER-GUIDE.md) covering
   the core concepts of xml-objects and providing examples to help you get started.
-- Added a dependency on the new standalone [object-copier](https://github.com/xmlobjects/object-copier) library
-  (`org.xmlobjects:object-copier:1.0.0`), which supersedes the built-in copy infrastructure that was previously
-  part of xml-objects.
+- Added a dependency on the new standalone [object-copier](https://github.com/xmlobjects/object-copier) library, which supersedes the built-in copy
+  infrastructure that was previously part of xml-objects.
 
 ### Changed
 - **Breaking:** The `CopyBuilder` class and the entire `util.copy` package have been removed. The

@@ -27,15 +27,15 @@ public interface Child extends CopyCallback {
 
     @Override
     default void preCopy(CopyContext context, CopyMode mode, boolean isRoot) {
-        Child parent = getParent();
-        if (parent != null) {
-            context.withCloneIfAbsent(parent, parent);
+        if (isRoot) {
+            context.exclude(getParent());
         }
     }
 
     @Override
     default void postCopy(CopyContext context, CopyMode mode, boolean isRoot) {
         if (isRoot) {
+            context.include(getParent());
             setParent(null);
         }
     }
