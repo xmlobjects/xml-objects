@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-03-31
 ### Added
 - Added a comprehensive [User Guide](https://github.com/xmlobjects/xml-objects/blob/master/USER-GUIDE.md) covering
   the core concepts of xml-objects and providing examples to help you get started.
@@ -114,7 +115,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.0
 [1.3.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.3.0
 [1.2.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.2.0
 [1.1.6]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.1.6

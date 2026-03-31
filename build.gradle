@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'org.xmlobjects'
-version = '2.0.0-SNAPSHOT'
+version = '2.0.0'
 description = 'A simple and lightweight XML-to-object mapping library'
 ext.date = new Date()
 
@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    api 'org.xmlobjects:object-copier:1.1.0-SNAPSHOT'
+    api 'org.xmlobjects:object-copier:1.1.0'
     api 'org.glassfish.jaxb:xsom:4.0.7'
     api 'org.xmlobjects:classindex:3.13.1'
     annotationProcessor 'org.xmlobjects:classindex:3.13.1'
