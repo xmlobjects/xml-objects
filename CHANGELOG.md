@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Updated to object-copier 1.2.0.
 
 ## [2.0.0] - 2026-03-31
 ### Added
