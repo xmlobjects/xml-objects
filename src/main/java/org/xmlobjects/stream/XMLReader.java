@@ -335,7 +335,9 @@ public class XMLReader implements AutoCloseable {
 
         Attributes attributes = new Attributes();
         for (int i = 0; i < count; i++) {
-            attributes.add(reader.getAttributeName(i), reader.getAttributeValue(i));
+            attributes.add(reader.getAttributeNamespace(i),
+                    reader.getAttributeLocalName(i),
+                    reader.getAttributeValue(i));
         }
 
         return attributes;
