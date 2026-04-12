@@ -43,6 +43,8 @@ public class XMLReader implements AutoCloseable {
 
     private final Map<Class<?>, ObjectBuilder<?>> builderCache = new IdentityHashMap<>();
     private Object parent;
+    private Attributes attributes;
+    private int attributesState = -1;
     private boolean createDOMAsFallback;
     private Properties properties;
     private Transformer transformer;
@@ -113,6 +115,8 @@ public class XMLReader implements AutoCloseable {
         } finally {
             builderCache.clear();
             parent = null;
+            attributes = null;
+            attributesState = -1;
         }
     }
 
@@ -328,18 +332,24 @@ public class XMLReader implements AutoCloseable {
             throw new XMLReadException("Illegal to call getAttributes when event is not START_ELEMENT.");
         }
 
+        int state = reader.getState();
+        if (state == attributesState) {
+            return attributes;
+        }
+
         int count = reader.getAttributeCount();
         if (count == 0) {
-            return Attributes.empty();
+            attributes = Attributes.empty();
+        } else {
+            attributes = new Attributes();
+            for (int i = 0; i < count; i++) {
+                attributes.add(reader.getAttributeNamespace(i),
+                        reader.getAttributeLocalName(i),
+                        reader.getAttributeValue(i));
+            }
         }
 
-        Attributes attributes = new Attributes();
-        for (int i = 0; i < count; i++) {
-            attributes.add(reader.getAttributeNamespace(i),
-                    reader.getAttributeLocalName(i),
-                    reader.getAttributeValue(i));
-        }
-
+        attributesState = state;
         return attributes;
     }
 
