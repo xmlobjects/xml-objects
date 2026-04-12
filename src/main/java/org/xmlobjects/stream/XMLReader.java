@@ -350,19 +350,17 @@ public class XMLReader implements AutoCloseable {
 
         try {
             StringBuilder result = new StringBuilder();
-            boolean shouldParse = true;
-
-            while (shouldParse && reader.hasNext()) {
+            while (reader.hasNext()) {
                 int eventType = reader.next();
                 switch (eventType) {
                     case XMLStreamReader.CHARACTERS:
                     case XMLStreamReader.CDATA:
+                    case XMLStreamReader.SPACE:
                         result.append(reader.getText());
                         break;
                     case XMLStreamConstants.START_ELEMENT:
                     case XMLStreamReader.END_ELEMENT:
-                        shouldParse = false;
-                        break;
+                        return TextContent.of(result.toString());
                 }
             }
 
