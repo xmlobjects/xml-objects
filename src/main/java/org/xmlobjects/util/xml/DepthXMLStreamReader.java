@@ -122,26 +122,10 @@ public class DepthXMLStreamReader implements XMLStreamReader {
 
     @Override
     public String getElementText() throws XMLStreamException {
-        if (getEventType() != START_ELEMENT) {
-            throw new XMLStreamException("Parser must be on START_ELEMENT to read next text.");
-        }
-
-        StringBuilder text = new StringBuilder();
-        while (hasNext()) {
-            switch (next()) {
-                case CHARACTERS:
-                case CDATA:
-                case SPACE:
-                    text.append(getText());
-                    break;
-                case END_ELEMENT:
-                    return text.toString();
-                case START_ELEMENT:
-                    throw new XMLStreamException("Element text content may not contain START_ELEMENT.");
-            }
-        }
-
-        throw new XMLStreamException("Unexpected end of document when reading element text content.");
+        String text = reader.getElementText();
+        state++;
+        depth--;
+        return text;
     }
 
     @Override
