@@ -2,8 +2,6 @@
 
 A deep-dive into the design philosophy, core concepts, and key advantages of the **xml-objects** framework.
 
----
-
 ## Table of Contents
 
 1. [What Problem Does xml-objects Solve?](#1-what-problem-does-xml-objects-solve)
@@ -24,8 +22,6 @@ A deep-dive into the design philosophy, core concepts, and key advantages of the
 16. [Thread Safety](#16-thread-safety)
 17. [Comparison with JAXB](#17-comparison-with-jaxb)
 
----
-
 ## 1. What Problem Does xml-objects Solve?
 
 Most XML mapping frameworks follow the same paradigm: **annotate your Java classes**, and the framework generates or interprets the XML mapping from those annotations. This couples your domain model tightly to the XML representation.
@@ -36,8 +32,6 @@ This separation enables two capabilities that are unique among Java XML librarie
 
 - **One builder/serializer can handle multiple XML namespaces** (e.g. different schema versions), without duplicating domain classes.
 - **Any existing domain model can be mapped to XML**, even if you have no access to its source code.
-
----
 
 ## 2. Core Architecture
 
@@ -69,8 +63,6 @@ The `XMLObjects` instance is the central registry. It maps:
 - `(objectType, namespaceURI)` → `ObjectSerializer` (for writing)
 
 Builders and serializers are stateless, reusable, and registered once.
-
----
 
 ## 3. A First Example
 
@@ -240,8 +232,6 @@ try (XMLWriter writer = XMLWriterFactory.newInstance(xmlObjects).createWriter(ou
 }
 ```
 
----
-
 ## 4. Key Advantage 1 — One Builder/Serializer for Multiple Namespaces
 
 ### The challenge with annotation-based frameworks
@@ -313,8 +303,6 @@ xmlObjects.toXML(writer, building, "https://example.org/building/3.0", "https://
 
 > Manual registration via `xmlObjects.registerSerializer(...)` is also available for dynamic or programmatic setups where annotations are not practical — see [Section 6](#6-the-xmlobjects-registry).
 
----
-
 ## 5. Key Advantage 2 — Apply to Existing Domain Models
 
 ### The challenge with annotation-based frameworks
@@ -338,8 +326,6 @@ public final class Address {
 ```
 
 The `AddressBuilder` and `AddressSerializer` shown in [Section 3](#3-a-first-example) work without any changes — they live in your own codebase and the framework discovers them automatically via the annotation index. The external `Address` class never needs to know that xml-objects exists.
-
----
 
 ## 6. The XMLObjects Registry
 
@@ -366,8 +352,6 @@ xmlObjects.registerSerializer(new AddressSerializer(), Address.class, "https://e
 | Write | `(objectType.getName(), namespaceURI)` | `ObjectSerializer<T>` |
 
 The builder registry stores one builder per `(namespace, localName)` pair — last write wins. The serializer registry stores one serializer per `(objectType, namespace)` pair — same rule. This is intentional and deterministic: whichever serializer is registered last for a given combination is the one that is used.
-
----
 
 ## 7. ObjectBuilder — Reading XML
 
@@ -418,8 +402,6 @@ Builder instances are cached in a session-local `IdentityHashMap` for the lifeti
 
 The `parent` parameter in `createObject` gives access to the object currently being built one level up, enabling parent-aware construction.
 
----
-
 ## 8. ObjectSerializer — Writing XML
 
 `ObjectSerializer<T>` mirrors the builder with three lifecycle methods:
@@ -452,8 +434,6 @@ From within `writeChildElements`, two methods dispatch to a child serializer:
 
 Serializer instances are cached in a session-local `IdentityHashMap` for the lifetime of the `XMLWriter`, so `writeObjectUsingSerializer` never allocates a new serializer instance after the first call.
 
----
-
 ## 9. Auto-Registration via Annotations
 
 xml-objects uses [ClassIndex](https://github.com/atteo/classindex) to build a compile-time index of all `ObjectBuilder` and `ObjectSerializer` subclasses. At runtime, `XMLObjects.newInstance()` scans this index and auto-registers every concrete, annotated implementation — no XML configuration file, no Spring context, no classpath scan at startup.
@@ -483,8 +463,6 @@ public class BuildingBuilder implements ObjectBuilder<Building> { ... }
 - If both `@XMLElement` and `@XMLElements` are present on the same class, an `XMLObjectsException` is thrown.
 - If a duplicate `(namespace, localName)` registration is attempted and `failOnDuplicates` is `true` (the default for auto-registration), an `XMLObjectsException` is thrown.
 
----
-
 ## 10. The Namespaces Concept
 
 `Namespaces` is a simple set of namespace URI strings that controls **which serializers are active during a write operation**.
@@ -511,8 +489,6 @@ xmlObjects.toXML(writer, building, "https://example.org/building/1.0");
 // Write in version 2.0 — same domain object, different serializer
 xmlObjects.toXML(writer, building, "https://example.org/building/2.0");
 ```
-
----
 
 ## 11. Value Model — Element, Attributes, TextContent
 
@@ -562,8 +538,6 @@ Element.of("https://example.org/building/1.0", "Building")
     .addChildElement(addressElement);
 ```
 
----
-
 ## 12. XMLReader and XMLWriter
 
 ### XMLReader
@@ -601,8 +575,6 @@ try (XMLWriter writer = XMLWriterFactory.newInstance(xmlObjects).createWriter(ou
 ```
 
 Both `XMLReader` and `XMLWriter` implement `AutoCloseable` for safe use in try-with-resources.
-
----
 
 ## 13. Child and ChildList — Parent-Aware Domain Models
 
@@ -648,8 +620,6 @@ building.getRooms().add(new Room("Conference Room"));
 
 Both `Child` and `ChildList` are completely optional. Builders and serializers work identically with plain POJOs. Use them when your domain model benefits from upward navigation.
 
----
-
 ## 14. BuildResult — Handling Unknown Elements
 
 When a builder encounters a child element it does not recognise, the standard behaviour is to ignore it. In cases where unknown content must be preserved (e.g. for round-tripping or extensibility), `getObjectOrDOMElement()` provides a safe fallback that returns either a typed object or a DOM `Element`:
@@ -686,8 +656,6 @@ XMLReaderFactory.newInstance(xmlObjects)
     .createReader(inputStream);
 ```
 
----
-
 ## 15. Properties — Passing Context Through the Object Hierarchy
 
 Both `XMLReader` and `XMLWriter` carry a `Properties` map — a typed key-value store — that is accessible from every builder and serializer during a read or write operation. It is the idiomatic way to pass application-specific context (configuration flags, caches, counters, parent state) through the entire object hierarchy without coupling builders to each other.
@@ -721,15 +689,11 @@ reader.getProperties().set("currentBuilding", object);
 Building building = reader.getProperties().get("currentBuilding", Building.class);
 ```
 
----
-
 ## 16. Thread Safety
 
 `XMLObjects` is **thread-safe for reads** after initial setup. The builder and serializer maps are `ConcurrentHashMap` instances, so concurrent `fromXML`/`toXML` calls on the same `XMLObjects` registry are safe.
 
 `XMLReader` and `XMLWriter` instances are **not thread-safe** — each thread must use its own reader/writer. This is the expected usage pattern since they wrap a single underlying stream.
-
----
 
 ## 17. Comparison with JAXB
 
