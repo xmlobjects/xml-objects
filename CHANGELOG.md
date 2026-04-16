@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+
+## [2.0.1] - 2026-04-16
 ### Changed
 - Updated to object-copier 1.2.0.
 
@@ -117,7 +119,8 @@
 ## [1.0.0] - 2022-08-20
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.1
 [2.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.0
 [1.3.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.3.0
 [1.2.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.2.0
