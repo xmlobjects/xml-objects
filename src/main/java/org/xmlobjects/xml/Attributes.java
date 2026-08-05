@@ -44,7 +44,7 @@ public class Attributes {
     }
 
     public void add(String namespaceURI, String localName, TextContent value) {
-        attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
+        attributes.computeIfAbsent(ensureNonNull(namespaceURI), v -> new HashMap<>()).put(localName, value);
     }
 
     public void add(String namespaceURI, String localName, String value) {
@@ -68,7 +68,7 @@ public class Attributes {
     }
 
     public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
-        this.attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).putAll(attributes);
+        this.attributes.computeIfAbsent(ensureNonNull(namespaceURI), v -> new HashMap<>()).putAll(attributes);
     }
 
     public boolean contains(String localName) {
@@ -80,7 +80,7 @@ public class Attributes {
     }
 
     public boolean contains(String namespaceURI, String localName) {
-        return get(namespaceURI).containsKey(localName);
+        return get(ensureNonNull(namespaceURI)).containsKey(localName);
     }
 
     public Map<String, Map<String, TextContent>> get() {
@@ -88,7 +88,7 @@ public class Attributes {
     }
 
     public Map<String, TextContent> get(String namespaceURI) {
-        return attributes.getOrDefault(namespaceURI, Collections.emptyMap());
+        return attributes.getOrDefault(ensureNonNull(namespaceURI), Collections.emptyMap());
     }
 
     public TextContent getValue(String localName) {
@@ -109,5 +109,9 @@ public class Attributes {
 
     public boolean isImmutable() {
         return false;
+    }
+
+    private String ensureNonNull(String namespaceURI) {
+        return namespaceURI != null ? namespaceURI : XMLConstants.NULL_NS_URI;
     }
 }
