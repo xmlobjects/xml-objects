@@ -2,11 +2,17 @@
 
 ## [Unreleased]
 
+### Fixed
+- Fixed parsing of XML attributes with `XMLStreamReader` implementations that return `null` for the namespace of
+  non-namespaced attributes.
+
 ## [2.0.1] - 2026-04-16
+
 ### Changed
 - Updated to object-copier 1.2.0.
 
 ## [2.0.0] - 2026-03-31
+
 ### Added
 - Added a comprehensive [User Guide](https://github.com/xmlobjects/xml-objects/blob/master/USER-GUIDE.md) covering
   the core concepts of xml-objects and providing examples to help you get started.
@@ -29,6 +35,7 @@
     copy operations.
 
 ## [1.3.0] - 2025-12-29
+
 ### Changed
 - Made `CopyBuilder` thread-safe for concurrent use.
 - Removed `Serializable` from `Copyable`. Implementations must declare serialization explicitly now.
@@ -41,6 +48,7 @@
 - `CopyBuilder` now invokes `Copyable.shallowCopy` for the initial object being copied, when provided.
 
 ## [1.2.0] - 2025-11-20
+
 ### Changed
 - Introduced `TextContent.ABSENT` sentinel to represent missing content, replacing the previous `TextContent.EMPTY`.
   New API methods:
@@ -57,28 +65,34 @@
 - Corrected typo in `getAsCalendar` and `getAsCalendarList` methods of `TextContent`.
 
 ## [1.1.6] - 2025-09-27
+
 ### Changed
 - Updated xsom to 4.0.6.
 
 ## [1.1.5] - 2025-03-02
+
 ### Fixed
 - Removed unnecessary use of `WeakReference` in `XMLReader`.
 
 ## [1.1.4] - 2025-01-19
+
 ### Changed
 - Updated classindex to 3.13.1.
 - Updated Gradle to 8.12.
 
 ## [1.1.2] - 2024-12-01
+
 ### Added
 - Added method `getObjectTypes` to `XMLObjects` class to get supported object types with their XML element name
   mappings.
 
 ## [1.1.1] - 2024-07-05
+
 ### Fixed
 - Avoid unnecessary conversion to `OffsetDateTime` in `TextContent`.
 
 ## [1.1.0] - 2024-01-29
+
 ### Changed
 - **Breaking:** Java 17 is now the minimum required version for using xml-objects.
 
@@ -87,6 +101,7 @@
   XML libraries.
 
 ## [1.0.4] - 2023-11-03
+
 ### Added
 - Added `getEncoding` method to `XMLReader`, which returns the input encoding if known or null if unknown.
 - Added methods to build default factories to `SecureXMLProcessors` and `XMLReaderFactory`.
@@ -97,6 +112,7 @@
   object to be copied.
 
 ## [1.0.3] - 2023-04-04
+
 ### Added
 - Added support for providing an XML factory when creating an instance of `XMLReaderFactory` and `SchemaHandler`.
 - `SecureXMLProcessors` now allows for obtaining an XML factory from a class name and a class loader. This gives
@@ -106,10 +122,12 @@
 - Updated xsom to 4.0.2.
 
 ## [1.0.2] - 2023-02-06
+
 ### Changed
 - Updated xsom to 4.0.1.
 
 ## [1.0.1] - 2022-09-08
+
 ### Changed
 - `SAXWriter` now uses the newline character (`\n`) for line breaks instead of the system-specific line separator.
 
@@ -117,6 +135,7 @@
 - Fixed `DepthXMLStreamReader` to read schema documents specified by a Windows path in `xsi:schemaLocation`.
 
 ## [1.0.0] - 2022-08-20
+
 This is the initial release of xml-objects.
 
 [Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.1...HEAD
