@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.2] - 2026-08-23
+
 ### Fixed
 - Fixed parsing of XML attributes with `XMLStreamReader` implementations that return `null` for the namespace of
   non-namespaced attributes.
@@ -138,7 +140,8 @@
 
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.2...HEAD
+[2.0.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.2
 [2.0.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.1
 [2.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.0
 [1.3.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v1.3.0
