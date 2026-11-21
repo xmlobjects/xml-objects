@@ -49,6 +49,7 @@ public class XMLReader implements AutoCloseable {
     private Properties properties;
     private Transformer transformer;
     private AutoCloseable source;
+    private StringBuilder textBuffer;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, URI baseURI) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -368,25 +369,46 @@ public class XMLReader implements AutoCloseable {
         }
 
         try {
-            StringBuilder result = new StringBuilder();
+            // the common case is a single text event, which needs no copying
+            String first = null;
+            StringBuilder result = null;
+            loop:
             while (reader.hasNext()) {
-                int eventType = reader.next();
-                switch (eventType) {
-                    case XMLStreamReader.CHARACTERS:
-                    case XMLStreamReader.CDATA:
-                    case XMLStreamReader.SPACE:
-                        result.append(reader.getText());
-                        break;
-                    case XMLStreamConstants.START_ELEMENT:
-                    case XMLStreamReader.END_ELEMENT:
-                        return TextContent.of(result.toString());
+                switch (reader.next()) {
+                    case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA, XMLStreamConstants.SPACE -> {
+                        if (first == null) {
+                            first = reader.getText();
+                        } else {
+                            if (result == null) {
+                                result = getTextBuffer().append(first);
+                            }
+
+                            result.append(reader.getTextCharacters(), reader.getTextStart(), reader.getTextLength());
+                        }
+                    }
+                    case XMLStreamConstants.START_ELEMENT, XMLStreamConstants.END_ELEMENT -> {
+                        break loop;
+                    }
+                    default -> {
+                    }
                 }
             }
 
-            return TextContent.of(result.toString());
+            return TextContent.of(result != null ? result.toString() : first != null ? first : "");
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
+    }
+
+    private StringBuilder getTextBuffer() {
+        // reuse the buffer, but do not keep very large buffers alive
+        if (textBuffer == null || textBuffer.capacity() > 1 << 20) {
+            textBuffer = new StringBuilder(1024);
+        } else {
+            textBuffer.setLength(0);
+        }
+
+        return textBuffer;
     }
 
     public String getMixedContent() throws XMLReadException {

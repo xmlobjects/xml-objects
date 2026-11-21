@@ -77,12 +77,12 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         state++;
 
         if (event == START_ELEMENT) {
-            for (int i = 0; i < reader.getNamespaceCount(); i++) {
+            for (int i = 0, count = reader.getNamespaceCount(); i < count; i++) {
                 namespaces.add(reader.getNamespaceURI(i));
             }
 
             if (schemaHandler != null) {
-                for (int i = 0; i < reader.getAttributeCount(); i++) {
+                for (int i = 0, count = reader.getAttributeCount(); i < count; i++) {
                     if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(reader.getAttributeNamespace(i))) {
                         try {
                             switch (reader.getAttributeLocalName(i)) {
