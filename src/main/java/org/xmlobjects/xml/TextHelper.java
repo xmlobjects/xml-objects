@@ -130,8 +130,28 @@ public class TextHelper {
         }
     }
 
+    static Double toDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            // xs:double uses INF instead of Infinity; checked here to keep the common path unchanged
+            return switch (value) {
+                case "INF", "+INF" -> Double.POSITIVE_INFINITY;
+                case "-INF" -> Double.NEGATIVE_INFINITY;
+                default -> throw e;
+            };
+        }
+    }
+
+    static String toContent(Double value) {
+        StringBuilder builder = new StringBuilder(24);
+        appendDouble(value, builder);
+        return builder.toString();
+    }
+
     static String toContent(List<?> values) {
-        StringBuilder builder = new StringBuilder();
+        // a size estimate avoids repeatedly growing the builder for long lists such as coordinates
+        StringBuilder builder = new StringBuilder(Math.min(values.size() * 20, 1 << 20));
         for (Object value : values) {
             if (value == null) {
                 continue;
@@ -139,10 +159,23 @@ public class TextHelper {
                 builder.append(' ');
             }
 
-            builder.append(value);
+            if (value instanceof Double d) {
+                appendDouble(d, builder);
+            } else {
+                builder.append(value);
+            }
         }
 
         return builder.toString();
+    }
+
+    private static void appendDouble(double value, StringBuilder builder) {
+        if (Double.isInfinite(value)) {
+            builder.append(value > 0 ? "INF" : "-INF");
+        } else {
+            // append(double) writes the digits directly, unlike append(Object)
+            builder.append(value);
+        }
     }
 
     static String toContent(List<OffsetDateTime> dateTimes, EnumSet<CalendarField> fields, boolean withOffset) {

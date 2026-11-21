@@ -50,7 +50,7 @@ public class TextContent {
     }
 
     public static TextContent ofDouble(Double content) {
-        return ofObject(content);
+        return content != null ? new TextContent(TextHelper.toContent(content)) : ABSENT;
     }
 
     public static TextContent ofDoubleList(List<Double> content) {
@@ -336,7 +336,7 @@ public class TextContent {
     }
 
     public Double getAsDouble() {
-        return parseValue(Double::parseDouble, Double.class);
+        return parseValue(TextHelper::toDouble, Double.class);
     }
 
     public Double getAsDoubleOrElse(Double defaultValue) {
@@ -359,7 +359,7 @@ public class TextContent {
     }
 
     public List<Double> getAsDoubleList() {
-        return parseValueList(Double::parseDouble, Double.class);
+        return parseValueList(TextHelper::toDouble, Double.class);
     }
 
     public List<Double> getAsDoubleListOrElse(List<Double> defaultValue) {
@@ -861,21 +861,8 @@ public class TextContent {
             return list;
         }
 
-        if (tokenizeContent() == 0) {
-            return null;
-        }
-
-        list = new ArrayList<>(tokenizedContent.length);
-        for (String token : tokenizedContent) {
-            XMLGregorianCalendar parsed = TextHelper.toCalendar(token, localName);
-            if (parsed == null) {
-                return null;
-            }
-
-            list.add(parsed);
-        }
-
-        return setValue(list);
+        list = parseTokens(token -> TextHelper.toCalendar(token, localName));
+        return list != null ? setValue(list) : null;
     }
 
     private <T> T setValue(T value) {
@@ -907,25 +894,52 @@ public class TextContent {
             return list;
         }
 
-        if (tokenizeContent() == 0) {
-            return null;
-        }
+        list = parseTokens(parser);
+        return list != null ? setValue(list) : null;
+    }
 
-        list = new ArrayList<>(tokenizedContent.length);
-        for (String token : tokenizedContent) {
-            try {
-                T parsed = parser.apply(token);
+    private <T> List<T> parseTokens(Function<String, T> parser) {
+        List<T> list;
+        if (tokenizedContent != null) {
+            list = new ArrayList<>(tokenizedContent.length);
+            for (String token : tokenizedContent) {
+                T parsed = parseToken(parser, token);
                 if (parsed == null) {
                     return null;
                 }
 
                 list.add(parsed);
-            } catch (Exception e) {
-                return null;
+            }
+        } else {
+            // parse while scanning instead of building the token array first; the array is only
+            // cached by getAsList(), which returns the tokens themselves
+            String content = this.content;
+            int length = content.length();
+            list = new ArrayList<>(Math.max(10, length / 16));
+            for (int start = 0; start < length; ) {
+                int end = TextHelper.nextWhiteSpace(content, start, length);
+                if (end > start) {
+                    T parsed = parseToken(parser, content.substring(start, end));
+                    if (parsed == null) {
+                        return null;
+                    }
+
+                    list.add(parsed);
+                }
+
+                start = end + 1;
             }
         }
 
-        return setValue(list);
+        return !list.isEmpty() ? list : null;
+    }
+
+    private static <T> T parseToken(Function<String, T> parser, String token) {
+        try {
+            return parser.apply(token);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private <T> T getOrElse(T value, T defaultValue) {
