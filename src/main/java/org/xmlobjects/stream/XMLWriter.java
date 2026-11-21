@@ -264,7 +264,9 @@ public class XMLWriter implements AutoCloseable {
             String namespaceURI = name.getNamespaceURI();
             String localName = name.getLocalPart();
 
-            output.startElement(namespaceURI, localName, localName, attrs);
+            // SAXWriter determines prefixes itself, other content handlers need the qualified name
+            String qName = output instanceof SAXWriter ? localName : getElementQName(namespaceURI, localName, true);
+            output.startElement(namespaceURI, localName, qName, attrs);
             elements.push(name);
             lastEvent = EventType.START_ELEMENT;
         } catch (SAXException e) {
@@ -286,10 +288,34 @@ public class XMLWriter implements AutoCloseable {
         }
     }
 
+    private String getElementQName(String namespaceURI, String localName, boolean declare) throws SAXException {
+        if (namespaceURI != null && !namespaceURI.isEmpty()) {
+            // unlike attributes, elements may use the default namespace
+            String prefix = output.getPrefix(namespaceURI);
+            if (prefix == null && declare) {
+                prefix = output.createPrefix(namespaceURI);
+                output.startPrefixMapping(prefix, namespaceURI);
+            }
+
+            if (prefix != null && !prefix.isEmpty()) {
+                return prefix + ":" + localName;
+            }
+        }
+
+        return localName;
+    }
+
     public void writeEndElement() throws XMLWriteException {
+        if (elements.isEmpty()) {
+            throw new XMLWriteException("Illegal to call writeEndElement without an open element.");
+        }
+
         try {
             QName name = elements.pop();
-            output.endElement(name.getNamespaceURI(), name.getLocalPart(), "");
+            String namespaceURI = name.getNamespaceURI();
+            String localName = name.getLocalPart();
+            String qName = output instanceof SAXWriter ? "" : getElementQName(namespaceURI, localName, false);
+            output.endElement(namespaceURI, localName, qName);
             lastEvent = EventType.END_ELEMENT;
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
