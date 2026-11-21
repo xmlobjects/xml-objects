@@ -50,6 +50,7 @@ tasks.named('test') {
 
 jmh {
     jmhVersion = '1.37'
+    includes = project.findProperty("jmhIncludes") ? [project.findProperty("jmhIncludes")] : []
     fork = 1
     warmupIterations = 3
     iterations = 5

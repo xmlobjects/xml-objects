@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Parses a coordinate list as found in gml:posList.
+ * Parses and formats a coordinate list as found in gml:posList.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
@@ -22,6 +22,7 @@ public class TextContentBenchmark {
     public int values;
 
     private String posList;
+    private List<Double> coordinates;
 
     @Setup
     public void setup() {
@@ -36,11 +37,17 @@ public class TextContentBenchmark {
         }
 
         posList = builder.toString();
+        coordinates = TextContent.of(posList).getAsDoubleList();
     }
 
     @Benchmark
     public List<Double> parseDoubleList() {
         // a new TextContent per call, as when reading a document
         return TextContent.of(posList).getAsDoubleList();
+    }
+
+    @Benchmark
+    public String formatDoubleList() {
+        return TextContent.ofDoubleList(coordinates).get();
     }
 }
