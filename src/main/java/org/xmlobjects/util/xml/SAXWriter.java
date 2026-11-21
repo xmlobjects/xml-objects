@@ -21,11 +21,23 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class SAXWriter extends XMLOutput<SAXWriter> {
-    private Writer writer;
+    private OutputBuffer writer;
     private String encoding;
     private CharsetEncoder encoder;
 
     private static final int BUFFER_SIZE = 4096;
+    private static final boolean[] TEXT_ESCAPES = new boolean[128];
+    private static final boolean[] ATTRIBUTE_ESCAPES = new boolean[128];
+
+    static {
+        for (char ch : new char[]{'<', '>', '&', '\r'}) {
+            TEXT_ESCAPES[ch] = ATTRIBUTE_ESCAPES[ch] = true;
+        }
+
+        for (char ch : new char[]{'"', '\n', '\t'}) {
+            ATTRIBUTE_ESCAPES[ch] = true;
+        }
+    }
 
     private final char[] buffer = new char[BUFFER_SIZE];
     private String[] indentStrings = new String[16];
@@ -81,14 +93,12 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void setOutput(Writer writer) {
+        this.writer = new OutputBuffer(writer);
         if (writer instanceof OutputStreamWriter streamWriter) {
-            this.writer = new BufferedWriter(streamWriter);
             String encoding = streamWriter.getEncoding();
             if (encoding != null) {
                 setEncoding(encoding);
             }
-        } else {
-            this.writer = writer;
         }
     }
 
@@ -97,7 +107,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
             encoding = StandardCharsets.UTF_8.name();
         }
 
-        writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoding));
+        writer = new OutputBuffer(new OutputStreamWriter(outputStream, encoding));
         setEncoding(encoding);
     }
 
@@ -486,34 +496,37 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeEscaped(char[] content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
+        boolean[] escapes = attribute ? ATTRIBUTE_ESCAPES : TEXT_ESCAPES;
         int pos = start;
         for (int i = start; i < end; i++) {
             char ch = content[i];
             String replacement = null;
             int consumed = 1;
 
-            if (escapeMarkup) {
+            if (ch < 128) {
+                // fast path: most characters are ASCII and need no escaping
+                if (!escapeMarkup || !escapes[ch]) {
+                    continue;
+                }
+
                 replacement = switch (ch) {
                     case '<' -> "&lt;";
                     case '>' -> "&gt;";
                     case '&' -> "&amp;";
                     case '\r' -> "&#13;";
-                    case '"' -> attribute ? "&quot;" : null;
-                    case '\n' -> attribute ? "&#10;" : null;
-                    case '\t' -> attribute ? "&#9;" : null;
-                    default -> null;
+                    case '"' -> "&quot;";
+                    case '\n' -> "&#10;";
+                    default -> "&#9;";
                 };
-            }
-
-            if (replacement == null && encoder != null && ch >= 0x80) {
-                if (Character.isHighSurrogate(ch) && i + 1 < end && Character.isLowSurrogate(content[i + 1])) {
-                    consumed = 2;
-                    if (!encoder.canEncode(new String(content, i, 2))) {
-                        replacement = "&#x" + Integer.toHexString(Character.toCodePoint(ch, content[i + 1])) + ";";
-                    }
-                } else if (!encoder.canEncode(ch)) {
-                    replacement = "&#x" + Integer.toHexString(ch) + ";";
+            } else if (encoder == null) {
+                continue;
+            } else if (Character.isHighSurrogate(ch) && i + 1 < end && Character.isLowSurrogate(content[i + 1])) {
+                consumed = 2;
+                if (!encoder.canEncode(new String(content, i, 2))) {
+                    replacement = "&#x" + Integer.toHexString(Character.toCodePoint(ch, content[i + 1])) + ";";
                 }
+            } else if (!encoder.canEncode(ch)) {
+                replacement = "&#x" + Integer.toHexString(ch) + ";";
             }
 
             if (replacement != null) {
@@ -526,6 +539,84 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         }
 
         writer.write(content, pos, end - pos);
+    }
+
+    /**
+     * Unsynchronized replacement for {@link BufferedWriter}: a SAXWriter is used by a single thread,
+     * and the lock taken by {@code BufferedWriter} on every small write is measurable.
+     */
+    private static final class OutputBuffer extends Writer {
+        private final Writer out;
+        private final char[] buffer = new char[8192];
+        private int pos;
+
+        OutputBuffer(Writer out) {
+            this.out = out;
+        }
+
+        @Override
+        public void write(int c) throws IOException {
+            if (pos == buffer.length) {
+                flushBuffer();
+            }
+
+            buffer[pos++] = (char) c;
+        }
+
+        @Override
+        public void write(char[] chars, int off, int len) throws IOException {
+            if (len > buffer.length - pos) {
+                flushBuffer();
+                if (len >= buffer.length) {
+                    out.write(chars, off, len);
+                    return;
+                }
+            }
+
+            System.arraycopy(chars, off, buffer, pos, len);
+            pos += len;
+        }
+
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            if (len > buffer.length - pos) {
+                flushBuffer();
+                if (len >= buffer.length) {
+                    out.write(str, off, len);
+                    return;
+                }
+            }
+
+            str.getChars(off, off + len, buffer, pos);
+            pos += len;
+        }
+
+        @Override
+        public void write(String str) throws IOException {
+            write(str, 0, str.length());
+        }
+
+        private void flushBuffer() throws IOException {
+            if (pos > 0) {
+                out.write(buffer, 0, pos);
+                pos = 0;
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            flushBuffer();
+            out.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                flushBuffer();
+            } finally {
+                out.close();
+            }
+        }
     }
 
     @Override
