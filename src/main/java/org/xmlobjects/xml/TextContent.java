@@ -915,7 +915,19 @@ public class TextContent {
             // cached by getAsList(), which returns the tokens themselves
             String content = this.content;
             int length = content.length();
-            list = new ArrayList<>(Math.max(10, length / 16));
+            int noOfTokens = 0;
+            for (int start = 0; start < length; ) {
+                int end = TextHelper.nextWhiteSpace(content, start, length);
+                if (end > start) {
+                    noOfTokens++;
+                }
+
+                start = end + 1;
+            }
+
+            // counting first is cheaper than growing the list, since token lengths vary a lot
+            // (e.g. long coordinates vs. short texture coordinates)
+            list = new ArrayList<>(noOfTokens);
             for (int start = 0; start < length; ) {
                 int end = TextHelper.nextWhiteSpace(content, start, length);
                 if (end > start) {
