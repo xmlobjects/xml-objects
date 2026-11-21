@@ -249,16 +249,11 @@ public class XMLWriter implements AutoCloseable {
             // SAX handlers must not keep a reference to the attributes, so the instance can be reused
             attrs.clear();
             if (attributes != null && !attributes.isEmpty()) {
-                for (Map.Entry<String, Map<String, TextContent>> entry : attributes.get().entrySet()) {
-                    for (Map.Entry<String, TextContent> attribute : entry.getValue().entrySet()) {
-                        if (attribute.getValue().isPresent()) {
-                            String namespaceURI = entry.getKey();
-                            String localName = attribute.getKey();
-                            String qName = getQName(namespaceURI, localName);
-                            attrs.addAttribute(namespaceURI, localName, qName, "CDATA", attribute.getValue().get());
-                        }
+                attributes.forEach((namespaceURI, localName, value) -> {
+                    if (value.isPresent()) {
+                        attrs.addAttribute(namespaceURI, localName, getQName(namespaceURI, localName), "CDATA", value.get());
                     }
-                }
+                });
             }
 
             String namespaceURI = name.getNamespaceURI();

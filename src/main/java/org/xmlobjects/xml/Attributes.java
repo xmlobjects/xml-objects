@@ -7,44 +7,74 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class Attributes {
-    private static final Attributes EMPTY = new Attributes(Map.of()) {
-        @Override
-        public void add(String namespaceURI, String localName, TextContent value) {
-            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
-        }
+    private static final Attributes EMPTY = new Attributes(true);
+    private static final int INITIAL_CAPACITY = 4;
 
-        @Override
-        public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
-            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
-        }
+    private final boolean immutable;
 
-        @Override
-        public boolean isImmutable() {
-            return true;
-        }
-    };
+    // Elements usually have only a few attributes, so they are stored in compact arrays. The nested maps
+    // are only created when requested through get() or get(String), since callers may modify them.
+    // From then on, the maps are the only storage.
+    private String[] namespaceURIs;
+    private String[] localNames;
+    private TextContent[] values;
+    private int size;
+    private Map<String, Map<String, TextContent>> attributes;
 
-    private final Map<String, Map<String, TextContent>> attributes;
+    /**
+     * Receives the namespace URI, local name and value of each attribute.
+     *
+     * @param <E> the type of exception the consumer may throw
+     */
+    @FunctionalInterface
+    public interface Consumer<E extends Exception> {
+        void accept(String namespaceURI, String localName, TextContent value) throws E;
+    }
 
     public static Attributes empty() {
         return EMPTY;
     }
 
     public Attributes() {
-        this(new HashMap<>());
+        this(false);
     }
 
-    private Attributes(Map<String, Map<String, TextContent>> attributes) {
-        this.attributes = attributes;
+    private Attributes(boolean immutable) {
+        this.immutable = immutable;
     }
 
     public void add(String namespaceURI, String localName, TextContent value) {
-        attributes.computeIfAbsent(ensureNonNull(namespaceURI), v -> new HashMap<>()).put(localName, value);
+        requireMutable();
+        namespaceURI = ensureNonNull(namespaceURI);
+        if (attributes != null) {
+            attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
+        } else {
+            int index = indexOf(namespaceURI, localName);
+            if (index >= 0) {
+                values[index] = value;
+            } else {
+                if (namespaceURIs == null) {
+                    namespaceURIs = new String[INITIAL_CAPACITY];
+                    localNames = new String[INITIAL_CAPACITY];
+                    values = new TextContent[INITIAL_CAPACITY];
+                } else if (size == namespaceURIs.length) {
+                    namespaceURIs = Arrays.copyOf(namespaceURIs, size * 2);
+                    localNames = Arrays.copyOf(localNames, size * 2);
+                    values = Arrays.copyOf(values, size * 2);
+                }
+
+                namespaceURIs[size] = namespaceURI;
+                localNames[size] = localName;
+                values[size++] = value;
+            }
+        }
     }
 
     public void add(String namespaceURI, String localName, String value) {
@@ -68,7 +98,10 @@ public class Attributes {
     }
 
     public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
-        this.attributes.computeIfAbsent(ensureNonNull(namespaceURI), v -> new HashMap<>()).putAll(attributes);
+        requireMutable();
+        for (Map.Entry<String, TextContent> entry : attributes.entrySet()) {
+            add(namespaceURI, entry.getKey(), entry.getValue());
+        }
     }
 
     public boolean contains(String localName) {
@@ -80,15 +113,29 @@ public class Attributes {
     }
 
     public boolean contains(String namespaceURI, String localName) {
-        return get(ensureNonNull(namespaceURI)).containsKey(localName);
+        namespaceURI = ensureNonNull(namespaceURI);
+        return attributes != null ?
+                attributes.getOrDefault(namespaceURI, Collections.emptyMap()).containsKey(localName) :
+                indexOf(namespaceURI, localName) >= 0;
     }
 
+    /**
+     * Returns the attributes as a map from namespace URIs to maps from local names to values. Changes to the
+     * returned maps are reflected in this object. Use {@link #forEach(Consumer)} to iterate the attributes
+     * more efficiently.
+     */
     public Map<String, Map<String, TextContent>> get() {
-        return attributes;
+        return immutable ? Map.of() : toMap();
     }
 
+    /**
+     * Returns the attributes of the given namespace as a map from local names to values. Changes to the
+     * returned map are reflected in this object, unless it is empty.
+     */
     public Map<String, TextContent> get(String namespaceURI) {
-        return attributes.getOrDefault(ensureNonNull(namespaceURI), Collections.emptyMap());
+        return immutable ?
+                Collections.emptyMap() :
+                toMap().getOrDefault(ensureNonNull(namespaceURI), Collections.emptyMap());
     }
 
     public TextContent getValue(String localName) {
@@ -96,19 +143,79 @@ public class Attributes {
     }
 
     public TextContent getValue(String namespaceURI, String localName) {
-        return get(namespaceURI).getOrDefault(localName, TextContent.absent());
+        namespaceURI = ensureNonNull(namespaceURI);
+        if (attributes != null) {
+            return attributes.getOrDefault(namespaceURI, Collections.emptyMap())
+                    .getOrDefault(localName, TextContent.absent());
+        } else {
+            int index = indexOf(namespaceURI, localName);
+            return index >= 0 ? values[index] : TextContent.absent();
+        }
     }
 
     public TextContent getValue(QName name) {
         return getValue(name.getNamespaceURI(), name.getLocalPart());
     }
 
+    /**
+     * Passes each attribute to the given consumer, in the order the attributes were added. Unlike
+     * {@link #get()}, this does not create any maps.
+     *
+     * @param action the consumer
+     * @param <E>    the type of exception the consumer may throw
+     * @throws E if the consumer throws it
+     */
+    public <E extends Exception> void forEach(Consumer<E> action) throws E {
+        if (attributes != null) {
+            for (Map.Entry<String, Map<String, TextContent>> entry : attributes.entrySet()) {
+                for (Map.Entry<String, TextContent> attribute : entry.getValue().entrySet()) {
+                    action.accept(entry.getKey(), attribute.getKey(), attribute.getValue());
+                }
+            }
+        } else {
+            for (int i = 0; i < size; i++) {
+                action.accept(namespaceURIs[i], localNames[i], values[i]);
+            }
+        }
+    }
+
     public boolean isEmpty() {
-        return attributes.isEmpty();
+        return attributes != null ? attributes.isEmpty() : size == 0;
     }
 
     public boolean isImmutable() {
-        return false;
+        return immutable;
+    }
+
+    private Map<String, Map<String, TextContent>> toMap() {
+        if (attributes == null) {
+            attributes = new HashMap<>();
+            for (int i = 0; i < size; i++) {
+                attributes.computeIfAbsent(namespaceURIs[i], v -> new HashMap<>()).put(localNames[i], values[i]);
+            }
+
+            namespaceURIs = localNames = null;
+            values = null;
+            size = 0;
+        }
+
+        return attributes;
+    }
+
+    private int indexOf(String namespaceURI, String localName) {
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(localName, localNames[i]) && namespaceURI.equals(namespaceURIs[i])) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void requireMutable() {
+        if (immutable) {
+            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
+        }
     }
 
     private String ensureNonNull(String namespaceURI) {
