@@ -48,6 +48,7 @@ public class XMLReader implements AutoCloseable {
     private boolean createDOMAsFallback;
     private Properties properties;
     private Transformer transformer;
+    private AutoCloseable source;
 
     XMLReader(XMLObjects xmlObjects, XMLStreamReader reader, URI baseURI) {
         this.xmlObjects = Objects.requireNonNull(xmlObjects, "XML objects must not be null.");
@@ -72,6 +73,10 @@ public class XMLReader implements AutoCloseable {
 
     public SchemaHandler getSchemaHandler() {
         return reader.getSchemaHandler();
+    }
+
+    void setSource(AutoCloseable source) {
+        this.source = source;
     }
 
     void setSchemaHandler(SchemaHandler schemaHandler) {
@@ -110,9 +115,13 @@ public class XMLReader implements AutoCloseable {
     public void close() throws XMLReadException {
         try {
             reader.close();
-        } catch (XMLStreamException e) {
+            if (source != null) {
+                source.close();
+            }
+        } catch (Exception e) {
             throw new XMLReadException("Caused by:", e);
         } finally {
+            source = null;
             builderCache.clear();
             parent = null;
             attributes = null;

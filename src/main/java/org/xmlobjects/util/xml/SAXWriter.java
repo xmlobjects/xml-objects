@@ -14,6 +14,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -89,7 +90,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     private void setOutput(OutputStream outputStream, String encoding) throws IOException {
         if (encoding == null) {
-            encoding = System.getProperty("file.encoding", "UTF-8");
+            encoding = StandardCharsets.UTF_8.name();
         }
 
         writer = new BufferedWriter(new OutputStreamWriter(outputStream, encoding));
@@ -440,65 +441,52 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeTextContent(char[] content, int start, int length, boolean escapeCharacters) throws IOException {
-        int pos = start;
-        final int end = start + length;
-
-        for (int i = start; i < end; i++) {
-            char ch = content[i];
-
-            if (encoder != null && !encoder.canEncode(ch)) {
-                writer.write(content, pos, i - pos);
-                writer.write("&#x" + Integer.toHexString(ch) + ";");
-                pos = i + 1;
-            } else if (escapeCharacters) {
-                switch (ch) {
-                    case '<':
-                        writer.write(content, pos, i - pos);
-                        writer.write("&lt;");
-                        pos = i + 1;
-                        break;
-                    case '&':
-                        writer.write(content, pos, i - pos);
-                        writer.write("&amp;");
-                        pos = i + 1;
-                        break;
-                }
-            }
-        }
-
-        writer.write(content, pos, end - pos);
+        writeEscaped(content, start, start + length, escapeCharacters, false);
     }
 
     private void writeAttributeContent(String content) throws IOException {
-        int pos = 0;
-        final int end = content.length();
+        char[] chars = content.toCharArray();
+        writeEscaped(chars, 0, chars.length, true, true);
+    }
 
-        for (int i = 0; i < end; i++) {
-            char ch = content.charAt(i);
+    private void writeEscaped(char[] content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
+        int pos = start;
+        for (int i = start; i < end; i++) {
+            char ch = content[i];
+            String replacement = null;
+            int consumed = 1;
 
-            if (encoder != null && !encoder.canEncode(ch)) {
-                writer.write(content, pos, i - pos);
-                writer.write("&#x" + Integer.toHexString(ch) + ";");
-                pos = i + 1;
-            } else {
-                switch (ch) {
-                    case '<':
-                        writer.write(content, pos, i - pos);
-                        writer.write("&lt;");
-                        pos = i + 1;
-                        break;
-                    case '&':
-                        writer.write(content, pos, i - pos);
-                        writer.write("&amp;");
-                        pos = i + 1;
-                        break;
-                    case '"':
-                        writer.write(content, pos, i - pos);
-                        writer.write("&quot;");
-                        pos = i + 1;
-                        break;
+            if (escapeMarkup) {
+                replacement = switch (ch) {
+                    case '<' -> "&lt;";
+                    case '>' -> "&gt;";
+                    case '&' -> "&amp;";
+                    case '\r' -> "&#13;";
+                    case '"' -> attribute ? "&quot;" : null;
+                    case '\n' -> attribute ? "&#10;" : null;
+                    case '\t' -> attribute ? "&#9;" : null;
+                    default -> null;
+                };
+            }
+
+            if (replacement == null && encoder != null && ch >= 0x80) {
+                if (Character.isHighSurrogate(ch) && i + 1 < end && Character.isLowSurrogate(content[i + 1])) {
+                    consumed = 2;
+                    if (!encoder.canEncode(new String(content, i, 2))) {
+                        replacement = "&#x" + Integer.toHexString(Character.toCodePoint(ch, content[i + 1])) + ";";
+                    }
+                } else if (!encoder.canEncode(ch)) {
+                    replacement = "&#x" + Integer.toHexString(ch) + ";";
                 }
             }
+
+            if (replacement != null) {
+                writer.write(content, pos, i - pos);
+                writer.write(replacement);
+                pos = i + consumed;
+            }
+
+            i += consumed - 1;
         }
 
         writer.write(content, pos, end - pos);

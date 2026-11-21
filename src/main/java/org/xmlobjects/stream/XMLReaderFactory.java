@@ -95,37 +95,36 @@ public class XMLReaderFactory {
     }
 
     public XMLReader createReader(File file) throws XMLReadException {
-        try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(
-                    new FileInputStream(file))), file.toURI().normalize());
-        } catch (XMLStreamException | FileNotFoundException e) {
-            throw new XMLReadException("Caused by:", e);
-        }
+        return createReader(file.toPath(), null);
     }
 
     public XMLReader createReader(File file, String encoding) throws XMLReadException {
-        try {
-            return createReader(xmlInputFactory.createXMLStreamReader(new BufferedInputStream(
-                    new FileInputStream(file)), encoding), file.toURI().normalize());
-        } catch (XMLStreamException | FileNotFoundException e) {
-            throw new XMLReadException("Caused by:", e);
-        }
+        return createReader(file.toPath(), encoding);
     }
 
     public XMLReader createReader(Path path) throws XMLReadException {
-        try {
-            return createReader(xmlInputFactory.createXMLStreamReader(
-                    new BufferedInputStream(Files.newInputStream(path))), path.toUri().normalize());
-        } catch (XMLStreamException | IOException e) {
-            throw new XMLReadException("Caused by:", e);
-        }
+        return createReader(path, null);
     }
 
     public XMLReader createReader(Path path, String encoding) throws XMLReadException {
+        InputStream stream = null;
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(
-                    new BufferedInputStream(Files.newInputStream(path)), encoding), path.toUri().normalize());
+            stream = new BufferedInputStream(Files.newInputStream(path));
+            XMLStreamReader reader = encoding != null ?
+                    xmlInputFactory.createXMLStreamReader(stream, encoding) :
+                    xmlInputFactory.createXMLStreamReader(stream);
+            XMLReader xmlReader = createReader(reader, path.toUri().normalize());
+            xmlReader.setSource(stream);
+            return xmlReader;
         } catch (XMLStreamException | IOException e) {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException suppressed) {
+                    e.addSuppressed(suppressed);
+                }
+            }
+
             throw new XMLReadException("Caused by:", e);
         }
     }
