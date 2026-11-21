@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- **Breaking:** Java 21 is now the minimum required version for using xml-objects.
+
 ## [2.0.2] - 2026-08-23
 
 ### Fixed
