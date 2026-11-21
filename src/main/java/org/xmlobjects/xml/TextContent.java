@@ -359,7 +359,31 @@ public class TextContent {
     }
 
     public List<Double> getAsDoubleList() {
-        return parseValueList(TextHelper::toDouble, Double.class);
+        List<Double> list = getAsList(Double.class);
+        if (list != null) {
+            return list;
+        } else if (tokenizedContent != null) {
+            return parseValueList(TextHelper::toDouble, Double.class);
+        }
+
+        // dedicated path for coordinate lists: values are parsed directly from the content
+        String content = this.content;
+        int length = content.length();
+        list = new ArrayList<>(TextHelper.countTokens(content));
+        for (int start = 0; start < length; ) {
+            int end = TextHelper.nextWhiteSpace(content, start, length);
+            if (end > start) {
+                try {
+                    list.add(TextHelper.toDouble(content, start, end));
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+
+            start = end + 1;
+        }
+
+        return !list.isEmpty() ? setValue(list) : null;
     }
 
     public List<Double> getAsDoubleListOrElse(List<Double> defaultValue) {
@@ -915,15 +939,7 @@ public class TextContent {
             // cached by getAsList(), which returns the tokens themselves
             String content = this.content;
             int length = content.length();
-            int noOfTokens = 0;
-            for (int start = 0; start < length; ) {
-                int end = TextHelper.nextWhiteSpace(content, start, length);
-                if (end > start) {
-                    noOfTokens++;
-                }
-
-                start = end + 1;
-            }
+            int noOfTokens = TextHelper.countTokens(content);
 
             // counting first is cheaper than growing the list, since token lengths vary a lot
             // (e.g. long coordinates vs. short texture coordinates)

@@ -4,6 +4,9 @@
 
 ### Changed
 - **Breaking:** Java 21 is now the minimum required version for using xml-objects.
+- Parsing lists of `double` values, such as coordinates, is significantly faster. xml-objects now bundles the
+  required parts of [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser) 2.0.1 (MIT License) in an
+  internal, non-exported package. No additional dependency is required.
 
 ## [2.0.2] - 2026-08-23
 

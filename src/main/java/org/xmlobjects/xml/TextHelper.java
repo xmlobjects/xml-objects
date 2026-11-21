@@ -5,6 +5,8 @@
 
 package org.xmlobjects.xml;
 
+import org.xmlobjects.internal.fdp.FastDoubleParser;
+
 import javax.xml.datatype.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -131,6 +133,20 @@ public class TextHelper {
     }
 
     static Double toDouble(String value) {
+        return toDouble(value, 0, value.length());
+    }
+
+    static double toDouble(String value, int start, int end) {
+        try {
+            // fast path; parses from the string without creating a substring
+            return FastDoubleParser.parseDouble(value, start, end - start);
+        } catch (NumberFormatException e) {
+            // anything not accepted by the fast path is handled exactly as before
+            return toDoubleFallback(start == 0 && end == value.length() ? value : value.substring(start, end));
+        }
+    }
+
+    private static double toDoubleFallback(String value) {
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
@@ -247,8 +263,7 @@ public class TextHelper {
         return value;
     }
 
-    static String[] tokenize(String value) {
-        // first count the tokens, so that only an array of the exact size is allocated
+    static int countTokens(String value) {
         int length = value.length();
         int noOfTokens = 0;
         for (int start = 0; start < length; ) {
@@ -260,6 +275,13 @@ public class TextHelper {
             start = end + 1;
         }
 
+        return noOfTokens;
+    }
+
+    static String[] tokenize(String value) {
+        // first count the tokens, so that only an array of the exact size is allocated
+        int length = value.length();
+        int noOfTokens = countTokens(value);
         String[] tokens = new String[noOfTokens];
         for (int start = 0, i = 0; i < noOfTokens; ) {
             int end = nextWhiteSpace(value, start, length);

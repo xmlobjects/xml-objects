@@ -61,6 +61,12 @@ jmh {
 }
 
 javadoc {
+    // the bundled FastDoubleParser is internal and not documented; its compiled classes are patched
+    // into the module so that references from the documented code still resolve
+    exclude 'org/xmlobjects/internal/**'
+    dependsOn tasks.named('compileJava')
+    options.addStringOption('-patch-module', "org.xmlobjects=${sourceSets.main.java.destinationDirectory.get().asFile}")
+
     def name = project.name
     def version = project.version
 
