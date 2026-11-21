@@ -6,6 +6,7 @@ plugins {
     id 'maven-publish'
     id 'signing'
     id 'io.github.gradle-nexus.publish-plugin' version '2.0.0'
+    id 'me.champeau.jmh' version '0.7.3'
 }
 
 group = 'org.xmlobjects'
@@ -37,6 +38,25 @@ dependencies {
     api 'org.glassfish.jaxb:xsom:4.0.9'
     api 'org.xmlobjects:classindex:3.13.1'
     annotationProcessor 'org.xmlobjects:classindex:3.13.1'
+
+    testImplementation platform('org.junit:junit-bom:5.13.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+jmh {
+    jmhVersion = '1.37'
+    fork = 1
+    warmupIterations = 3
+    iterations = 5
+    timeOnIteration = '2s'
+    warmup = '2s'
+    profilers = ['gc']
+    resultFormat = 'JSON'
 }
 
 javadoc {
