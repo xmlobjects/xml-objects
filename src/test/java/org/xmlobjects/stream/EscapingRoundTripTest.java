@@ -44,6 +44,20 @@ class EscapingRoundTripTest {
         assertFalse(raw.contains("&#xd840;"), "surrogate halves must not be written as character references");
     }
 
+    @ParameterizedTest
+    @ValueSource(strings = {"UTF-8", "ISO-8859-1"})
+    void longValuesWithSurrogatePairOnChunkBoundary(String encoding) throws Exception {
+        // the writer escapes long values in chunks of 4096 chars; a surrogate pair must not be split
+        String value = "x".repeat(4095) + "😀" + "<&>\n".repeat(3000);
+        Node expected = new Node(new QName(NS, "root"))
+                .attribute(new QName("long"), value)
+                .child(new Node(new QName(NS, "text")).text(value));
+
+        byte[] xml = write(expected, encoding);
+
+        assertEquals(expected, XMLTestSupport.parse(xml));
+    }
+
     private byte[] write(Node node, String encoding) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         XMLWriterFactory factory = XMLWriterFactory.newInstance(XMLObjects.newInstance());

@@ -17,10 +17,8 @@ public class NamespaceSupport {
     private int prefixCounter = 1;
 
     public NamespaceSupport() {
-        current.prefixes.put(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX);
-        current.namespaceURIs.put(XMLConstants.XML_NS_PREFIX, XMLConstants.XML_NS_URI);
-        current.prefixes.put(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
-        current.namespaceURIs.put(XMLConstants.XMLNS_ATTRIBUTE, XMLConstants.XMLNS_ATTRIBUTE_NS_URI);
+        current.put(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX);
+        current.put(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
         current.prefixes.put(XMLConstants.NULL_NS_URI, XMLConstants.DEFAULT_NS_PREFIX);
     }
 
@@ -63,22 +61,26 @@ public class NamespaceSupport {
                 && !XMLConstants.NULL_NS_URI.equals(namespaceURI)) {
             // we only support one prefix per namespace URI and context
             // so, we first delete a previous mapping
-            current.prefixes.remove(current.namespaceURIs.get(prefix));
-            current.namespaceURIs.remove(current.prefixes.get(namespaceURI));
-            current.prefixes.put(namespaceURI, prefix);
-            current.namespaceURIs.put(prefix, namespaceURI);
+            if (current.prefixes != null) {
+                current.prefixes.remove(current.namespaceURIs.get(prefix));
+                current.namespaceURIs.remove(current.prefixes.get(namespaceURI));
+            }
+
+            current.put(namespaceURI, prefix);
         }
     }
 
     public String getPrefix(String namespaceURI) {
-        Context context = current;
-        String prefix = null;
-
-        while (context != null && (prefix = context.prefixes.get(namespaceURI)) == null) {
-            context = context.previous;
+        for (Context context = current; context != null; context = context.previous) {
+            if (context.prefixes != null) {
+                String prefix = context.prefixes != null ? context.prefixes.get(namespaceURI) : null;
+                if (prefix != null) {
+                    return prefix;
+                }
+            }
         }
 
-        return prefix;
+        return null;
     }
 
     public Set<String> getPrefixes(String namespaceURI) {
@@ -98,18 +100,20 @@ public class NamespaceSupport {
     }
 
     public String getNamespaceURI(String prefix) {
-        Context context = current;
-        String namespaceURI = null;
-
-        while (context != null && (namespaceURI = context.namespaceURIs.get(prefix)) == null) {
-            context = context.previous;
+        for (Context context = current; context != null; context = context.previous) {
+            if (context.namespaceURIs != null) {
+                String namespaceURI = context.namespaceURIs.get(prefix);
+                if (namespaceURI != null) {
+                    return namespaceURI;
+                }
+            }
         }
 
-        return namespaceURI;
+        return null;
     }
 
     public Map<String, String> getCurrentContext() {
-        return new HashMap<>(current.prefixes);
+        return current.prefixes != null ? Collections.unmodifiableMap(current.prefixes) : Collections.emptyMap();
     }
 
     public String createPrefixFromQName(String qName, String namespaceURI) {
@@ -140,8 +144,9 @@ public class NamespaceSupport {
     }
 
     private static class Context {
-        private final Map<String, String> prefixes = new HashMap<>();
-        private final Map<String, String> namespaceURIs = new HashMap<>();
+        // created lazily, since most elements do not declare namespaces
+        private Map<String, String> prefixes;
+        private Map<String, String> namespaceURIs;
         private Context previous;
 
         Context() {
@@ -149,6 +154,16 @@ public class NamespaceSupport {
 
         Context(Context previous) {
             this.previous = previous;
+        }
+
+        void put(String namespaceURI, String prefix) {
+            if (prefixes == null) {
+                prefixes = new HashMap<>();
+                namespaceURIs = new HashMap<>();
+            }
+
+            prefixes.put(namespaceURI, prefix);
+            namespaceURIs.put(prefix, namespaceURI);
         }
     }
 }

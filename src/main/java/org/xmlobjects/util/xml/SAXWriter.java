@@ -15,6 +15,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +25,10 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     private String encoding;
     private CharsetEncoder encoder;
 
-    private final Map<Integer, String> indentStrings = new HashMap<>();
+    private static final int BUFFER_SIZE = 4096;
+
+    private final char[] buffer = new char[BUFFER_SIZE];
+    private String[] indentStrings = new String[16];
     private boolean escapeCharacters = true;
     private boolean writeEncoding = false;
     private int depth = 0;
@@ -106,7 +110,7 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     @Override
     public void close() throws IOException {
-        indentStrings.clear();
+        indentStrings = new String[16];
         if (writer != null) {
             writer.close();
         }
@@ -140,6 +144,21 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
                 }
 
                 writeTextContent(ch, start, length, escapeCharacters);
+                lastEvent = XMLEvents.CHARACTERS;
+            }
+        } catch (IOException e) {
+            throw new SAXException("Caused by:", e);
+        }
+    }
+
+    public void characters(String text, int start, int length) throws SAXException {
+        try {
+            if (length > 0) {
+                if (lastEvent == XMLEvents.START_ELEMENT) {
+                    writer.write('>');
+                }
+
+                writeEscaped(text, start, start + length, escapeCharacters, false);
                 lastEvent = XMLEvents.CHARACTERS;
             }
         } catch (IOException e) {
@@ -343,8 +362,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     private void writeQName(String prefix, String localName) throws SAXException {
         try {
-            if (prefix != null && !prefix.equals(XMLConstants.DEFAULT_NS_PREFIX)) {
-                writer.write(prefix + ":");
+            if (prefix != null && !prefix.isEmpty()) {
+                writer.write(prefix);
+                writer.write(':');
             }
 
             writer.write(localName);
@@ -434,7 +454,16 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         }
 
         try {
-            writer.write("\n" + indentStrings.computeIfAbsent(depth, v -> indent.repeat(v)));
+            if (depth >= indentStrings.length) {
+                indentStrings = Arrays.copyOf(indentStrings, Math.max(depth + 1, indentStrings.length * 2));
+            }
+
+            String indentString = indentStrings[depth];
+            if (indentString == null) {
+                indentString = indentStrings[depth] = "\n" + indent.repeat(depth);
+            }
+
+            writer.write(indentString);
         } catch (IOException e) {
             throw new SAXException("Caused by:", e);
         }
@@ -445,8 +474,22 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeAttributeContent(String content) throws IOException {
-        char[] chars = content.toCharArray();
-        writeEscaped(chars, 0, chars.length, true, true);
+        writeEscaped(content, 0, content.length(), true, true);
+    }
+
+    private void writeEscaped(String content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
+        // copy chunks into a reusable buffer instead of allocating a char array per value
+        while (start < end) {
+            int chunkEnd = Math.min(end, start + BUFFER_SIZE);
+            if (chunkEnd < end && Character.isHighSurrogate(content.charAt(chunkEnd - 1))) {
+                // never split a surrogate pair between two chunks
+                chunkEnd--;
+            }
+
+            content.getChars(start, chunkEnd, buffer, 0);
+            writeEscaped(buffer, 0, chunkEnd - start, escapeMarkup, attribute);
+            start = chunkEnd;
+        }
     }
 
     private void writeEscaped(char[] content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {

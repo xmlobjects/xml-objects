@@ -15,6 +15,7 @@ import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
 import org.xmlobjects.util.xml.SAXFilter;
+import org.xmlobjects.util.xml.SAXWriter;
 import org.xmlobjects.xml.*;
 
 import javax.xml.XMLConstants;
@@ -40,6 +41,8 @@ public class XMLWriter implements AutoCloseable {
     private final XMLOutput<?> output;
     private final Map<Class<?>, ObjectSerializer<?>> serializerCache = new IdentityHashMap<>();
     private final Deque<QName> elements = new ArrayDeque<>();
+    private final AttributesImpl attrs = new AttributesImpl();
+    private char[] buffer;
 
     private Properties properties;
     private Transformer transformer;
@@ -243,7 +246,8 @@ public class XMLWriter implements AutoCloseable {
 
     private void writeStartElement(QName name, Attributes attributes) throws XMLWriteException {
         try {
-            AttributesImpl attrs = new AttributesImpl();
+            // SAX handlers must not keep a reference to the attributes, so the instance can be reused
+            attrs.clear();
             if (attributes != null && !attributes.isEmpty()) {
                 for (Map.Entry<String, Map<String, TextContent>> entry : attributes.get().entrySet()) {
                     for (Map.Entry<String, TextContent> attribute : entry.getValue().entrySet()) {
@@ -300,8 +304,16 @@ public class XMLWriter implements AutoCloseable {
 
     public void writeCharacters(String text, int start, int length) throws XMLWriteException {
         try {
-            char[] characters = text.toCharArray();
-            output.characters(characters, start, length);
+            if (output instanceof SAXWriter saxWriter) {
+                saxWriter.characters(text, start, length);
+            } else {
+                if (buffer == null || buffer.length < length) {
+                    buffer = new char[Math.max(length, 1024)];
+                }
+
+                text.getChars(start, start + length, buffer, 0);
+                output.characters(buffer, 0, length);
+            }
         } catch (SAXException e) {
             throw new XMLWriteException("Caused by:", e);
         }
