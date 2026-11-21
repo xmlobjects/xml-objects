@@ -286,7 +286,10 @@ public class XMLObjects {
     }
 
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
-        ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new HashMap<>()).put(namespaceURI, serializer);
+        // keep registration order so that getSerializer(Class, Namespaces) deterministically
+        // returns the first registered serializer if several namespaces match
+        ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new LinkedHashMap<>())
+                .put(namespaceURI, serializer);
         if (current != null && current != serializer && failOnDuplicates) {
             throw new XMLObjectsException("Two serializers are registered for the object type " +
                     objectType.getName() + ": " +

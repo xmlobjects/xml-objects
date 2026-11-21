@@ -11,12 +11,12 @@ import org.xmlobjects.util.xml.NamespaceSupport;
 import org.xmlobjects.util.xml.SAXFilter;
 
 import javax.xml.XMLConstants;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class XMLOutput<T extends XMLOutput<?>> extends SAXFilter implements AutoCloseable {
     protected final NamespaceSupport prefixMapping = new NamespaceSupport();
-    protected final Map<String, String> schemaLocations = new HashMap<>();
+    protected final Map<String, String> schemaLocations = new LinkedHashMap<>();
     protected String indent;
     protected boolean writeXMLDeclaration = true;
     protected String[] headerComment;
