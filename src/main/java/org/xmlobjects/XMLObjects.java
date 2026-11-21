@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 public class XMLObjects {
     private final Map<String, Map<String, BuilderInfo>> builders = new ConcurrentHashMap<>();
     private final Map<String, Map<String, ObjectSerializer<?>>> serializers = new ConcurrentHashMap<>();
-    private Set<String> serializableNamespaces;
+    private volatile Set<String> serializableNamespaces;
 
     private record BuilderInfo(ObjectBuilder<?> builder, Class<?> objectType) {
     }
@@ -130,13 +130,15 @@ public class XMLObjects {
     }
 
     public Set<String> getSerializableNamespaces() {
-        if (serializableNamespaces == null) {
-            serializableNamespaces = serializers.values().stream()
+        Set<String> namespaces = serializableNamespaces;
+        if (namespaces == null) {
+            // safe to compute concurrently; all threads arrive at the same immutable result
+            namespaces = serializableNamespaces = serializers.values().stream()
                     .flatMap(map -> map.keySet().stream())
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toUnmodifiableSet());
         }
 
-        return serializableNamespaces;
+        return namespaces;
     }
 
     public Map<Class<?>, Set<QName>> getObjectTypes() {
