@@ -16,6 +16,10 @@ public class NamespaceSupport {
     private boolean nextContext = true;
     private int prefixCounter = 1;
 
+    // cache for the last prefix lookup, since consecutive elements mostly share a namespace
+    private String lastNamespaceURI;
+    private String lastPrefix;
+
     public NamespaceSupport() {
         current.put(XMLConstants.XML_NS_URI, XMLConstants.XML_NS_PREFIX);
         current.put(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLConstants.XMLNS_ATTRIBUTE);
@@ -45,6 +49,10 @@ public class NamespaceSupport {
     }
 
     public void popContext() {
+        if (current.prefixes != null) {
+            lastNamespaceURI = null;
+        }
+
         current = current.previous;
         if (current == null) {
             throw new EmptyStackException();
@@ -67,14 +75,22 @@ public class NamespaceSupport {
             }
 
             current.put(namespaceURI, prefix);
+            lastNamespaceURI = null;
         }
     }
 
     public String getPrefix(String namespaceURI) {
+        String cached = lastNamespaceURI;
+        if (cached != null && (cached == namespaceURI || cached.equals(namespaceURI))) {
+            return lastPrefix;
+        }
+
         for (Context context = current; context != null; context = context.previous) {
             if (context.prefixes != null) {
                 String prefix = context.prefixes.get(namespaceURI);
                 if (prefix != null) {
+                    lastNamespaceURI = namespaceURI;
+                    lastPrefix = prefix;
                     return prefix;
                 }
             }
