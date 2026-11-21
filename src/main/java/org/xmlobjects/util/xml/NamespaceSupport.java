@@ -73,7 +73,7 @@ public class NamespaceSupport {
     public String getPrefix(String namespaceURI) {
         for (Context context = current; context != null; context = context.previous) {
             if (context.prefixes != null) {
-                String prefix = context.prefixes != null ? context.prefixes.get(namespaceURI) : null;
+                String prefix = context.prefixes.get(namespaceURI);
                 if (prefix != null) {
                     return prefix;
                 }
@@ -88,7 +88,7 @@ public class NamespaceSupport {
         Set<String> prefixes = new LinkedHashSet<>();
 
         while (context != null) {
-            String prefix = context.prefixes.get(namespaceURI);
+            String prefix = context.prefixes != null ? context.prefixes.get(namespaceURI) : null;
             if (prefix != null) {
                 prefixes.add(prefix);
             }
