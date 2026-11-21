@@ -15,6 +15,7 @@ import javax.xml.stream.*;
 import javax.xml.transform.Source;
 import java.io.*;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -155,8 +156,10 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(String systemId, InputStream stream, String encoding) throws XMLReadException {
         try {
-            return createReader(xmlInputFactory.createXMLStreamReader(stream, encoding), createBaseURI(systemId));
-        } catch (XMLStreamException e) {
+            // StAX has no factory method taking a system ID, a stream and an encoding
+            return createReader(xmlInputFactory.createXMLStreamReader(systemId,
+                    new InputStreamReader(stream, Charset.forName(encoding))), createBaseURI(systemId));
+        } catch (XMLStreamException | IllegalArgumentException e) {
             throw new XMLReadException("Caused by:", e);
         }
     }

@@ -54,6 +54,27 @@ class XMLReaderFactoryTest {
         assertReleased(file);
     }
 
+    @Test
+    void systemIdWithEncoding() throws Exception {
+        String systemId = "http://example.org/data/city.gml";
+        byte[] xml = "<root>äöü<broken></root>".getBytes(StandardCharsets.ISO_8859_1);
+        XMLReaderFactory factory = XMLReaderFactory.newInstance(XMLObjects.newInstance());
+
+        try (XMLReader reader = factory.createReader(systemId, new java.io.ByteArrayInputStream(xml), "ISO-8859-1")) {
+            assertEquals(java.net.URI.create(systemId), reader.getBaseURI());
+            reader.nextTag();
+            assertEquals("äöü", reader.getTextContent().get());
+            XMLReadException e = assertThrows(XMLReadException.class, () -> {
+                while (reader.hasNext()) {
+                    reader.nextTag();
+                }
+            });
+
+            javax.xml.stream.XMLStreamException cause = (javax.xml.stream.XMLStreamException) e.getCause();
+            assertEquals(systemId, cause.getLocation().getSystemId());
+        }
+    }
+
     private Path createFile(String name) throws IOException {
         Path file = tempDir.resolve(name);
         Files.writeString(file, "<root><child>text</child></root>", StandardCharsets.UTF_8);
