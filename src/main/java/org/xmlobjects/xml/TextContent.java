@@ -903,7 +903,7 @@ public class TextContent {
 
     private List<XMLGregorianCalendar> getAsCalendarList(String localName) {
         List<XMLGregorianCalendar> list = getAsList(XMLGregorianCalendar.class);
-        if (list != null && list.get(0).getXMLSchemaType().getLocalPart().equals(localName)) {
+        if (list != null && list.getFirst().getXMLSchemaType().getLocalPart().equals(localName)) {
             return list;
         }
 
@@ -1004,7 +1004,7 @@ public class TextContent {
     private <T> List<T> getAsList(Class<T> type) {
         return value instanceof List<?> list
                 && !list.isEmpty()
-                && type.isInstance(list.get(0)) ?
+                && type.isInstance(list.getFirst()) ?
                 (List<T>) list :
                 null;
     }

@@ -27,16 +27,9 @@ public class StAXStream2SAX {
 
     public void bridgeEvent(XMLStreamReader reader) throws SAXException {
         switch (reader.getEventType()) {
-            case XMLStreamConstants.START_ELEMENT:
-                handleStartElement(reader);
-                break;
-            case XMLStreamConstants.END_ELEMENT:
-                handleEndElement(reader);
-                break;
-            case XMLStreamConstants.CHARACTERS:
-            case XMLStreamConstants.CDATA:
-                handleCharacters(reader);
-                break;
+            case XMLStreamConstants.START_ELEMENT -> handleStartElement(reader);
+            case XMLStreamConstants.END_ELEMENT -> handleEndElement(reader);
+            case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA -> handleCharacters(reader);
         }
     }
 

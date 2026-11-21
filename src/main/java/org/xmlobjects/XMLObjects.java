@@ -313,35 +313,22 @@ public class XMLObjects {
 
         for (Method method : clazz.getDeclaredMethods()) {
             if (!method.isSynthetic() && Modifier.isPublic(method.getModifiers())) {
-                Class<?> candidateType = null;
-                Class<?>[] parameters;
-
-                switch (method.getName()) {
-                    case "createElement":
-                        parameters = method.getParameterTypes();
-                        if (parameters.length == 2
-                                && parameters[1] == Namespaces.class) {
-                            candidateType = parameters[0];
-                        }
-                        break;
-                    case "initializeElement":
-                        parameters = method.getParameterTypes();
-                        if (parameters.length == 4
-                                && parameters[0] == Element.class
-                                && parameters[2] == Namespaces.class
-                                && parameters[3] == XMLWriter.class) {
-                            candidateType = parameters[1];
-                        }
-                        break;
-                    case "writeChildElements":
-                        parameters = method.getParameterTypes();
-                        if (parameters.length == 3
-                                && parameters[1] == Namespaces.class
-                                && parameters[2] == XMLWriter.class) {
-                            candidateType = parameters[0];
-                        }
-                        break;
-                }
+                Class<?>[] parameters = method.getParameterTypes();
+                Class<?> candidateType = switch (method.getName()) {
+                    case "createElement" -> parameters.length == 2
+                            && parameters[1] == Namespaces.class ?
+                            parameters[0] : null;
+                    case "initializeElement" -> parameters.length == 4
+                            && parameters[0] == Element.class
+                            && parameters[2] == Namespaces.class
+                            && parameters[3] == XMLWriter.class ?
+                            parameters[1] : null;
+                    case "writeChildElements" -> parameters.length == 3
+                            && parameters[1] == Namespaces.class
+                            && parameters[2] == XMLWriter.class ?
+                            parameters[0] : null;
+                    default -> null;
+                };
 
                 if (candidateType != null) {
                     if (objectType != null && candidateType != objectType) {

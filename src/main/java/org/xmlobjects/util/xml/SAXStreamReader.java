@@ -49,30 +49,25 @@ public class SAXStreamReader implements XMLStreamReader {
     @Override
     public int next() throws XMLStreamException {
         switch (events.next()) {
-            case SAXBuffer.START_ELEMENT:
+            case SAXBuffer.START_ELEMENT -> {
                 eventType = XMLStreamConstants.START_ELEMENT;
                 processStartElement();
-                break;
-            case SAXBuffer.END_ELEMENT:
+            }
+            case SAXBuffer.END_ELEMENT -> {
                 eventType = XMLStreamConstants.END_ELEMENT;
                 processEndElement();
-                break;
-            case SAXBuffer.CHARACTERS:
+            }
+            case SAXBuffer.CHARACTERS -> {
                 eventType = XMLStreamConstants.CHARACTERS;
                 chars = characters.next();
-                break;
-            case SAXBuffer.START_DOCUMENT:
-                eventType = XMLStreamConstants.START_DOCUMENT;
-                break;
-            case SAXBuffer.END_DOCUMENT:
-                eventType = XMLStreamConstants.END_DOCUMENT;
-                break;
-            case SAXBuffer.NAMESPACE_PREFIX_MAPPING:
+            }
+            case SAXBuffer.START_DOCUMENT -> eventType = XMLStreamConstants.START_DOCUMENT;
+            case SAXBuffer.END_DOCUMENT -> eventType = XMLStreamConstants.END_DOCUMENT;
+            case SAXBuffer.NAMESPACE_PREFIX_MAPPING -> {
                 eventType = XMLStreamConstants.NAMESPACE;
                 processNamespace();
-                break;
-            default:
-                throw new XMLStreamException("The SAX buffer is in an invalid state.");
+            }
+            default -> throw new XMLStreamException("The SAX buffer is in an invalid state.");
         }
 
         return eventType;

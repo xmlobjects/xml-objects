@@ -206,25 +206,15 @@ public class SAXBuffer extends DefaultHandler {
 
         while (events.hasNext()) {
             switch (events.next()) {
-                case START_ELEMENT:
-                    sendStartElement(handler, events, strings, util, attributes);
-                    break;
-                case END_ELEMENT:
-                    sendEndElement(handler, util);
-                    break;
-                case CHARACTERS:
+                case START_ELEMENT -> sendStartElement(handler, events, strings, util, attributes);
+                case END_ELEMENT -> sendEndElement(handler, util);
+                case CHARACTERS -> {
                     char[] ch = characters.next();
                     handler.characters(ch, 0, ch.length);
-                    break;
-                case NAMESPACE_PREFIX_MAPPING:
-                    sendStartPrefixMapping(handler, strings, util);
-                    break;
-                case START_DOCUMENT:
-                    handler.startDocument();
-                    break;
-                case END_DOCUMENT:
-                    handler.endDocument();
-                    break;
+                }
+                case NAMESPACE_PREFIX_MAPPING -> sendStartPrefixMapping(handler, strings, util);
+                case START_DOCUMENT -> handler.startDocument();
+                case END_DOCUMENT -> handler.endDocument();
             }
         }
     }

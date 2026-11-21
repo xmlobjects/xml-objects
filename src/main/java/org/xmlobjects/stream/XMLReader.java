@@ -146,11 +146,10 @@ public class XMLReader implements AutoCloseable {
         try {
             do {
                 int event = reader.next();
-                switch (event) {
-                    case XMLStreamConstants.START_ELEMENT:
-                        return EventType.START_ELEMENT;
-                    case XMLStreamConstants.END_ELEMENT:
-                        return EventType.END_ELEMENT;
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    return EventType.START_ELEMENT;
+                } else if (event == XMLStreamConstants.END_ELEMENT) {
+                    return EventType.END_ELEMENT;
                 }
             } while (reader.hasNext());
 
