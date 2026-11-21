@@ -74,6 +74,18 @@ class TextHelperTest {
     }
 
     @Test
+    void markupFree() {
+        assertTrue(TextContent.ofDouble(1.5).isMarkupFree());
+        assertTrue(TextContent.ofDoubleList(List.of(1.5, 2.5)).isMarkupFree());
+        assertTrue(TextContent.ofInteger(1).isMarkupFree());
+        assertTrue(TextContent.ofBoolean(true).isMarkupFree());
+        assertTrue(TextContent.ofDate(OffsetDateTime.now()).isMarkupFree());
+        assertFalse(TextContent.of("1.5").isMarkupFree());
+        assertFalse(TextContent.ofList(List.of("a", "b")).isMarkupFree());
+        assertFalse(TextContent.absent().isMarkupFree());
+    }
+
+    @Test
     void doubleFormatUnchanged() {
         Random random = new Random(42);
         for (int i = 0; i < 10_000; i++) {

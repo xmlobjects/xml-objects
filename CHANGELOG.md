@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+- Added `TextContent.isMarkupFree()`, which tells whether text content was created from a value whose lexical form
+  never needs XML escaping (numbers, booleans, dates, times, durations). `XMLWriter` uses it to skip escaping.
+
 ### Changed
 - **Breaking:** Java 21 is now the minimum required version for using xml-objects.
 - Parsing lists of `double` values, such as coordinates, is significantly faster. xml-objects now bundles the

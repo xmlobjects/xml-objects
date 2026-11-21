@@ -10,7 +10,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xmlobjects.XMLObjects;
-import org.xmlobjects.internal.InternalAccess;
 import org.xmlobjects.serializer.ObjectSerializeException;
 import org.xmlobjects.serializer.ObjectSerializer;
 import org.xmlobjects.util.Properties;
@@ -349,7 +348,7 @@ public class XMLWriter implements AutoCloseable {
     private void writeTextContent(TextContent textContent) throws XMLWriteException {
         if (output instanceof SAXWriter saxWriter
                 && saxWriter.isEscapeCharacters()
-                && InternalAccess.isMarkupFree(textContent)) {
+                && textContent.isMarkupFree()) {
             // generated from numbers, booleans, dates etc., so nothing to escape
             saxWriter.escapeCharacters(false);
             try {

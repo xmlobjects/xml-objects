@@ -5,8 +5,6 @@
 
 package org.xmlobjects.xml;
 
-import org.xmlobjects.internal.InternalAccess;
-
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDateTime;
@@ -29,10 +27,6 @@ public class TextContent {
     // true if the content was generated from a value whose lexical form never contains characters
     // that must be escaped in XML (numbers, booleans, dates, durations); used to skip escaping on write
     private final boolean markupFree;
-
-    static {
-        InternalAccess.setMarkupFree(content -> content.markupFree);
-    }
 
     private TextContent(String content, boolean markupFree) {
         this.content = Objects.requireNonNull(content, "Content must not be null.");
@@ -257,6 +251,20 @@ public class TextContent {
 
     public String getOrElseGet(Supplier<String> defaultValue) {
         return getOrElseGet(get(), defaultValue);
+    }
+
+    /**
+     * Returns whether the text content is known to contain no characters that must be escaped in XML.
+     * This is the case if it was created from a boolean, number, date, time or duration value, for
+     * example using {@link #ofDouble(Double)} or {@link #ofDateTime(OffsetDateTime)}, since the
+     * lexical forms of these values only consist of digits, letters, whitespace and the characters
+     * {@code + - . :}. Writers may use this to skip escaping. For text content created from strings,
+     * this method returns {@code false}, even if the string contains no such characters.
+     *
+     * @return {@code true} if the text content contains no characters that must be escaped
+     */
+    public boolean isMarkupFree() {
+        return markupFree;
     }
 
     public boolean isPresent() {
