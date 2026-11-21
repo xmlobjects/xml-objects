@@ -22,7 +22,6 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
@@ -147,15 +146,8 @@ public class SchemaHandler {
                     String schemaLocation = visitedSchemaLocations.get(schema.getTargetNamespace());
                     if (schemaLocation == null) {
                         visitedSchemaLocations.put(schema.getTargetNamespace(), locator.getSystemId());
-                    } else {
-                        try {
-                            URL url = new URL(locator.getSystemId());
-                            if (url.getProtocol().equals("file") || url.getProtocol().equals("jar")) {
-                                visitedSchemaLocations.put(schema.getTargetNamespace(), locator.getSystemId());
-                            }
-                        } catch (MalformedURLException e) {
-                            //
-                        }
+                    } else if (isLocal(locator.getSystemId())) {
+                        visitedSchemaLocations.put(schema.getTargetNamespace(), locator.getSystemId());
                     }
                 }
             }
@@ -220,5 +212,10 @@ public class SchemaHandler {
         }
 
         return saxParserFactory;
+    }
+
+    private boolean isLocal(String systemId) {
+        return systemId != null
+                && (systemId.regionMatches(true, 0, "file:", 0, 5) || systemId.regionMatches(true, 0, "jar:", 0, 4));
     }
 }
