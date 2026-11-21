@@ -238,13 +238,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         try {
             if (depth == 0 && lastEvent != XMLEvents.START_DOCUMENT) {
                 if (writeXMLDeclaration) {
-                    if (encoding == null && writer instanceof OutputStreamWriter streamWriter) {
-                        encoding = streamWriter.getEncoding();
-                        if (encoding != null) {
-                            encoding = Charset.forName(encoding).name();
-                        }
-                    }
-
                     writer.write("<?xml version=\"1.0\"");
                     if (writeEncoding && encoding != null) {
                         writer.write(" encoding=\"" + encoding + "\"");
