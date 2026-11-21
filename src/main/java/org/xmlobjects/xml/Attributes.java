@@ -7,26 +7,20 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class Attributes {
-    private static final Attributes EMPTY = new Attributes(true);
-    private static final int INITIAL_CAPACITY = 4;
+    private static final Attributes EMPTY = new Attributes(Collections.emptyList());
 
-    private final boolean immutable;
+    private final List<Attribute> attributes;
 
-    // Elements usually have only a few attributes, so they are stored in compact arrays. The nested maps
-    // are only created when requested through get() or get(String), since callers may modify them.
-    // From then on, the maps are the only storage.
-    private String[] namespaceURIs;
-    private String[] localNames;
-    private TextContent[] values;
-    private int size;
-    private Map<String, Map<String, TextContent>> attributes;
+    private record Attribute(String namespaceURI, String localName, TextContent value) {
+    }
 
     /**
      * Receives the namespace URI, local name and value of each attribute.
@@ -43,37 +37,25 @@ public class Attributes {
     }
 
     public Attributes() {
-        this(false);
+        // elements usually have only a few attributes
+        this(new ArrayList<>(4));
     }
 
-    private Attributes(boolean immutable) {
-        this.immutable = immutable;
+    private Attributes(List<Attribute> attributes) {
+        this.attributes = attributes;
     }
 
     public void add(String namespaceURI, String localName, TextContent value) {
-        requireMutable();
-        namespaceURI = ensureNonNull(namespaceURI);
-        if (attributes != null) {
-            attributes.computeIfAbsent(namespaceURI, v -> new HashMap<>()).put(localName, value);
-        } else {
-            int index = indexOf(namespaceURI, localName);
-            if (index >= 0) {
-                values[index] = value;
-            } else {
-                if (namespaceURIs == null) {
-                    namespaceURIs = new String[INITIAL_CAPACITY];
-                    localNames = new String[INITIAL_CAPACITY];
-                    values = new TextContent[INITIAL_CAPACITY];
-                } else if (size == namespaceURIs.length) {
-                    namespaceURIs = Arrays.copyOf(namespaceURIs, size * 2);
-                    localNames = Arrays.copyOf(localNames, size * 2);
-                    values = Arrays.copyOf(values, size * 2);
-                }
+        if (isImmutable()) {
+            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
+        }
 
-                namespaceURIs[size] = namespaceURI;
-                localNames[size] = localName;
-                values[size++] = value;
-            }
+        Attribute attribute = new Attribute(ensureNonNull(namespaceURI), localName, value);
+        int index = indexOf(attribute.namespaceURI, localName);
+        if (index >= 0) {
+            attributes.set(index, attribute);
+        } else {
+            attributes.add(attribute);
         }
     }
 
@@ -98,10 +80,11 @@ public class Attributes {
     }
 
     public void addAll(String namespaceURI, Map<String, TextContent> attributes) {
-        requireMutable();
-        for (Map.Entry<String, TextContent> entry : attributes.entrySet()) {
-            add(namespaceURI, entry.getKey(), entry.getValue());
+        if (isImmutable()) {
+            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
         }
+
+        attributes.forEach((localName, value) -> add(namespaceURI, localName, value));
     }
 
     public boolean contains(String localName) {
@@ -113,29 +96,37 @@ public class Attributes {
     }
 
     public boolean contains(String namespaceURI, String localName) {
-        namespaceURI = ensureNonNull(namespaceURI);
-        return attributes != null ?
-                attributes.getOrDefault(namespaceURI, Collections.emptyMap()).containsKey(localName) :
-                indexOf(namespaceURI, localName) >= 0;
+        return indexOf(ensureNonNull(namespaceURI), localName) >= 0;
     }
 
     /**
-     * Returns the attributes as a map from namespace URIs to maps from local names to values. Changes to the
-     * returned maps are reflected in this object. Use {@link #forEach(Consumer)} to iterate the attributes
-     * more efficiently.
+     * Returns the attributes as an unmodifiable map from namespace URIs to maps from local names to values.
+     * Use {@link #forEach(Consumer)} to iterate the attributes without creating maps.
      */
     public Map<String, Map<String, TextContent>> get() {
-        return immutable ? Map.of() : toMap();
+        Map<String, Map<String, TextContent>> map = new LinkedHashMap<>();
+        for (Attribute attribute : attributes) {
+            map.computeIfAbsent(attribute.namespaceURI, v -> new LinkedHashMap<>())
+                    .put(attribute.localName, attribute.value);
+        }
+
+        map.replaceAll((namespaceURI, values) -> Collections.unmodifiableMap(values));
+        return Collections.unmodifiableMap(map);
     }
 
     /**
-     * Returns the attributes of the given namespace as a map from local names to values. Changes to the
-     * returned map are reflected in this object, unless it is empty.
+     * Returns the attributes of the given namespace as an unmodifiable map from local names to values.
      */
     public Map<String, TextContent> get(String namespaceURI) {
-        return immutable ?
-                Collections.emptyMap() :
-                toMap().getOrDefault(ensureNonNull(namespaceURI), Collections.emptyMap());
+        namespaceURI = ensureNonNull(namespaceURI);
+        Map<String, TextContent> map = new LinkedHashMap<>();
+        for (Attribute attribute : attributes) {
+            if (attribute.namespaceURI.equals(namespaceURI)) {
+                map.put(attribute.localName, attribute.value);
+            }
+        }
+
+        return Collections.unmodifiableMap(map);
     }
 
     public TextContent getValue(String localName) {
@@ -143,14 +134,8 @@ public class Attributes {
     }
 
     public TextContent getValue(String namespaceURI, String localName) {
-        namespaceURI = ensureNonNull(namespaceURI);
-        if (attributes != null) {
-            return attributes.getOrDefault(namespaceURI, Collections.emptyMap())
-                    .getOrDefault(localName, TextContent.absent());
-        } else {
-            int index = indexOf(namespaceURI, localName);
-            return index >= 0 ? values[index] : TextContent.absent();
-        }
+        int index = indexOf(ensureNonNull(namespaceURI), localName);
+        return index >= 0 ? attributes.get(index).value : TextContent.absent();
     }
 
     public TextContent getValue(QName name) {
@@ -158,64 +143,35 @@ public class Attributes {
     }
 
     /**
-     * Passes each attribute to the given consumer, in the order the attributes were added. Unlike
-     * {@link #get()}, this does not create any maps.
+     * Passes each attribute to the given consumer, in the order the attributes were added.
      *
      * @param action the consumer
      * @param <E>    the type of exception the consumer may throw
      * @throws E if the consumer throws it
      */
     public <E extends Exception> void forEach(Consumer<E> action) throws E {
-        if (attributes != null) {
-            for (Map.Entry<String, Map<String, TextContent>> entry : attributes.entrySet()) {
-                for (Map.Entry<String, TextContent> attribute : entry.getValue().entrySet()) {
-                    action.accept(entry.getKey(), attribute.getKey(), attribute.getValue());
-                }
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                action.accept(namespaceURIs[i], localNames[i], values[i]);
-            }
+        for (Attribute attribute : attributes) {
+            action.accept(attribute.namespaceURI, attribute.localName, attribute.value);
         }
     }
 
     public boolean isEmpty() {
-        return attributes != null ? attributes.isEmpty() : size == 0;
+        return attributes.isEmpty();
     }
 
     public boolean isImmutable() {
-        return immutable;
-    }
-
-    private Map<String, Map<String, TextContent>> toMap() {
-        if (attributes == null) {
-            attributes = new HashMap<>();
-            for (int i = 0; i < size; i++) {
-                attributes.computeIfAbsent(namespaceURIs[i], v -> new HashMap<>()).put(localNames[i], values[i]);
-            }
-
-            namespaceURIs = localNames = null;
-            values = null;
-            size = 0;
-        }
-
-        return attributes;
+        return this == EMPTY;
     }
 
     private int indexOf(String namespaceURI, String localName) {
-        for (int i = 0; i < size; i++) {
-            if (Objects.equals(localName, localNames[i]) && namespaceURI.equals(namespaceURIs[i])) {
+        for (int i = 0; i < attributes.size(); i++) {
+            Attribute attribute = attributes.get(i);
+            if (Objects.equals(attribute.localName, localName) && attribute.namespaceURI.equals(namespaceURI)) {
                 return i;
             }
         }
 
         return -1;
-    }
-
-    private void requireMutable() {
-        if (immutable) {
-            throw new UnsupportedOperationException("Attributes.empty() is immutable.");
-        }
     }
 
     private String ensureNonNull(String namespaceURI) {

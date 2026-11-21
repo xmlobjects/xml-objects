@@ -62,30 +62,28 @@ class AttributesTest {
     }
 
     @Test
-    void getReturnsLiveMaps() {
+    void getReturnsReadOnlySnapshot() {
         Attributes attributes = new Attributes();
         attributes.add(GML, "id", "B1");
         attributes.add("srsDimension", "3");
+        attributes.add(GML, "name", "n");
 
         Map<String, Map<String, TextContent>> map = attributes.get();
-        assertEquals(Map.of(GML, Map.of("id", attributes.getValue(GML, "id")),
+        assertEquals(Map.of(
+                GML, Map.of("id", attributes.getValue(GML, "id"), "name", attributes.getValue(GML, "name")),
                 "", Map.of("srsDimension", attributes.getValue("srsDimension"))), map);
+        assertEquals(List.of(GML, ""), new ArrayList<>(map.keySet()));
+        assertEquals(List.of("id", "name"), new ArrayList<>(attributes.get(GML).keySet()));
+        assertEquals(Map.of(), attributes.get(XLINK));
 
-        // changes through the returned maps are visible, and the object keeps working afterwards
-        map.get(GML).put("name", TextContent.of("x"));
-        map.remove("");
-        assertEquals("x", attributes.getValue(GML, "name").get());
-        assertFalse(attributes.contains("srsDimension"));
+        assertThrows(UnsupportedOperationException.class, () -> map.remove(GML));
+        assertThrows(UnsupportedOperationException.class, () -> map.get(GML).put("x", TextContent.of("x")));
+        assertThrows(UnsupportedOperationException.class, () -> attributes.get(GML).clear());
 
+        // later changes are not reflected in an earlier snapshot
         attributes.add(XLINK, "href", "#a");
-        assertEquals("#a", attributes.get(XLINK).get("href").get());
-        attributes.get(XLINK).put("title", TextContent.of("t"));
-        assertEquals("t", attributes.getValue(XLINK, "title").get());
-
-        List<String> visited = new ArrayList<>();
-        attributes.forEach((namespaceURI, localName, value) -> visited.add(localName));
-        assertEquals(4, visited.size());
-        assertTrue(visited.containsAll(List.of("id", "name", "href", "title")));
+        assertFalse(map.containsKey(XLINK));
+        assertEquals("#a", attributes.get().get(XLINK).get("href").get());
     }
 
     @Test

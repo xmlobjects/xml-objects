@@ -5,11 +5,12 @@
 ### Added
 - Added `TextContent.isMarkupFree()`, which tells whether text content was created from a value whose lexical form
   never needs XML escaping (numbers, booleans, dates, times, durations). `XMLWriter` uses it to skip escaping.
-- Added `Attributes.forEach(...)` to iterate attributes without creating maps. `Attributes` now stores attributes in
-  a compact form internally; `Attributes.get()` still returns the nested maps as before.
+- Added `Attributes.forEach(...)` to iterate attributes in the order they were added, without creating maps.
 
 ### Changed
 - **Breaking:** Java 21 is now the minimum required version for using xml-objects.
+- **Breaking:** `Attributes.get()` and `Attributes.get(String)` now return unmodifiable snapshots instead of the
+  internal maps. Use the `add` methods to change attributes.
 - Parsing lists of `double` values, such as coordinates, is significantly faster. xml-objects now bundles the
   required parts of [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser) 2.0.1 (MIT License) in an
   internal, non-exported package. No additional dependency is required.
