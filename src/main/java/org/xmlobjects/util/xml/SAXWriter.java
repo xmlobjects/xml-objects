@@ -496,6 +496,12 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeEscaped(char[] content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
+        if (!escapeMarkup && encoder == null) {
+            // nothing to escape and every character can be encoded
+            writer.write(content, start, end - start);
+            return;
+        }
+
         boolean[] escapes = attribute ? ATTRIBUTE_ESCAPES : TEXT_ESCAPES;
         int pos = start;
         for (int i = start; i < end; i++) {

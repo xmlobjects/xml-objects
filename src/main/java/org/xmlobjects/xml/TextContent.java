@@ -5,6 +5,8 @@
 
 package org.xmlobjects.xml;
 
+import org.xmlobjects.internal.InternalAccess;
+
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.LocalDateTime;
@@ -24,9 +26,21 @@ public class TextContent {
     private String trimmedContent;
     private String[] tokenizedContent;
     private Object value;
+    // true if the content was generated from a value whose lexical form never contains characters
+    // that must be escaped in XML (numbers, booleans, dates, durations); used to skip escaping on write
+    private final boolean markupFree;
+
+    static {
+        InternalAccess.setMarkupFree(content -> content.markupFree);
+    }
+
+    private TextContent(String content, boolean markupFree) {
+        this.content = Objects.requireNonNull(content, "Content must not be null.");
+        this.markupFree = markupFree;
+    }
 
     private TextContent(String content) {
-        this.content = Objects.requireNonNull(content, "Content must not be null.");
+        this(content, false);
     }
 
     public static TextContent absent() {
@@ -34,43 +48,43 @@ public class TextContent {
     }
 
     public static TextContent of(String content) {
-        return ofObject(content);
+        return ofObject(content, false);
     }
 
     public static TextContent ofList(List<String> content) {
-        return ofObjectList(content);
+        return ofObjectList(content, false);
     }
 
     public static TextContent ofBoolean(Boolean content) {
-        return ofObject(content);
+        return ofObject(content, true);
     }
 
     public static TextContent ofBooleanList(List<Boolean> content) {
-        return ofObjectList(content);
+        return ofObjectList(content, true);
     }
 
     public static TextContent ofDouble(Double content) {
-        return content != null ? new TextContent(TextHelper.toContent(content)) : ABSENT;
+        return content != null ? new TextContent(TextHelper.toContent(content), true) : ABSENT;
     }
 
     public static TextContent ofDoubleList(List<Double> content) {
-        return ofObjectList(content);
+        return ofObjectList(content, true);
     }
 
     public static TextContent ofInteger(Integer content) {
-        return ofObject(content);
+        return ofObject(content, true);
     }
 
     public static TextContent ofIntegerList(List<Integer> content) {
-        return ofObjectList(content);
+        return ofObjectList(content, true);
     }
 
     public static TextContent ofDuration(Duration content) {
-        return ofObject(content);
+        return ofObject(content, true);
     }
 
     public static TextContent ofDurationList(List<Duration> content) {
-        return ofObjectList(content);
+        return ofObjectList(content, true);
     }
 
     public static TextContent ofDateTime(OffsetDateTime content, boolean withOffset) {
@@ -987,22 +1001,22 @@ public class TextContent {
                 null;
     }
 
-    private static TextContent ofObject(Object value) {
-        return value != null ? new TextContent(value.toString()) : ABSENT;
+    private static TextContent ofObject(Object value, boolean markupFree) {
+        return value != null ? new TextContent(value.toString(), markupFree) : ABSENT;
     }
 
-    private static TextContent ofObjectList(List<?> values) {
-        return values != null && !values.isEmpty() ? new TextContent(TextHelper.toContent(values)) : ABSENT;
+    private static TextContent ofObjectList(List<?> values, boolean markupFree) {
+        return values != null && !values.isEmpty() ? new TextContent(TextHelper.toContent(values), markupFree) : ABSENT;
     }
 
     private static TextContent ofOffsetDateTime(OffsetDateTime dateTime, EnumSet<CalendarField> fields, boolean withOffset) {
         XMLGregorianCalendar calendar = TextHelper.toCalendar(dateTime, fields, withOffset);
-        return calendar != null ? new TextContent(calendar.toXMLFormat()) : ABSENT;
+        return calendar != null ? new TextContent(calendar.toXMLFormat(), true) : ABSENT;
     }
 
     private static TextContent ofOffsetDateTimeList(List<OffsetDateTime> dateTimes, EnumSet<CalendarField> fields, boolean withOffset) {
         return dateTimes != null && !dateTimes.isEmpty() ?
-                new TextContent(TextHelper.toContent(dateTimes, fields, withOffset)) :
+                new TextContent(TextHelper.toContent(dateTimes, fields, withOffset), true) :
                 ABSENT;
     }
 
