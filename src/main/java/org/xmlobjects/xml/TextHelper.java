@@ -215,24 +215,29 @@ public class TextHelper {
     }
 
     static String[] tokenize(String value) {
+        // first count the tokens, so that only an array of the exact size is allocated
         int length = value.length();
-        String[] tokens = new String[(length / 2) + 1];
         int noOfTokens = 0;
-        int current = -1;
-        int next;
-
-        do {
-            next = nextWhiteSpace(value, current + 1, length);
-            if (next != current + 1) {
-                tokens[noOfTokens++] = value.substring(current + 1, next);
+        for (int start = 0; start < length; ) {
+            int end = nextWhiteSpace(value, start, length);
+            if (end > start) {
+                noOfTokens++;
             }
 
-            current = next;
-        } while (next != length);
+            start = end + 1;
+        }
 
-        String[] tokenizedContent = new String[noOfTokens];
-        System.arraycopy(tokens, 0, tokenizedContent, 0, noOfTokens);
-        return tokenizedContent;
+        String[] tokens = new String[noOfTokens];
+        for (int start = 0, i = 0; i < noOfTokens; ) {
+            int end = nextWhiteSpace(value, start, length);
+            if (end > start) {
+                tokens[i++] = value.substring(start, end);
+            }
+
+            start = end + 1;
+        }
+
+        return tokens;
     }
 
     static int nextWhiteSpace(String value, int pos, int length) {
