@@ -16,6 +16,7 @@ import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.SAXBuffer;
 import org.xmlobjects.util.xml.SAXFilter;
 import org.xmlobjects.util.xml.SAXWriter;
+import org.xmlobjects.util.xml.SecureXMLProcessors;
 import org.xmlobjects.xml.*;
 
 import javax.xml.XMLConstants;
@@ -26,7 +27,6 @@ import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import java.io.IOException;
@@ -356,7 +356,7 @@ public class XMLWriter implements AutoCloseable {
 
         try {
             if (transformer == null) {
-                transformer = TransformerFactory.newInstance().newTransformer();
+                transformer = SecureXMLProcessors.newTransformerFactory().newTransformer();
             }
 
             DOMSource source = new DOMSource(element);
@@ -376,7 +376,7 @@ public class XMLWriter implements AutoCloseable {
     public void writeMixedContent(String mixedContent) throws XMLWriteException {
         try {
             if (parser == null) {
-                SAXParserFactory factory = SAXParserFactory.newInstance();
+                SAXParserFactory factory = SecureXMLProcessors.newSAXParserFactory();
                 factory.setNamespaceAware(true);
                 parser = factory.newSAXParser();
             }

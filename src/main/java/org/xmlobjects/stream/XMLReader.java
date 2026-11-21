@@ -15,6 +15,7 @@ import org.xmlobjects.schema.SchemaHandler;
 import org.xmlobjects.util.Properties;
 import org.xmlobjects.util.xml.DepthXMLStreamReader;
 import org.xmlobjects.util.xml.SAXWriter;
+import org.xmlobjects.util.xml.SecureXMLProcessors;
 import org.xmlobjects.util.xml.StAXStream2SAX;
 import org.xmlobjects.xml.Attributes;
 import org.xmlobjects.xml.Namespaces;
@@ -27,7 +28,6 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import java.io.IOException;
@@ -297,7 +297,7 @@ public class XMLReader implements AutoCloseable {
 
         try {
             if (transformer == null) {
-                transformer = TransformerFactory.newDefaultInstance().newTransformer();
+                transformer = SecureXMLProcessors.newDefaultTransformerFactory().newTransformer();
             }
 
             DOMResult result = new DOMResult();
