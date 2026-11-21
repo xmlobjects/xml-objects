@@ -86,19 +86,18 @@ public class DepthXMLStreamReader implements XMLStreamReader {
                     if (XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI.equals(reader.getAttributeNamespace(i))) {
                         try {
                             switch (reader.getAttributeLocalName(i)) {
-                                case "schemaLocation":
-                                    String[] schemaLocations = reader.getAttributeValue(i).split("\\s+");
+                                case "schemaLocation" -> {
+                                    String[] schemaLocations = reader.getAttributeValue(i).trim().split("\\s+");
                                     if (schemaLocations.length % 2 == 0) {
                                         for (int j = 0; j < schemaLocations.length; j += 2) {
-                                            URI schemaLocation = baseURI.resolve(schemaLocations[j + 1]
-                                                    .replaceAll("\\\\", "/"));
-                                            schemaHandler.parseSchema(schemaLocations[j], schemaLocation.toString());
+                                            schemaHandler.parseSchema(schemaLocations[j], resolve(schemaLocations[j + 1]));
                                         }
                                     }
-                                    break;
-                                case "noNamespaceSchemaLocation":
-                                    schemaHandler.parseSchema(XMLConstants.NULL_NS_URI, reader.getAttributeValue(i));
-                                    break;
+                                }
+                                case "noNamespaceSchemaLocation" -> schemaHandler.parseSchema(XMLConstants.NULL_NS_URI,
+                                        resolve(reader.getAttributeValue(i).trim()));
+                                default -> {
+                                }
                             }
                         } catch (SchemaHandlerException e) {
                             throw new XMLStreamException("Caused by: ", e);
@@ -113,6 +112,14 @@ public class DepthXMLStreamReader implements XMLStreamReader {
         }
 
         return event;
+    }
+
+    private String resolve(String schemaLocation) throws XMLStreamException {
+        try {
+            return baseURI.resolve(schemaLocation.replace('\\', '/')).toString();
+        } catch (IllegalArgumentException e) {
+            throw new XMLStreamException("Invalid schema location '" + schemaLocation + "'.", getLocation(), e);
+        }
     }
 
     @Override
