@@ -558,6 +558,30 @@ try (XMLReader reader = XMLReaderFactory.newInstance(xmlObjects).createReader(in
 }
 ```
 
+#### Choosing the StAX implementation
+
+`XMLReaderFactory.newInstance(xmlObjects)` obtains its `XMLInputFactory` through the standard StAX
+lookup (`XMLInputFactory.newFactory()`). If a StAX implementation such as
+[Woodstox](https://github.com/FasterXML/woodstox) or [Aalto](https://github.com/FasterXML/aalto-xml)
+is on the classpath or module path, it is therefore picked up automatically. Alternative parsers are
+often faster than the JDK's built-in one, especially for large documents, so it is worth measuring
+with your own data.
+
+To control the implementation explicitly, pass a factory. Use `SecureXMLProcessors` so that DTDs and
+external entities stay disabled:
+
+```java
+// JDK built-in parser, regardless of the classpath
+XMLReaderFactory factory = XMLReaderFactory.newDefaultInstance(xmlObjects);
+
+// a specific implementation, e.g. Woodstox
+XMLReaderFactory factory = XMLReaderFactory.newInstance(xmlObjects,
+        SecureXMLProcessors.newXMLInputFactory("com.ctc.wstx.stax.WstxInputFactory", null));
+```
+
+Note that `XMLReaderFactory.newInstance(xmlObjects, xmlInputFactory)` uses the given factory as is,
+so a factory created by other means should be secured by the caller.
+
 ### XMLWriter
 
 `XMLWriter` wraps a SAX `ContentHandler` and adds:
