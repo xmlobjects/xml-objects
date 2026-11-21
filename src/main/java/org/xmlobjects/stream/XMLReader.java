@@ -161,27 +161,19 @@ public class XMLReader implements AutoCloseable {
     }
 
     public QName getName() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT
-                && reader.getEventType() != XMLStreamConstants.END_ELEMENT) {
-            throw new XMLReadException("Illegal to call getName when event is neither START_ELEMENT nor END_ELEMENT.");
-        }
+        requireStartOrEndElement("getName");
 
         return reader.getName();
     }
 
     public String getPrefix() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT
-                && reader.getEventType() != XMLStreamConstants.END_ELEMENT) {
-            throw new XMLReadException("Illegal to call getPrefix when event is neither START_ELEMENT nor END_ELEMENT.");
-        }
+        requireStartOrEndElement("getPrefix");
 
         return reader.getPrefix();
     }
 
     public <T> T getObject(Class<T> type) throws ObjectBuildException, XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call getObject when event is not START_ELEMENT.");
-        }
+        requireStartElement("getObject");
 
         QName name = reader.getName();
         ObjectBuilder<T> builder = xmlObjects.getBuilder(name, type);
@@ -202,9 +194,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public <T> T getObjectUsingBuilder(ObjectBuilder<T> builder) throws ObjectBuildException, XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call getObjectUsingBuilder when event is not START_ELEMENT.");
-        }
+        requireStartElement("getObjectUsingBuilder");
 
         QName name = reader.getName();
         T object = builder.createObject(name, parent);
@@ -221,9 +211,7 @@ public class XMLReader implements AutoCloseable {
             throw new ObjectBuildException("Illegal to call fillObject with a null object.");
         }
 
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call fillObject when event is not START_ELEMENT.");
-        }
+        requireStartElement("fillObject");
 
         QName name = reader.getName();
         ObjectBuilder<T> builder = xmlObjects.getBuilder(name, (Class<T>) object.getClass());
@@ -239,9 +227,7 @@ public class XMLReader implements AutoCloseable {
             throw new ObjectBuildException("Illegal to call fillObjectUsingBuilder with a null object.");
         }
 
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call fillObjectUsingBuilder when event is not START_ELEMENT.");
-        }
+        requireStartElement("fillObjectUsingBuilder");
 
         return processObject(object, reader.getName(), builder);
     }
@@ -291,9 +277,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public Element getDOMElement() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call getDOMElement when event is not START_ELEMENT.");
-        }
+        requireStartElement("getDOMElement");
 
         try {
             if (transformer == null) {
@@ -338,9 +322,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public Attributes getAttributes() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call getAttributes when event is not START_ELEMENT.");
-        }
+        requireStartElement("getAttributes");
 
         int state = reader.getState();
         if (state == attributesState) {
@@ -412,9 +394,7 @@ public class XMLReader implements AutoCloseable {
     }
 
     public String getMixedContent() throws XMLReadException {
-        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
-            throw new XMLReadException("Illegal to call getMixedContent when event is not START_ELEMENT.");
-        }
+        requireStartElement("getMixedContent");
 
         try (StringWriter writer = new StringWriter()) {
             try (SAXWriter saxWriter = new SAXWriter(writer).writeXMLDeclaration(false)) {
@@ -430,6 +410,19 @@ public class XMLReader implements AutoCloseable {
             return writer.toString();
         } catch (IOException | SAXException | XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
+        }
+    }
+
+    private void requireStartElement(String method) throws XMLReadException {
+        if (reader.getEventType() != XMLStreamConstants.START_ELEMENT) {
+            throw new XMLReadException("Illegal to call " + method + " when event is not START_ELEMENT.");
+        }
+    }
+
+    private void requireStartOrEndElement(String method) throws XMLReadException {
+        int eventType = reader.getEventType();
+        if (eventType != XMLStreamConstants.START_ELEMENT && eventType != XMLStreamConstants.END_ELEMENT) {
+            throw new XMLReadException("Illegal to call " + method + " when event is neither START_ELEMENT nor END_ELEMENT.");
         }
     }
 
