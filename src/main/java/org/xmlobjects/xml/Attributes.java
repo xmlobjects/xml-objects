@@ -7,20 +7,20 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 public class Attributes {
-    private static final Attributes EMPTY = new Attributes(Collections.emptyList());
+    private static final Attributes EMPTY = new Attributes(0);
 
-    private final List<Attribute> attributes;
-
-    private record Attribute(String namespaceURI, String localName, TextContent value) {
-    }
+    // elements usually have only a few attributes, so they are stored in compact parallel arrays
+    private String[] namespaceURIs;
+    private String[] localNames;
+    private TextContent[] values;
+    private int size;
 
     /**
      * Receives the namespace URI, local name and value of each attribute.
@@ -37,12 +37,13 @@ public class Attributes {
     }
 
     public Attributes() {
-        // elements usually have only a few attributes
-        this(new ArrayList<>(4));
+        this(4);
     }
 
-    private Attributes(List<Attribute> attributes) {
-        this.attributes = attributes;
+    private Attributes(int capacity) {
+        namespaceURIs = new String[capacity];
+        localNames = new String[capacity];
+        values = new TextContent[capacity];
     }
 
     public void add(String namespaceURI, String localName, TextContent value) {
@@ -50,12 +51,21 @@ public class Attributes {
             throw new UnsupportedOperationException("Attributes.empty() is immutable.");
         }
 
-        Attribute attribute = new Attribute(ensureNonNull(namespaceURI), localName, value);
-        int index = indexOf(attribute.namespaceURI, localName);
+        namespaceURI = ensureNonNull(namespaceURI);
+        int index = indexOf(namespaceURI, localName);
         if (index >= 0) {
-            attributes.set(index, attribute);
+            values[index] = value;
         } else {
-            attributes.add(attribute);
+            if (size == values.length) {
+                int capacity = size * 2;
+                namespaceURIs = Arrays.copyOf(namespaceURIs, capacity);
+                localNames = Arrays.copyOf(localNames, capacity);
+                values = Arrays.copyOf(values, capacity);
+            }
+
+            namespaceURIs[size] = namespaceURI;
+            localNames[size] = localName;
+            values[size++] = value;
         }
     }
 
@@ -105,9 +115,8 @@ public class Attributes {
      */
     public Map<String, Map<String, TextContent>> get() {
         Map<String, Map<String, TextContent>> map = new LinkedHashMap<>();
-        for (Attribute attribute : attributes) {
-            map.computeIfAbsent(attribute.namespaceURI, v -> new LinkedHashMap<>())
-                    .put(attribute.localName, attribute.value);
+        for (int i = 0; i < size; i++) {
+            map.computeIfAbsent(namespaceURIs[i], v -> new LinkedHashMap<>()).put(localNames[i], values[i]);
         }
 
         map.replaceAll((namespaceURI, values) -> Collections.unmodifiableMap(values));
@@ -120,9 +129,9 @@ public class Attributes {
     public Map<String, TextContent> get(String namespaceURI) {
         namespaceURI = ensureNonNull(namespaceURI);
         Map<String, TextContent> map = new LinkedHashMap<>();
-        for (Attribute attribute : attributes) {
-            if (attribute.namespaceURI.equals(namespaceURI)) {
-                map.put(attribute.localName, attribute.value);
+        for (int i = 0; i < size; i++) {
+            if (namespaceURIs[i].equals(namespaceURI)) {
+                map.put(localNames[i], values[i]);
             }
         }
 
@@ -135,7 +144,7 @@ public class Attributes {
 
     public TextContent getValue(String namespaceURI, String localName) {
         int index = indexOf(ensureNonNull(namespaceURI), localName);
-        return index >= 0 ? attributes.get(index).value : TextContent.absent();
+        return index >= 0 ? values[index] : TextContent.absent();
     }
 
     public TextContent getValue(QName name) {
@@ -150,13 +159,13 @@ public class Attributes {
      * @throws E if the consumer throws it
      */
     public <E extends Exception> void forEach(Consumer<E> action) throws E {
-        for (Attribute attribute : attributes) {
-            action.accept(attribute.namespaceURI, attribute.localName, attribute.value);
+        for (int i = 0; i < size; i++) {
+            action.accept(namespaceURIs[i], localNames[i], values[i]);
         }
     }
 
     public boolean isEmpty() {
-        return attributes.isEmpty();
+        return size == 0;
     }
 
     public boolean isImmutable() {
@@ -164,9 +173,8 @@ public class Attributes {
     }
 
     private int indexOf(String namespaceURI, String localName) {
-        for (int i = 0; i < attributes.size(); i++) {
-            Attribute attribute = attributes.get(i);
-            if (Objects.equals(attribute.localName, localName) && attribute.namespaceURI.equals(namespaceURI)) {
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(localNames[i], localName) && namespaceURIs[i].equals(namespaceURI)) {
                 return i;
             }
         }
