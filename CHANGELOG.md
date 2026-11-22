@@ -17,6 +17,8 @@
   internal, non-exported package. No additional dependency is required.
 - Faster XML writing and reading with fewer allocations per element, attribute and text value, including faster
   formatting and parsing of lists in `TextContent`.
+- Readers created from a `File` or `Path` use a 64 KB input buffer instead of 8 KB, which makes reading large files
+  faster.
 - `SAXWriter` defaults to UTF-8 instead of the platform encoding when no encoding is given.
 - If an object type has serializers for several active namespaces, the first registered one is now used, and
   `xsi:schemaLocation` entries are written in a stable order.
