@@ -11,9 +11,29 @@
 - **Breaking:** Java 21 is now the minimum required version for using xml-objects.
 - **Breaking:** `Attributes.get()` and `Attributes.get(String)` now return unmodifiable snapshots instead of the
   internal maps. Use the `add` methods to change attributes.
+- **Breaking:** `XMLObjects.getSerializableNamespaces()` now returns an unmodifiable set.
 - Parsing lists of `double` values, such as coordinates, is significantly faster. xml-objects now bundles the
   required parts of [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser) 2.0.1 (MIT License) in an
   internal, non-exported package. No additional dependency is required.
+- Faster XML writing and reading with fewer allocations per element, attribute and text value, including faster
+  formatting and parsing of lists in `TextContent`.
+- `SAXWriter` defaults to UTF-8 instead of the platform encoding when no encoding is given.
+- If an object type has serializers for several active namespaces, the first registered one is now used, and
+  `xsi:schemaLocation` entries are written in a stable order.
+- `XMLWriter` uses secure XML processors for mixed content and DOM elements.
+- Added a section on choosing the StAX implementation to the user guide.
+
+### Fixed
+- Readers created from a `File` or `Path` now close the file when the reader is closed.
+- `SAXWriter` now writes characters outside the basic plane as a single character reference for non-UTF encodings,
+  and escapes `\n`, `\r` and `\t` in attributes, `\r` in text and `>` in `]]>`, so values survive a round trip.
+- `xs:double` infinity is now read and written as `INF`/`-INF` instead of `Infinity`.
+- Fixed `schemaLocation` values with leading whitespace being ignored, and `noNamespaceSchemaLocation` is now
+  resolved against the base URI.
+- `XMLWriter` now passes proper qualified names to content handlers other than `SAXWriter`, such as `DOMResult`.
+- `XMLReaderFactory.createReader(String, InputStream, String)` now keeps the system ID for error locations.
+- Fixed a `NullPointerException` in `NamespaceSupport.getPrefixes`.
+- Made the lazy initialization in `XMLObjects.getSerializableNamespaces()` thread-safe.
 
 ## [2.0.2] - 2026-08-23
 
