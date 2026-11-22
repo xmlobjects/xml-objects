@@ -21,6 +21,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class XMLReaderFactory {
+    // larger than the default 8 KB of BufferedInputStream, which was measurably slower for large files
+    private static final int BUFFER_SIZE = 65536;
+
     private final XMLObjects xmlObjects;
     private final XMLInputFactory xmlInputFactory;
     private final Properties properties = new Properties();
@@ -110,7 +113,7 @@ public class XMLReaderFactory {
     public XMLReader createReader(Path path, String encoding) throws XMLReadException {
         InputStream stream = null;
         try {
-            stream = new BufferedInputStream(Files.newInputStream(path));
+            stream = new BufferedInputStream(Files.newInputStream(path), BUFFER_SIZE);
             XMLStreamReader reader = encoding != null ?
                     xmlInputFactory.createXMLStreamReader(stream, encoding) :
                     xmlInputFactory.createXMLStreamReader(stream);
