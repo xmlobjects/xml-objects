@@ -17,13 +17,11 @@
 - **Breaking:** `Attributes.get()` and `Attributes.get(String)` now return unmodifiable snapshots instead of the
   internal maps. Use the `add` methods to change attributes.
 - **Breaking:** `XMLObjects.getSerializableNamespaces()` now returns an unmodifiable set.
-- Parsing lists of `double` values, such as coordinates, is significantly faster. xml-objects now bundles the
+- Parsing lists of `double` values is significantly faster. xml-objects now bundles the
   required parts of [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser) 2.0.1 (MIT License) in an
   internal, non-exported package. No additional dependency is required.
 - Faster XML writing and reading with fewer allocations per element, attribute and text value, including faster
   formatting and parsing of lists in `TextContent`.
-- Readers created from a `File` or `Path` use a 64 KB input buffer instead of 8 KB, which makes reading large files
-  faster.
 - `SAXWriter` defaults to UTF-8 instead of the platform encoding when no encoding is given.
 - If an object type has serializers for several active namespaces, the first registered one is now used, and
   `xsi:schemaLocation` entries are written in a stable order.
@@ -31,8 +29,6 @@
 - Added a section on choosing the StAX implementation to the user guide.
 
 ### Fixed
-- Fixed misleading "lacks a default constructor" errors when a builder or serializer cannot be instantiated, e.g.
-  because its package is not exported to `org.xmlobjects` in a named module.
 - Readers created from a `File` or `Path` now close the file when the reader is closed.
 - `SAXWriter` now writes characters outside the basic plane as a single character reference for non-UTF encodings,
   and escapes `\n`, `\r` and `\t` in attributes, `\r` in text and `>` in `]]>`, so values survive a round trip.
