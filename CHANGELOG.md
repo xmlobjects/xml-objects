@@ -17,7 +17,7 @@
 - **Breaking:** `Attributes.get()` and `Attributes.get(String)` now return unmodifiable snapshots instead of the
   internal maps. Use the `add` methods to change attributes.
 - **Breaking:** `XMLObjects.getSerializableNamespaces()` now returns an unmodifiable set.
-- Parsing `double` values is significantly faster based on [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser), which is bundled in an internal,
+- Parsing of `double` values is significantly faster based on [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser), which is bundled in an internal,
   non-exported package.
 - Faster XML writing and reading with fewer allocations per element, attribute and text value, including faster
   formatting and parsing of lists in `TextContent`.
