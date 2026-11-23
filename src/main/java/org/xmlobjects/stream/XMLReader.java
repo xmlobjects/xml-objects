@@ -332,7 +332,7 @@ public class XMLReader implements AutoCloseable {
         if (count == 0) {
             attributes = Attributes.empty();
         } else {
-            attributes = new Attributes();
+            attributes = new Attributes(count);
             for (int i = 0; i < count; i++) {
                 attributes.add(reader.getAttributeNamespace(i),
                         reader.getAttributeLocalName(i),
@@ -350,10 +350,8 @@ public class XMLReader implements AutoCloseable {
         }
 
         try {
-            // the common case is a single text event, which needs no copying
             String first = null;
             StringBuilder result = null;
-            loop:
             while (reader.hasNext()) {
                 switch (reader.next()) {
                     case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA, XMLStreamConstants.SPACE -> {
@@ -368,22 +366,34 @@ public class XMLReader implements AutoCloseable {
                         }
                     }
                     case XMLStreamConstants.START_ELEMENT, XMLStreamConstants.END_ELEMENT -> {
-                        break loop;
+                        return toTextContent(first, result);
                     }
                     default -> {
                     }
                 }
             }
 
-            return TextContent.of(result != null ? result.toString() : first != null ? first : "");
+            return toTextContent(first, result);
         } catch (XMLStreamException e) {
             throw new XMLReadException("Caused by:", e);
         }
     }
 
+    private TextContent toTextContent(String first, StringBuilder result) {
+        if (result == null) {
+            return TextContent.of(first != null ? first : "");
+        }
+
+        String text = result.toString();
+        if (result.capacity() > 1 << 20) {
+            textBuffer = null;
+        }
+
+        return TextContent.of(text);
+    }
+
     private StringBuilder getTextBuffer() {
-        // reuse the buffer, but do not keep very large buffers alive
-        if (textBuffer == null || textBuffer.capacity() > 1 << 20) {
+        if (textBuffer == null) {
             textBuffer = new StringBuilder(1024);
         } else {
             textBuffer.setLength(0);

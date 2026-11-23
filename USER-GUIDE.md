@@ -460,6 +460,14 @@ public class BuildingBuilder implements ObjectBuilder<Building> { ... }
 
 - Abstract classes are excluded from auto-registration.
 - A class must have a **public no-argument constructor** — the framework instantiates it via reflection.
+- If your builders and serializers are in a named module, the module must export their packages to `org.xmlobjects`, since they are instantiated via reflection:
+
+  ```java
+  module com.example.transport {
+      requires org.xmlobjects;
+      exports com.example.transport.builder to org.xmlobjects;
+  }
+  ```
 - If both `@XMLElement` and `@XMLElements` are present on the same class, an `XMLObjectsException` is thrown.
 - If a duplicate `(namespace, localName)` registration is attempted and `failOnDuplicates` is `true` (the default for auto-registration), an `XMLObjectsException` is thrown.
 
@@ -523,9 +531,27 @@ int count = attributes.getValue("count").getAsIntegerOrElse(0);
 
 `TextContent.absent()` is a sentinel for missing or null values — every `ifX` and `getAsX` method is safe to call on it without null checks.
 
+#### Fast double parsing
+
+By default, doubles (e.g. from `getAsDouble()` or `getAsDoubleList()`) are parsed with a bundled copy of [FastDoubleParser](https://github.com/wrandelshofer/FastDoubleParser). It is considerably faster than `Double.parseDouble(String)` and gives exactly the same results, which especially pays off for long lists of numbers such as coordinates. If you ever run into problems with it, you can switch back to `Double.parseDouble(String)`:
+
+```java
+TextContent.useFastDoubleParsing(false);
+```
+
+This is a global setting that affects all `TextContent` instances. Set it once at application startup.
+
 ### Attributes
 
-`Attributes` is a two-level map: `namespaceURI → (localName → TextContent)`. It is created fresh for each `START_ELEMENT` and passed to the builder's lifecycle methods. Its mutable `add()` API is used by the writer side; the reader side only reads from it.
+`Attributes` holds the attributes of an element, each identified by namespace URI and local name and carrying a `TextContent` value. It is created fresh for each `START_ELEMENT` and passed to the builder's lifecycle methods. Its mutable `add()` API is used by the writer side; the reader side only reads from it. Since elements usually have only a few attributes, they are stored compactly in insertion order. `new Attributes(int)` lets you set the initial capacity if you know the number of attributes in advance, and elements without attributes share the immutable `Attributes.empty()`.
+
+Values are looked up with `getValue(...)`, which returns `TextContent.absent()` for missing attributes. To iterate all attributes, use `forEach`, which passes the namespace URI, local name and value of each attribute in the order they were added:
+
+```java
+attributes.forEach((namespaceURI, localName, value) -> ...);
+```
+
+`get()` and `get(namespaceURI)` return the attributes as maps (`namespaceURI → (localName → TextContent)` and `localName → TextContent`). These maps are unmodifiable snapshots that are created on each call, so prefer `getValue` and `forEach` in performance-critical code, and use `add` to change attributes.
 
 ### Element
 

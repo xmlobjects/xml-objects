@@ -87,8 +87,12 @@ public class DepthXMLStreamReader extends StreamReaderDelegate {
                                         }
                                     }
                                 }
-                                case "noNamespaceSchemaLocation" -> schemaHandler.parseSchema(XMLConstants.NULL_NS_URI,
-                                        resolve(reader.getAttributeValue(i).trim()));
+                                case "noNamespaceSchemaLocation" -> {
+                                    String schemaLocation = reader.getAttributeValue(i).trim();
+                                    if (!schemaLocation.isEmpty()) {
+                                        schemaHandler.parseSchema(XMLConstants.NULL_NS_URI, resolve(schemaLocation));
+                                    }
+                                }
                                 default -> {
                                 }
                             }
@@ -125,7 +129,6 @@ public class DepthXMLStreamReader extends StreamReaderDelegate {
 
     @Override
     public int nextTag() throws XMLStreamException {
-        // must not delegate, since the parent would bypass next()
         int event = next();
         while ((event == XMLStreamConstants.CHARACTERS && isWhiteSpace())
                 || (event == XMLStreamConstants.CDATA && isWhiteSpace())

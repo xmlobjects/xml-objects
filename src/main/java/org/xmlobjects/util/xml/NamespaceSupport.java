@@ -16,7 +16,6 @@ public class NamespaceSupport {
     private boolean nextContext = true;
     private int prefixCounter = 1;
 
-    // cache for the last prefix lookup, since consecutive elements mostly share a namespace
     private String lastNamespaceURI;
     private String lastPrefix;
 
@@ -67,8 +66,6 @@ public class NamespaceSupport {
                 && !XMLConstants.XML_NS_URI.equals(namespaceURI)
                 && !XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI)
                 && !XMLConstants.NULL_NS_URI.equals(namespaceURI)) {
-            // we only support one prefix per namespace URI and context
-            // so, we first delete a previous mapping
             if (current.prefixes != null) {
                 current.prefixes.remove(current.namespaceURIs.get(prefix));
                 current.namespaceURIs.remove(current.prefixes.get(namespaceURI));
@@ -81,7 +78,7 @@ public class NamespaceSupport {
 
     public String getPrefix(String namespaceURI) {
         String cached = lastNamespaceURI;
-        if (cached != null && (cached == namespaceURI || cached.equals(namespaceURI))) {
+        if (cached != null && cached.equals(namespaceURI)) {
             return lastPrefix;
         }
 
@@ -160,7 +157,6 @@ public class NamespaceSupport {
     }
 
     private static class Context {
-        // created lazily, since most elements do not declare namespaces
         private Map<String, String> prefixes;
         private Map<String, String> namespaceURIs;
         private Context previous;

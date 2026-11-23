@@ -108,4 +108,21 @@ class AttributesTest {
         empty.forEach((namespaceURI, localName, value) -> fail());
         assertFalse(new Attributes().isImmutable());
     }
+
+    @Test
+    void initialCapacity() {
+        assertThrows(IllegalArgumentException.class, () -> new Attributes(-1));
+
+        for (int capacity : new int[]{0, 1, 4}) {
+            Attributes attributes = new Attributes(capacity);
+            assertFalse(attributes.isImmutable());
+            for (int i = 0; i < 10; i++) {
+                attributes.add(GML, "a" + i, String.valueOf(i));
+            }
+
+            for (int i = 0; i < 10; i++) {
+                assertEquals(String.valueOf(i), attributes.getValue(GML, "a" + i).get());
+            }
+        }
+    }
 }

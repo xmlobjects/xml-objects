@@ -17,16 +17,14 @@ import java.util.function.Supplier;
 
 public class TextContent {
     private static final TextContent ABSENT = new TextContent("");
-    private static boolean WITH_TIME_OFFSET = true;
-    private static boolean WITH_DATE_OFFSET = false;
+    private static volatile boolean WITH_TIME_OFFSET = true;
+    private static volatile boolean WITH_DATE_OFFSET = false;
 
+    private final boolean markupFree;
     private String content;
     private String trimmedContent;
     private String[] tokenizedContent;
     private Object value;
-    // true if the content was generated from a value whose lexical form never contains characters
-    // that must be escaped in XML (numbers, booleans, dates, durations); used to skip escaping on write
-    private final boolean markupFree;
 
     private TextContent(String content, boolean markupFree) {
         this.content = Objects.requireNonNull(content, "Content must not be null.");
@@ -253,16 +251,6 @@ public class TextContent {
         return getOrElseGet(get(), defaultValue);
     }
 
-    /**
-     * Returns whether the text content is known to contain no characters that must be escaped in XML.
-     * This is the case if it was created from a boolean, number, date, time or duration value, for
-     * example using {@link #ofDouble(Double)} or {@link #ofDateTime(OffsetDateTime)}, since the
-     * lexical forms of these values only consist of digits, letters, whitespace and the characters
-     * {@code + - . :}. Writers may use this to skip escaping. For text content created from strings,
-     * this method returns {@code false}, even if the string contains no such characters.
-     *
-     * @return {@code true} if the text content contains no characters that must be escaped
-     */
     public boolean isMarkupFree() {
         return markupFree;
     }
@@ -388,7 +376,6 @@ public class TextContent {
             return parseValueList(TextHelper::toDouble, Double.class);
         }
 
-        // dedicated path for coordinate lists: values are parsed directly from the content
         String content = this.content;
         int length = content.length();
         list = new ArrayList<>(TextHelper.countTokens(content));
@@ -957,14 +944,10 @@ public class TextContent {
                 list.add(parsed);
             }
         } else {
-            // parse while scanning instead of building the token array first; the array is only
-            // cached by getAsList(), which returns the tokens themselves
             String content = this.content;
             int length = content.length();
             int noOfTokens = TextHelper.countTokens(content);
 
-            // counting first is cheaper than growing the list, since token lengths vary a lot
-            // (e.g. long coordinates vs. short texture coordinates)
             list = new ArrayList<>(noOfTokens);
             for (int start = 0; start < length; ) {
                 int end = TextHelper.nextWhiteSpace(content, start, length);
@@ -1030,6 +1013,10 @@ public class TextContent {
 
     public static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
         TextHelper.setZoneOffsetProvider(zoneOffsetProvider);
+    }
+
+    public static void useFastDoubleParsing(boolean useFastDoubleParsing) {
+        TextHelper.useFastDoubleParsing(useFastDoubleParsing);
     }
 
     public static void serializeTimeWithOffset(boolean useTimeOffset) {

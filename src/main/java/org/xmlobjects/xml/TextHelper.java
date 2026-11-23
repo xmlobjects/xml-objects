@@ -19,7 +19,8 @@ import java.util.function.Function;
 
 public class TextHelper {
     private static final DatatypeFactory XML_TYPE_FACTORY;
-    private static Function<LocalDateTime, ZoneOffset> ZONE_OFFSET_PROVIDER = dateTime ->
+    private static volatile boolean FAST_DOUBLE_PARSING = true;
+    private static volatile Function<LocalDateTime, ZoneOffset> ZONE_OFFSET_PROVIDER = dateTime ->
             ZoneOffset.systemDefault().getRules().getOffset(dateTime);
 
     private TextHelper() {
@@ -31,6 +32,10 @@ public class TextHelper {
         } catch (DatatypeConfigurationException e) {
             throw new RuntimeException("Failed to initialize datatype factory.", e);
         }
+    }
+
+    static void useFastDoubleParsing(boolean useFastDoubleParsing) {
+        FAST_DOUBLE_PARSING = useFastDoubleParsing;
     }
 
     static void setZoneOffsetProvider(Function<LocalDateTime, ZoneOffset> zoneOffsetProvider) {
@@ -137,11 +142,13 @@ public class TextHelper {
     }
 
     static double toDouble(String value, int start, int end) {
+        if (!FAST_DOUBLE_PARSING) {
+            return toDoubleFallback(start == 0 && end == value.length() ? value : value.substring(start, end));
+        }
+
         try {
-            // fast path; parses from the string without creating a substring
             return FastDoubleParser.parseDouble(value, start, end - start);
         } catch (NumberFormatException e) {
-            // anything not accepted by the fast path is handled exactly as before
             return toDoubleFallback(start == 0 && end == value.length() ? value : value.substring(start, end));
         }
     }
@@ -150,7 +157,6 @@ public class TextHelper {
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException e) {
-            // xs:double uses INF instead of Infinity; checked here to keep the common path unchanged
             return switch (value) {
                 case "INF", "+INF" -> Double.POSITIVE_INFINITY;
                 case "-INF" -> Double.NEGATIVE_INFINITY;
@@ -166,7 +172,6 @@ public class TextHelper {
     }
 
     static String toContent(List<?> values) {
-        // a size estimate avoids repeatedly growing the builder for long lists such as coordinates
         StringBuilder builder = new StringBuilder(Math.min(values.size() * 20, 1 << 20));
         for (Object value : values) {
             if (value == null) {
@@ -189,7 +194,6 @@ public class TextHelper {
         if (Double.isInfinite(value)) {
             builder.append(value > 0 ? "INF" : "-INF");
         } else {
-            // append(double) writes the digits directly, unlike append(Object)
             builder.append(value);
         }
     }
@@ -279,7 +283,6 @@ public class TextHelper {
     }
 
     static String[] tokenize(String value) {
-        // first count the tokens, so that only an array of the exact size is allocated
         int length = value.length();
         int noOfTokens = countTokens(value);
         String[] tokens = new String[noOfTokens];

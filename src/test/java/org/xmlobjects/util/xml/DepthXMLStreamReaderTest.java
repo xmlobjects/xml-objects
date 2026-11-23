@@ -42,6 +42,15 @@ class DepthXMLStreamReaderTest {
     }
 
     @Test
+    void emptySchemaLocations() throws Exception {
+        assertEquals(List.of(), parse("""
+                <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="  ">
+                  <child xsi:noNamespaceSchemaLocation=""/>
+                  <child xsi:noNamespaceSchemaLocation="   "/>
+                </root>"""));
+    }
+
+    @Test
     void invalidSchemaLocation() {
         assertThrows(XMLStreamException.class, () -> parse("""
                 <root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

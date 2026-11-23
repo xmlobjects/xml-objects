@@ -130,15 +130,14 @@ public class XMLObjects {
     }
 
     public Set<String> getSerializableNamespaces() {
-        Set<String> namespaces = serializableNamespaces;
-        if (namespaces == null) {
-            // safe to compute concurrently; all threads arrive at the same immutable result
-            namespaces = serializableNamespaces = serializers.values().stream()
+        Set<String> result = serializableNamespaces;
+        if (result == null) {
+            result = serializableNamespaces = serializers.values().stream()
                     .flatMap(map -> map.keySet().stream())
                     .collect(Collectors.toUnmodifiableSet());
         }
 
-        return namespaces;
+        return result;
     }
 
     public Map<Class<?>, Set<QName>> getObjectTypes() {
@@ -212,12 +211,7 @@ public class XMLObjects {
                 throw new XMLObjectsException("The builder " + type.getName() + " uses both @XMLElement and @XMLElements.");
             }
 
-            ObjectBuilder<?> builder;
-            try {
-                builder = type.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw new XMLObjectsException("The builder " + type.getName() + " lacks a default constructor.", e);
-            }
+            ObjectBuilder<?> builder = (ObjectBuilder<?>) newInstance(type, "builder");
 
             if (isSetElement) {
                 XMLElement element = type.getAnnotation(XMLElement.class);
@@ -244,12 +238,7 @@ public class XMLObjects {
                 throw new XMLObjectsException("The serializer " + type.getName() + " uses both @XMLElement and @XMLElements.");
             }
 
-            ObjectSerializer<?> serializer;
-            try {
-                serializer = type.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                throw new XMLObjectsException("The serializer " + type.getName() + " lacks a default constructor.", e);
-            }
+            ObjectSerializer<?> serializer = (ObjectSerializer<?>) newInstance(type, "serializer");
 
             Class<?> objectType = findObjectType(serializer);
             if (isSetElement) {
@@ -287,9 +276,20 @@ public class XMLObjects {
         }
     }
 
+    private Object newInstance(Class<?> type, String kind) throws XMLObjectsException {
+        try {
+            return type.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException e) {
+            throw new XMLObjectsException("The " + kind + " " + type.getName() + " lacks a default constructor.", e);
+        } catch (IllegalAccessException e) {
+            throw new XMLObjectsException("Failed to access the " + kind + " " + type.getName() + ". Its default " +
+                    "constructor must be public, and a named module must export its package to org.xmlobjects.", e);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            throw new XMLObjectsException("Failed to create the " + kind + " " + type.getName() + ".", e);
+        }
+    }
+
     private void registerSerializer(ObjectSerializer<?> serializer, Class<?> objectType, String namespaceURI, boolean failOnDuplicates) throws XMLObjectsException {
-        // keep registration order so that getSerializer(Class, Namespaces) deterministically
-        // returns the first registered serializer if several namespaces match
         ObjectSerializer<?> current = serializers.computeIfAbsent(objectType.getName(), v -> new LinkedHashMap<>())
                 .put(namespaceURI, serializer);
         if (current != null && current != serializer && failOnDuplicates) {

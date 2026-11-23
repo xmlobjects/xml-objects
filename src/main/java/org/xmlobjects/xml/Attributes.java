@@ -7,26 +7,16 @@ package org.xmlobjects.xml;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class Attributes {
     private static final Attributes EMPTY = new Attributes(0);
 
-    // elements usually have only a few attributes, so they are stored in compact parallel arrays
     private String[] namespaceURIs;
     private String[] localNames;
     private TextContent[] values;
     private int size;
 
-    /**
-     * Receives the namespace URI, local name and value of each attribute.
-     *
-     * @param <E> the type of exception the consumer may throw
-     */
     @FunctionalInterface
     public interface Consumer<E extends Exception> {
         void accept(String namespaceURI, String localName, TextContent value) throws E;
@@ -40,10 +30,14 @@ public class Attributes {
         this(4);
     }
 
-    private Attributes(int capacity) {
-        namespaceURIs = new String[capacity];
-        localNames = new String[capacity];
-        values = new TextContent[capacity];
+    public Attributes(int initialCapacity) {
+        if (initialCapacity < 0) {
+            throw new IllegalArgumentException("Illegal initial capacity: " + initialCapacity);
+        }
+
+        namespaceURIs = new String[initialCapacity];
+        localNames = new String[initialCapacity];
+        values = new TextContent[initialCapacity];
     }
 
     public void add(String namespaceURI, String localName, TextContent value) {
@@ -57,7 +51,7 @@ public class Attributes {
             values[index] = value;
         } else {
             if (size == values.length) {
-                int capacity = size * 2;
+                int capacity = Math.max(4, size * 2);
                 namespaceURIs = Arrays.copyOf(namespaceURIs, capacity);
                 localNames = Arrays.copyOf(localNames, capacity);
                 values = Arrays.copyOf(values, capacity);
@@ -109,10 +103,6 @@ public class Attributes {
         return indexOf(ensureNonNull(namespaceURI), localName) >= 0;
     }
 
-    /**
-     * Returns the attributes as an unmodifiable map from namespace URIs to maps from local names to values.
-     * Use {@link #forEach(Consumer)} to iterate the attributes without creating maps.
-     */
     public Map<String, Map<String, TextContent>> get() {
         Map<String, Map<String, TextContent>> map = new LinkedHashMap<>();
         for (int i = 0; i < size; i++) {
@@ -123,9 +113,6 @@ public class Attributes {
         return Collections.unmodifiableMap(map);
     }
 
-    /**
-     * Returns the attributes of the given namespace as an unmodifiable map from local names to values.
-     */
     public Map<String, TextContent> get(String namespaceURI) {
         namespaceURI = ensureNonNull(namespaceURI);
         Map<String, TextContent> map = new LinkedHashMap<>();
@@ -151,13 +138,6 @@ public class Attributes {
         return getValue(name.getNamespaceURI(), name.getLocalPart());
     }
 
-    /**
-     * Passes each attribute to the given consumer, in the order the attributes were added.
-     *
-     * @param action the consumer
-     * @param <E>    the type of exception the consumer may throw
-     * @throws E if the consumer throws it
-     */
     public <E extends Exception> void forEach(Consumer<E> action) throws E {
         for (int i = 0; i < size; i++) {
             action.accept(namespaceURIs[i], localNames[i], values[i]);

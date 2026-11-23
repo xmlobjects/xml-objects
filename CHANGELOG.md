@@ -2,10 +2,15 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-11-23
+
 ### Added
 - Added `TextContent.isMarkupFree()`, which tells whether text content was created from a value whose lexical form
   never needs XML escaping (numbers, booleans, dates, times, durations). `XMLWriter` uses it to skip escaping.
 - Added `Attributes.forEach(...)` to iterate attributes in the order they were added, without creating maps.
+- Added the `Attributes(int)` constructor to create attributes with a given initial capacity.
+- Added `TextContent.useFastDoubleParsing(boolean)` to disable the bundled fast double parser, e.g. as a
+  fallback in case of problems. It is enabled by default.
 
 ### Changed
 - **Breaking:** Java 21 is now the minimum required version for using xml-objects.
@@ -26,12 +31,15 @@
 - Added a section on choosing the StAX implementation to the user guide.
 
 ### Fixed
+- Fixed misleading "lacks a default constructor" errors when a builder or serializer cannot be instantiated, e.g.
+  because its package is not exported to `org.xmlobjects` in a named module.
 - Readers created from a `File` or `Path` now close the file when the reader is closed.
 - `SAXWriter` now writes characters outside the basic plane as a single character reference for non-UTF encodings,
   and escapes `\n`, `\r` and `\t` in attributes, `\r` in text and `>` in `]]>`, so values survive a round trip.
 - `xs:double` infinity is now read and written as `INF`/`-INF` instead of `Infinity`.
 - Fixed `schemaLocation` values with leading whitespace being ignored, and `noNamespaceSchemaLocation` is now
-  resolved against the base URI.
+  resolved against the base URI. Empty `noNamespaceSchemaLocation` values are ignored, and invalid schema locations
+  now cause an `XMLStreamException` instead of an `IllegalArgumentException`.
 - `XMLWriter` now passes proper qualified names to content handlers other than `SAXWriter`, such as `DOMResult`.
 - `XMLReaderFactory.createReader(String, InputStream, String)` now keeps the system ID for error locations.
 - Fixed a `NullPointerException` in `NamespaceSupport.getPrefixes`.
@@ -175,7 +183,8 @@
 
 This is the initial release of xml-objects.
 
-[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/xmlobjects/xml-objects/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v3.0.0
 [2.0.2]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.2
 [2.0.1]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.1
 [2.0.0]: https://github.com/xmlobjects/xml-objects/releases/tag/v2.0.0

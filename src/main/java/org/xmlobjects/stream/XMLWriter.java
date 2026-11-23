@@ -246,7 +246,6 @@ public class XMLWriter implements AutoCloseable {
 
     private void writeStartElement(QName name, Attributes attributes) throws XMLWriteException {
         try {
-            // SAX handlers must not keep a reference to the attributes, so the instance can be reused
             attrs.clear();
             if (attributes != null && !attributes.isEmpty()) {
                 attributes.forEach((namespaceURI, localName, value) -> {
@@ -258,9 +257,10 @@ public class XMLWriter implements AutoCloseable {
 
             String namespaceURI = name.getNamespaceURI();
             String localName = name.getLocalPart();
+            String qName = output instanceof SAXWriter
+                    ? localName
+                    : getElementQName(namespaceURI, localName, true);
 
-            // SAXWriter determines prefixes itself, other content handlers need the qualified name
-            String qName = output instanceof SAXWriter ? localName : getElementQName(namespaceURI, localName, true);
             output.startElement(namespaceURI, localName, qName, attrs);
             elements.push(name);
             lastEvent = EventType.START_ELEMENT;
@@ -285,7 +285,6 @@ public class XMLWriter implements AutoCloseable {
 
     private String getElementQName(String namespaceURI, String localName, boolean declare) throws SAXException {
         if (namespaceURI != null && !namespaceURI.isEmpty()) {
-            // unlike attributes, elements may use the default namespace
             String prefix = output.getPrefix(namespaceURI);
             if (prefix == null && declare) {
                 prefix = output.createPrefix(namespaceURI);
@@ -344,7 +343,6 @@ public class XMLWriter implements AutoCloseable {
         if (output instanceof SAXWriter saxWriter
                 && saxWriter.isEscapeCharacters()
                 && textContent.isMarkupFree()) {
-            // generated from numbers, booleans, dates etc., so nothing to escape
             saxWriter.escapeCharacters(false);
             try {
                 writeCharacters(textContent.get());

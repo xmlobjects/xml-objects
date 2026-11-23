@@ -88,4 +88,15 @@ class DoubleParsingTest {
 
         assertEquals(expected, TextContent.of(text.toString()).getAsDoubleList());
     }
+
+    @Test
+    void withoutFastDoubleParsing() {
+        TextContent.useFastDoubleParsing(false);
+        try {
+            edgeCases();
+            listsWithMixedContent();
+        } finally {
+            TextContent.useFastDoubleParsing(true);
+        }
+    }
 }

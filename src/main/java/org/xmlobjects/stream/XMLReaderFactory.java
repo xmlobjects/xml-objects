@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 public class XMLReaderFactory {
-    // larger than the default 8 KB of BufferedInputStream, which was measurably slower for large files
     private static final int BUFFER_SIZE = 65536;
 
     private final XMLObjects xmlObjects;
@@ -159,7 +158,6 @@ public class XMLReaderFactory {
 
     public XMLReader createReader(String systemId, InputStream stream, String encoding) throws XMLReadException {
         try {
-            // StAX has no factory method taking a system ID, a stream and an encoding
             return createReader(xmlInputFactory.createXMLStreamReader(systemId,
                     new InputStreamReader(stream, Charset.forName(encoding))), createBaseURI(systemId));
         } catch (XMLStreamException | IllegalArgumentException e) {

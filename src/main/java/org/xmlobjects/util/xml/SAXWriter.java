@@ -481,11 +481,9 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
     }
 
     private void writeEscaped(String content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
-        // copy chunks into a reusable buffer instead of allocating a char array per value
         while (start < end) {
             int chunkEnd = Math.min(end, start + BUFFER_SIZE);
             if (chunkEnd < end && Character.isHighSurrogate(content.charAt(chunkEnd - 1))) {
-                // never split a surrogate pair between two chunks
                 chunkEnd--;
             }
 
@@ -497,7 +495,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
 
     private void writeEscaped(char[] content, int start, int end, boolean escapeMarkup, boolean attribute) throws IOException {
         if (!escapeMarkup && encoder == null) {
-            // nothing to escape and every character can be encoded
             writer.write(content, start, end - start);
             return;
         }
@@ -510,7 +507,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
             int consumed = 1;
 
             if (ch < 128) {
-                // fast path: most characters are ASCII and need no escaping
                 if (!escapeMarkup || !escapes[ch]) {
                     continue;
                 }
@@ -547,10 +543,6 @@ public class SAXWriter extends XMLOutput<SAXWriter> {
         writer.write(content, pos, end - pos);
     }
 
-    /**
-     * Unsynchronized replacement for {@link BufferedWriter}: a SAXWriter is used by a single thread,
-     * and the lock taken by {@code BufferedWriter} on every small write is measurable.
-     */
     private static final class OutputBuffer extends Writer {
         private final Writer out;
         private final char[] buffer = new char[8192];
